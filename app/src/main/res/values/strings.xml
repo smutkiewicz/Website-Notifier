@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PageNotifier</string>
+    <string name="action_settings">Settings</string>
+    <string name="list_item_test_text">Dużo tekstu po to żeby zobaczyć ile tego wlezie na ekran</string>
+    <string name="action_new">Nowy</string>
+    <string name="search_hint">Szukaj...</string>
+</resources>
