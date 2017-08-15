@@ -4,4 +4,20 @@
     <string name="list_item_test_text">Dużo tekstu po to żeby zobaczyć ile tego wlezie na ekran</string>
     <string name="action_new">Nowy</string>
     <string name="search_hint">Szukaj...</string>
+    <string name="frequency_seek_bar">Częstotliwość odświeżania strony</string>
+
+    <!-- Settings -->
+    <string name="title_info">Informacje o wersji i autorze</string>
+    <string name="title_author">Wersja 0.1, Michał Smutkiewicz</string>
+    <string name="title_services_on_off">Serwisy</string>
+    <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
+    <string name="title_email">Zużycie danych</string>
+    <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
+    <string name="title_data_usage">Zużycie danych</string>
+    <string name="title_activity_settings">Ustawienia</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="name_edit_text">Nazwa nowego zadania</string>
+    <string name="address_edit_text">Adres strony</string>
 </resources>

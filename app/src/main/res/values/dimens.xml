@@ -6,4 +6,6 @@
     <dimen name="divider_margin">16dp</dimen>
     <dimen name="image_side_length">50dp</dimen>
     <dimen name="button_margin">5dp</dimen>
+    <dimen name="textview_margin">16dp</dimen>
+    <dimen name="add_fragment_margin">4dp</dimen>
 </resources>

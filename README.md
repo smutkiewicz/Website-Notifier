@@ -5,7 +5,8 @@
  Implementacja "sprawdzacza" w systemie Android. Aplikacja, która po wprowadzeniu szczegó³ów, bêdzie na bie¿¹co, w tle, sprawdzaæ konkretn¹ stronê w poszukiwaniu zmian od chwili wydania polecenia obserwacji.
 
   # TODO
- * ~~Zacz¹æ~~ (done)
+ * ~~Zacz¹æ~~ (Done!)
+ * ~~Layout aplikacji~~ (Done!)
  * Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania
  * Opcja uruchomienia us³ugi porównuj¹cej stronê z dan¹ przez u¿ytkownika czêstotliwoœci¹ (dzia³aj¹cej w tle niezale¿nie od aktywnoœci g³ównej
  * Opcja wys³ania powiadomienia przez us³ugê dzia³aj¹c¹ w tle

@@ -3,12 +3,12 @@
             android:opacity="opaque">
 
     <item
-        android:drawable="@android:color/black"/>
+        android:drawable="@color/colorPrimary"/>
 
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/ic_add_black_24dp"/>
+            android:src="@android:drawable/ic_menu_info_details"/>
     </item>
 
 </layer-list>

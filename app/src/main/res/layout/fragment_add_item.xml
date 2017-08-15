@@ -1,0 +1,94 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/nameTextInputLayout">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/nameEditText"
+                    android:hint="@string/name_edit_text"
+                    android:imeOptions="actionNext"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/addressTextInputLayout">
+
+                <EditText
+                    android:id="@+id/urlEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/address_edit_text"
+                    android:imeOptions="actionDone"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/add_fragment_margin"
+                    android:layout_marginTop="@dimen/divider_margin"
+                    android:text="@string/frequency_seek_bar"
+                    android:textAllCaps="false"
+                    android:textAppearance="@android:style/TextAppearance.Material.Small"/>
+
+                <SeekBar
+                    android:id="@+id/frequencySeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contextClickable="false"
+                    android:max="@integer/progress_max"
+                    android:paddingBottom="@dimen/divider_margin"
+                    android:paddingTop="@dimen/divider_margin"
+                    android:progress="@integer/progress_in_minutes"
+                    android:visibility="visible"/>
+
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/alertsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/divider_margin"
+                android:layout_marginLeft="@dimen/add_fragment_margin"
+                android:layout_marginRight="@dimen/add_fragment_margin"
+                android:layout_marginTop="@dimen/divider_margin"
+                android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
+                android:text="Otrzymuj powiadomienia"
+                android:textAppearance="@android:style/TextAppearance.Material.Small"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/saveFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_save_black_24dp"/>
+
+</FrameLayout>
