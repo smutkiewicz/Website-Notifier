@@ -18,7 +18,7 @@
     <Preference
         android:key="pref_info"
         android:title="@string/title_info"
-        android:summary="@string/title_author"
+        android:summary="@string/summary_author"
         android:persistent="true"/>
 
 </PreferenceScreen>

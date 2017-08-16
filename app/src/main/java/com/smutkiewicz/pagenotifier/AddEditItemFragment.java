@@ -23,8 +23,7 @@ public class AddEditItemFragment extends Fragment {
     private AddEditItemFragmentListener mListener;
 
     public interface AddEditItemFragmentListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction();
     }
 
     public AddEditItemFragment() {
@@ -61,7 +60,6 @@ public class AddEditItemFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_item, container, false);
     }
 
@@ -69,7 +67,7 @@ public class AddEditItemFragment extends Fragment {
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteraction();
         }
     }
 

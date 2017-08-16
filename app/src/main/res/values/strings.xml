@@ -7,17 +7,30 @@
     <string name="frequency_seek_bar">Częstotliwość odświeżania strony</string>
 
     <!-- Settings -->
-    <string name="title_info">Informacje o wersji i autorze</string>
-    <string name="title_author">Wersja 0.1, Michał Smutkiewicz</string>
-    <string name="title_services_on_off">Serwisy</string>
-    <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
-    <string name="title_email">Zużycie danych</string>
-    <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
-    <string name="title_data_usage">Zużycie danych</string>
     <string name="title_activity_settings">Ustawienia</string>
+    <string name="title_info">Informacje o wersji i autorze</string>
+    <string name="title_services_on_off">Serwisy</string>
+    <string name="title_data_usage">Zużycie danych</string>
+    <string name="summary_author">Wersja 0.1, Michał Smutkiewicz</string>
+    <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
+    <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="name_edit_text">Nazwa nowego zadania</string>
+    <string name="name_edit_text">Nazwa zadania</string>
     <string name="address_edit_text">Adres strony</string>
+
+    <!-- DetailsScreen -->
+    <string name="details_sample_name">Nazwa zadania</string>
+    <string name="details_sample_website"><![CDATA[https://scontent–waw1-1.xx.fbcdn.net/v/t1.0-9/20798969_1114575965340257_8102175771010109034_n.jpg?oh=3c198a11f1b916fe5639c6e5babaaa65&oe=5A260442]]></string>
+    <string name="details_frequency_example">co 5 minut</string>
+    <string name="details_name">Nazwa:</string>
+    <string name="details_url">URL:</string>
+    <string name="details_frequency">Odśwież:</string>
+    <string name="details_edit_label">Edytuj</string>
+    <string name="details_delete_label">Usuń</string>
+    <string name="details_title_label">Szczegóły zadania</string>
+    <string name="details_goto_label">Odwiedź stronę</string>
+    <string name="details_alerts_on">Włączone</string>
+    <string name="details_alerts_off">Wyłączone</string>
+    <string name="details_alerts">Alerty:</string>
 </resources>

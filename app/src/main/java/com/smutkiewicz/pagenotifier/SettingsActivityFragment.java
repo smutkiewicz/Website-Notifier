@@ -9,24 +9,26 @@ import android.preference.PreferenceFragment;
  */
 public class SettingsActivityFragment extends PreferenceFragment {
     //klucze preferencji
-    private static final String PREF = "pref";
+    private static final String SERVICES = "pref_services_on_off";
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.preferences);
 
-        //TODO prefs events
-        /*Preference rate = getPreferenceManager().findPreference(RATE_APP);
+        setOnOffServicesPrefListener();
+    }
+
+    private void setOnOffServicesPrefListener() {
+        Preference rate = getPreferenceManager().findPreference(SERVICES);
         rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                if (preference.getKey().equals(RATE_APP)) {
-                    onRatePreferenceClicked();
+                if (preference.getKey().equals(SERVICES)) {
+                    //TODO SERVICES
                     return true;
                 }
                 return false;
             }
-        });*/
-
+        });
     }
 }
