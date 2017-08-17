@@ -37,6 +37,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.smutkiewicz.pagenotifier.MainActivity"/>
         </activity>
+
+        <provider
+            android:name=".database.WebsiteContentProvider"
+            android:authorities="com.smutkiewicz.pagenotifier.database"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
     </application>
 
 </manifest>

@@ -18,11 +18,12 @@
                 android:id="@+id/nameTextInputLayout">
 
                 <EditText
+                    android:id="@+id/nameEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/nameEditText"
                     android:hint="@string/name_edit_text"
-                    android:imeOptions="actionNext"/>
+                    android:imeOptions="actionNext"
+                    android:singleLine="true"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -36,7 +37,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/address_edit_text"
-                    android:imeOptions="actionDone"/>
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -90,7 +92,8 @@
                     android:layout_column="1"
                     android:layout_gravity="fill_horizontal"
                     android:layout_row="0"
-                    android:max="255"/>
+                    android:max="8"
+                    android:progress="0"/>
             </GridLayout>
         </LinearLayout>
     </ScrollView>
