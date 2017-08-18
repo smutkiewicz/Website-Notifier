@@ -25,6 +25,7 @@ import com.smutkiewicz.pagenotifier.model.Website;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -38,7 +39,7 @@ public class MainActivityFragment extends Fragment
 
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
-        void displayAddEditFragment(int viewId);
+        void displayAddEditFragment(Uri uri, int viewId);
         void displayDetailsFragment(Uri itemUri, int viewId);
     }
 
@@ -52,64 +53,8 @@ public class MainActivityFragment extends Fragment
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
         updateWebsiteItemList();
-        //setTestData();
+
         return view;
-    }
-
-    /*private void setTestData() {
-        ArrayList<Website> list = new ArrayList<>();
-        list.add(new Website("Nowe zadanko",
-                "https://github.com/smutkiewicz/Android-Soundbank/blob/master/app/src/main/" +
-                        "java/com/smutkiewicz/soundbank/model/SoundArrayAdapter.java"));
-        list.add(new Website("Poczta", "https://medusa.elka.pw.edu.pl/"));
-        list.add(new Website("Mrow dyd", "http://www.if.pw.edu.pl/~mrow/dyd/"));
-        list.add(new Website("Staty", "https://msoundtech.bandcamp.com/stats#zplays"));
-
-        for(Website w : list) {
-            Uri newItemUri = getActivity().getContentResolver().insert(
-                    DbDescription.CONTENT_URI, w.getContentValues());
-        }
-    }*/
-
-    private void setUpAddItemFab(View view) {
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.addFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.displayAddEditFragment(R.id.fragmentContainer);
-            }
-        });
-    }
-
-    private void setUpRecyclerView(RecyclerView recyclerView) {
-        // wyświetlanie elementów w formie pionowej listy
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getBaseContext()));
-        implementAdapterItemClickListener();
-        recyclerView.setAdapter(itemAdapter);
-        recyclerView.addItemDecoration(new ItemDivider(getContext()));
-        recyclerView.setHasFixedSize(true);
-    }
-
-    private void implementAdapterItemClickListener() {
-        itemAdapter = new WebsiteItemAdapter(
-                new WebsiteItemAdapter.WebsiteItemClickListener() {
-                    @Override
-                    public void onMoreButtonClick(Uri itemUri) {
-                        mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
-                    }
-
-                    @Override
-                    public void onItemClick(Uri itemUri) {
-                        //TODO wyślij usera do strony docelowej
-                    }
-
-                    @Override
-                    public void onSwitchClick(Uri itemUri) {
-                        //TODO włącz/wyłącz powiadomienia
-                    }
-                }
-        );
     }
 
     public void setDialogOnScreen(boolean visible) {
@@ -120,7 +65,6 @@ public class MainActivityFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         mListener = (MainActivityFragment.MainActivityFragmentListener) context;
-
     }
 
     @Override
@@ -185,5 +129,47 @@ public class MainActivityFragment extends Fragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         itemAdapter.swapCursor(null);
+    }
+
+    private void setUpAddItemFab(View view) {
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.addFab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO URI
+                mListener.displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
+            }
+        });
+    }
+
+    private void setUpRecyclerView(RecyclerView recyclerView) {
+        // wyświetlanie elementów w formie pionowej listy
+        recyclerView.setLayoutManager(
+                new LinearLayoutManager(getActivity().getBaseContext()));
+        implementAdapterItemClickListener();
+        recyclerView.setAdapter(itemAdapter);
+        recyclerView.addItemDecoration(new ItemDivider(getContext()));
+        recyclerView.setHasFixedSize(true);
+    }
+
+    private void implementAdapterItemClickListener() {
+        itemAdapter = new WebsiteItemAdapter(
+                new WebsiteItemAdapter.WebsiteItemClickListener() {
+                    @Override
+                    public void onMoreButtonClick(Uri itemUri) {
+                        mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
+                    }
+
+                    @Override
+                    public void onItemClick(Uri itemUri) {
+                        //TODO wyślij usera do strony docelowej
+                    }
+
+                    @Override
+                    public void onSwitchClick(Uri itemUri) {
+                        //TODO włącz/wyłącz powiadomienia
+                    }
+                }
+        );
     }
 }

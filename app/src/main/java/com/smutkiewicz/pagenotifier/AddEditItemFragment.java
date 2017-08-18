@@ -21,6 +21,8 @@ public class AddEditItemFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private Uri itemUri;
+
     private AddEditItemFragmentListener mListener;
 
     public interface AddEditItemFragmentListener {
@@ -50,10 +52,7 @@ public class AddEditItemFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        getBundleArguments();
     }
 
     @Override
@@ -61,6 +60,12 @@ public class AddEditItemFragment extends Fragment {
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_add_item, container, false);
+    }
+
+    private void getBundleArguments() {
+        Bundle arguments = getArguments();
+        if (arguments != null)
+            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
     }
 
 

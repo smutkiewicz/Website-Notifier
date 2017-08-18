@@ -3,8 +3,11 @@ package com.smutkiewicz.pagenotifier;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -23,12 +26,22 @@ public class DetailsDialogFragment extends DialogFragment
 
     // adres uri wyświetlanego itemu
     private Uri itemUri;
+    private String url;
 
     // pola do wyświetlania szczegółów obiektu
     private TextView nameTextView;
     private TextView urlTextView;
     private TextView frequencyTextView;
     private TextView alertsTextView;
+    private TextView updatedTextView;
+
+    private DetailsDialogFragmentListener mListener;
+
+    public interface DetailsDialogFragmentListener {
+        void displayAddEditFragment(Uri itemUri, int viewId);
+        void onItemDeleted(); // odświeża listę po zmianach w bazie danych
+        void onGoToWebsite(String url);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle bundle) {
@@ -47,82 +60,17 @@ public class DetailsDialogFragment extends DialogFragment
         return builder.create();
     }
 
-    // zwróć odwołanie do DetailsDialog
-    private View inflateAndReturnDetailsView() {
-        View detailsDialogView =
-                getActivity().getLayoutInflater().inflate(
-                        R.layout.fragment_details_dialog, null);
-        return detailsDialogView;
-    }
-
-    // zwróć odwołanie do MainActivityFragment
-    private MainActivityFragment getMainActivityFragment() {
-        return (MainActivityFragment) getFragmentManager().findFragmentById(
-                R.id.fragmentContainer);
-    }
-
-    private void setBuildersViewAndTitle(AlertDialog.Builder builder, View view) {
-        builder.setView(view);
-        builder.setTitle(R.string.details_title_label);
-        builder.setIcon(R.drawable.ic_web_black_24dp);
-    }
-
-    private void setBuildersNeutralGoToWebsiteButton(AlertDialog.Builder builder) {
-        builder.setNeutralButton(R.string.details_goto_label,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //TODO goto
-                    }
-                }
-        );
-    }
-
-    private void setBuildersDeleteNegativeButton(AlertDialog.Builder builder) {
-        builder.setNegativeButton(R.string.details_delete_label,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //TODO usuń
-                    }
-                }
-        );
-    }
-
-    private void setBuildersEditPositiveButton(AlertDialog.Builder builder) {
-        builder.setPositiveButton(R.string.details_edit_label,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //TODO edit
-                    }
-                }
-        );
-    }
-
-    private void findViewsAndAssignThem(View view) {
-        nameTextView = view.findViewById(R.id.nameTextView);
-        urlTextView = view.findViewById(R.id.urlTextView);
-        frequencyTextView = view.findViewById(R.id.frequencyTextView);
-        alertsTextView = view.findViewById(R.id.alertsTextView);
-    }
-
-    private void getBundleArguments() {
-        Bundle arguments = getArguments();
-        if (arguments != null)
-            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
-    }
-
-    private void initLoader() {
-        getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
-    }
-
     // poinformuj obiekt MainActivityFragment o tym,
     // że okno dialogowe jest właśnie wyświetlane
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         MainActivityFragment fragment = getMainActivityFragment();
 
         if (fragment != null)
             fragment.setDialogOnScreen(true);
+
+        mListener = (DetailsDialogFragmentListener) context;
     }
 
     // poinformuj obiekt MainActivityFragment o tym,
@@ -134,6 +82,8 @@ public class DetailsDialogFragment extends DialogFragment
 
         if (fragment != null)
             fragment.setDialogOnScreen(false);
+
+        mListener = null;
     }
 
     @Override
@@ -163,21 +113,101 @@ public class DetailsDialogFragment extends DialogFragment
             int nameIndex = data.getColumnIndex(DbDescription.KEY_NAME);
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
-            int areAlertsEnabled = data.getInt(alertsIndex);
+            int updatesIndex = data.getColumnIndex(DbDescription.KEY_UPDATED);
 
-            nameTextView.setText(data.getString(nameIndex));
-            urlTextView.setText(data.getString(urlIndex));
-
-            setAlertModeState(areAlertsEnabled);
+            setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
+            setAlertModeState(data.getInt(alertsIndex));
+            setStatus(data.getInt(updatesIndex));
             setFrequencyStepLabel();
         }
     }
 
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {}
+
+    // zwróć odwołanie do DetailsDialog
+    private View inflateAndReturnDetailsView() {
+        View detailsDialogView =
+                getActivity().getLayoutInflater().inflate(
+                        R.layout.fragment_details_dialog, null);
+        return detailsDialogView;
+    }
+
+    // zwróć odwołanie do MainActivityFragment
+    private MainActivityFragment getMainActivityFragment() {
+        return (MainActivityFragment) getFragmentManager().findFragmentById(
+                R.id.fragmentMain);
+    }
+
+    private void setBuildersViewAndTitle(AlertDialog.Builder builder, View view) {
+        builder.setView(view);
+        builder.setTitle(R.string.details_title_label);
+        builder.setIcon(R.drawable.ic_web_black_24dp);
+    }
+
+    private void setBuildersNeutralGoToWebsiteButton(AlertDialog.Builder builder) {
+        builder.setNeutralButton(R.string.details_goto_label,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //TODO goto
+                        mListener.onGoToWebsite(url);
+                    }
+                }
+        );
+    }
+
+    private void setBuildersDeleteNegativeButton(AlertDialog.Builder builder) {
+        builder.setNegativeButton(R.string.details_delete_label,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //TODO usuń
+                        getActivity().getContentResolver().delete(
+                                itemUri, null, null);
+                        mListener.onItemDeleted();
+                    }
+                }
+        );
+    }
+
+    private void setBuildersEditPositiveButton(AlertDialog.Builder builder) {
+        builder.setPositiveButton(R.string.details_edit_label,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mListener.displayAddEditFragment(itemUri, R.id.fragmentContainer);
+                    }
+                }
+        );
+    }
+
+    private void findViewsAndAssignThem(View view) {
+        nameTextView = view.findViewById(R.id.nameTextView);
+        urlTextView = view.findViewById(R.id.urlTextView);
+        frequencyTextView = view.findViewById(R.id.frequencyTextView);
+        alertsTextView = view.findViewById(R.id.alertsTextView);
+        updatedTextView = view.findViewById(R.id.updatedTextView);
+    }
+
+    private void getBundleArguments() {
+        Bundle arguments = getArguments();
+        if (arguments != null)
+            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
+    }
+
+    private void initLoader() {
+        getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+    }
+
+    private void setDetailsNameAndUrlTextViews(String name, String url) {
+        this.url = url;
+        nameTextView.setText(name);
+        urlTextView.setText(url);
+    }
+
     private void setAlertModeState(int areAlertsEnabled) {
         if((areAlertsEnabled == 1) ? true : false)
-            alertsTextView.setText("Włączone");
+            alertsTextView.setText(R.string.details_alerts_on);
         else
-            alertsTextView.setText("Wyłączone");
+            alertsTextView.setText(R.string.details_alerts_off);
     }
 
     private void setFrequencyStepLabel() {
@@ -185,6 +215,14 @@ public class DetailsDialogFragment extends DialogFragment
         frequencyTextView.setText("Co 5 minut");
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {}
+    private void setStatus(int status) {
+        // 1 == website updated
+        if((status == 1) ? true : false) {
+            updatedTextView.setText(R.string.details_updated);
+            updatedTextView.setTextColor(Color.GREEN);
+        } else {
+            updatedTextView.setText(R.string.details_not_updated);
+            updatedTextView.setTextColor(Color.RED);
+        }
+    }
 }

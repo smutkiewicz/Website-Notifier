@@ -1,20 +1,19 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
-import com.smutkiewicz.pagenotifier.database.DbDescription;
-import com.smutkiewicz.pagenotifier.model.Website;
-
-import java.util.ArrayList;
+import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
+        DetailsDialogFragment.DetailsDialogFragmentListener,
         MainActivityFragment.MainActivityFragmentListener{
 
     private MainActivityFragment mainActivityFragment;
@@ -33,12 +32,13 @@ public class MainActivity extends AppCompatActivity
         addFragmentToContainerLayoutAndShowIt();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setupPreferences();
-        //setTestData();
+        disableKeyboard();
     }
 
     @Override
-    public void displayAddEditFragment(int viewID) {
+    public void displayAddEditFragment(Uri itemUri, int viewID) {
         AddEditItemFragment addEditFragment = new AddEditItemFragment();
+        addUriArgumentsToAFragment(addEditFragment, itemUri);
         FragmentTransaction transaction =
                 getSupportFragmentManager().beginTransaction();
         transaction.replace(viewID, addEditFragment);
@@ -49,13 +49,29 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void displayDetailsFragment(Uri itemUri, int viewId) {
         DetailsDialogFragment detailsDialog = new DetailsDialogFragment();
-
-        // przekaż adres Uri kontaktu jako argument fragmentu DetailsDialogFragment
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(ITEM_URI, itemUri);
-        detailsDialog.setArguments(arguments);
-
+        addUriArgumentsToAFragment(detailsDialog, itemUri);
         detailsDialog.show(getSupportFragmentManager(), "Details fragment");
+    }
+
+    private void addUriArgumentsToAFragment(Fragment fragment, Uri uri) {
+        // przekaż adres Uri jako argument fragmentu
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(ITEM_URI, uri);
+        fragment.setArguments(arguments);
+    }
+
+    // po skasowaniu kontaktu wróć do listy kontaktów
+    @Override
+    public void onItemDeleted() {
+        getSupportFragmentManager().popBackStack();
+        mainActivityFragment.updateWebsiteItemList();
+    }
+
+    @Override
+    public void onGoToWebsite(String url) {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 
     private void setupActivityToolbar() {
@@ -74,6 +90,11 @@ public class MainActivity extends AppCompatActivity
     //SharedPreferences
     private void setupPreferences() {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+    }
+
+    private void disableKeyboard() {
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override

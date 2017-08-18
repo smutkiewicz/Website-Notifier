@@ -34,4 +34,7 @@
     <string name="details_alerts_off">Wyłączone</string>
     <string name="details_alerts">Alerty:</string>
     <string name="invalid_uri">nieprawidłowe Uri</string>
+    <string name="details_not_updated">Brak zmian na stronie</string>
+    <string name="details_updated">Zmiany na stronie.</string>
+    <string name="details_updates">Status:</string>
 </resources>
