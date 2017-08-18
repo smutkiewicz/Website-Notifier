@@ -25,7 +25,8 @@ public class WebsiteDatabaseHelper extends SQLiteOpenHelper {
                         DbDescription.KEY_NAME + " " + DbDescription.NAME_OPTIONS + ", " +
                         DbDescription.KEY_URL + " " + DbDescription.URL_OPTIONS + ", " +
                         DbDescription.KEY_ALERTS + " " + DbDescription.ALERTS_OPTIONS + ", " +
-                        DbDescription.KEY_DELAY + " " + DbDescription.DELAY_OPTIONS +
+                        DbDescription.KEY_DELAY + " " + DbDescription.DELAY_OPTIONS + ", " +
+                        DbDescription.KEY_UPDATED + " " + DbDescription.UPDATED_OPTIONS +
                 ");";
         return createTable;
     }

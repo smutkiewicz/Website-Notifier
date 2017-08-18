@@ -16,7 +16,7 @@
         android:layout_marginTop="@dimen/button_margin"
         android:contentDescription=""
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_not_active_black_24dp"/>
+        app:srcCompat="@drawable/ic_not_updated_black_24dp"/>
 
     <GridLayout
         android:layout_width="0dp"

@@ -57,9 +57,8 @@ public class WebsiteItemAdapter
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //TODO OnClick
-                            Uri testUri = Uri.EMPTY;
-                            clickListener.onMoreButtonClick(testUri);
+                            clickListener.onMoreButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));
                         }
                     }
             );
@@ -84,11 +83,27 @@ public class WebsiteItemAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         cursor.moveToPosition(position);
-        //TODO onBindViewHolder
         holder.setRowID(cursor.getLong(cursor.getColumnIndex(DbDescription.KEY_ID)));
         holder.pageNameTextView.setText(cursor.getString(cursor.getColumnIndex(
                 DbDescription.KEY_NAME)));
 
+        setAlertModeSwitchState(holder);
+        setPageStateImage(holder);
+    }
+
+    private void setPageStateImage(ViewHolder holder) {
+        int updated = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
+        View view = holder.pageStateImageView.getRootView();
+
+        if(updated == 1)
+            holder.pageStateImageView.setImageDrawable(view.getResources()
+                    .getDrawable(R.drawable.ic_updated_black_24dp));
+        else //updated == 0
+            holder.pageStateImageView.setImageDrawable(view.getResources()
+                    .getDrawable(R.drawable.ic_not_updated_black_24dp));
+    }
+
+    private void setAlertModeSwitchState(ViewHolder holder) {
         int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ALERTS));
         holder.alertModeSwitch.setChecked((checked == 1) ? true : false);
     }

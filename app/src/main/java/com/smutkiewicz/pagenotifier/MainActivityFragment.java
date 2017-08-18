@@ -21,7 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
+import com.smutkiewicz.pagenotifier.model.Website;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
+
+import java.util.ArrayList;
 
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -35,7 +38,8 @@ public class MainActivityFragment extends Fragment
 
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
-        void displayAddEditFragment(int id);
+        void displayAddEditFragment(int viewId);
+        void displayDetailsFragment(Uri itemUri, int viewId);
     }
 
     @Override
@@ -44,13 +48,28 @@ public class MainActivityFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         RecyclerView recyclerView =
                 (RecyclerView) view.findViewById(R.id.recyclerView);
-
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
         updateWebsiteItemList();
+        //setTestData();
         return view;
     }
+
+    /*private void setTestData() {
+        ArrayList<Website> list = new ArrayList<>();
+        list.add(new Website("Nowe zadanko",
+                "https://github.com/smutkiewicz/Android-Soundbank/blob/master/app/src/main/" +
+                        "java/com/smutkiewicz/soundbank/model/SoundArrayAdapter.java"));
+        list.add(new Website("Poczta", "https://medusa.elka.pw.edu.pl/"));
+        list.add(new Website("Mrow dyd", "http://www.if.pw.edu.pl/~mrow/dyd/"));
+        list.add(new Website("Staty", "https://msoundtech.bandcamp.com/stats#zplays"));
+
+        for(Website w : list) {
+            Uri newItemUri = getActivity().getContentResolver().insert(
+                    DbDescription.CONTENT_URI, w.getContentValues());
+        }
+    }*/
 
     private void setUpAddItemFab(View view) {
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.addFab);
@@ -77,7 +96,7 @@ public class MainActivityFragment extends Fragment
                 new WebsiteItemAdapter.WebsiteItemClickListener() {
                     @Override
                     public void onMoreButtonClick(Uri itemUri) {
-                        mListener.displayAddEditFragment(R.id.fragmentContainer);
+                        mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
                     }
 
                     @Override
@@ -123,14 +142,6 @@ public class MainActivityFragment extends Fragment
                 try {
                     Intent preferencesIntent = new Intent(getActivity(), SettingsActivity.class);
                     startActivity(preferencesIntent);
-                    return true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            case R.id.action_test:
-                try {
-                    DetailsDialogFragment detailsDialog = new DetailsDialogFragment();
-                    detailsDialog.show(getFragmentManager(), "Details fragment");
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
