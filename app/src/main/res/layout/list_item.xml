@@ -42,7 +42,7 @@
 
     <ImageButton
         android:id="@+id/pageMoreImageButton"
-        android:layout_width="wrap_content"
+        android:layout_width="40dp"
         android:layout_height="match_parent"
         android:layout_column="1"
         android:layout_gravity="center"

@@ -37,4 +37,6 @@
     <string name="details_not_updated">Brak zmian na stronie</string>
     <string name="details_updated">Zmiany na stronie.</string>
     <string name="details_updates">Status:</string>
+    <string name="main_enabled">Włączono śledzenie zmian.</string>
+    <string name="main_disabled">Wyłączono śledzenie zmian.</string>
 </resources>

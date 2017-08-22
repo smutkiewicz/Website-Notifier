@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity
         fragment.setArguments(arguments);
     }
 
-    // po skasowaniu kontaktu wróć do listy kontaktów
     @Override
     public void onItemDeleted() {
         getSupportFragmentManager().popBackStack();
@@ -72,6 +71,11 @@ public class MainActivity extends AppCompatActivity
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));
         startActivity(i);
+    }
+
+    @Override
+    public void onChangesApplied() {
+        mainActivityFragment.updateWebsiteItemList();
     }
 
     private void setupActivityToolbar() {

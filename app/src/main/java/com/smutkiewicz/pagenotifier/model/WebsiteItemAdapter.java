@@ -3,9 +3,11 @@ package com.smutkiewicz.pagenotifier.model;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -20,8 +22,8 @@ public class WebsiteItemAdapter
     // po dotknięciu przez użytkownika elementu wyświetlanego w widoku RecyclerView
     public interface WebsiteItemClickListener {
         void onMoreButtonClick(Uri itemUri);
-        void onItemClick(Uri itemUri);
-        void onSwitchClick(Uri itemUri);
+        void onItemClick(String url);
+        void onSwitchClick(Uri itemUri, int newEnableValue);
     }
 
     // zmienne egzemplarzowe adaptera
@@ -36,23 +38,32 @@ public class WebsiteItemAdapter
     // wzorca ViewHolder w kontekście widoku RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView pageStateImageView;
-        public final TextView pageNameTextView;
-        private final Switch alertModeSwitch;
+        private final TextView pageNameTextView;
+        private final Switch isEnabledSwitch;
         private final ImageButton pageMoreImageButton;
+
         private long rowID;
         private int delayStep;
+        private boolean isEnabled;
+        private String url;
 
         // konfiguruje obiekt ViewHolder elementu widoku RecyclerView
         public ViewHolder(View itemView) {
             super(itemView);
             pageNameTextView = (TextView) itemView.findViewById(R.id.pageNameTextView);
-            alertModeSwitch = (Switch) itemView.findViewById(R.id.pageAlertSwitch);
+            isEnabledSwitch = (Switch) itemView.findViewById(R.id.pageAlertSwitch);
             pageMoreImageButton = (ImageButton) itemView.findViewById(R.id.pageMoreImageButton);
             pageStateImageView = (ImageView) itemView.findViewById(R.id.pageStateImageView);
-            setItemListeners();
+
+            setButtonListeners();
+            setItemViewListener();
+
+            //TODO Switch
+            setIsEnabledSwitchListener();
+            //TODO Switch
         }
 
-        public void setItemListeners() {
+        private void setButtonListeners() {
             pageMoreImageButton.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
@@ -62,6 +73,44 @@ public class WebsiteItemAdapter
                         }
                     }
             );
+        }
+
+        private void setItemViewListener() {
+            itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            clickListener.onItemClick(url);
+                        }
+                    }
+            );
+        }
+
+        private void setIsEnabledSwitchListener() {
+            //TODO Switch
+            isEnabledSwitch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int newSwitchValue = swapBooleanToInt(isEnabled);
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(rowID), newSwitchValue);
+                }
+            });
+
+            /*isEnabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // do something, the isChecked will be
+                    // true if the switch is in the On position
+                    int pom;
+                    if(isChecked)
+                        pom = 1;
+                    else
+                        pom = 0;
+                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(rowID), pom);
+                }
+            });*/
         }
 
         // określ identyfikator rzędu bazy danych strony
@@ -82,12 +131,17 @@ public class WebsiteItemAdapter
     // określa tekst elementu listy w celu wyświetlenia etykiety zapytania
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        Log.d("ADAPTER: ", "onBindViewHolder(ViewHolder holder, int position)");
         cursor.moveToPosition(position);
         holder.setRowID(cursor.getLong(cursor.getColumnIndex(DbDescription.KEY_ID)));
         holder.pageNameTextView.setText(cursor.getString(cursor.getColumnIndex(
                 DbDescription.KEY_NAME)));
+        holder.url = cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));
 
-        setAlertModeSwitchState(holder);
+        //TODO Switch
+        setIsEnabledSwitchState(holder);
+        //TODO Switch
+
         setPageStateImage(holder);
     }
 
@@ -103,9 +157,16 @@ public class WebsiteItemAdapter
                     .getDrawable(R.drawable.ic_not_updated_black_24dp));
     }
 
-    private void setAlertModeSwitchState(ViewHolder holder) {
-        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ALERTS));
-        holder.alertModeSwitch.setChecked((checked == 1) ? true : false);
+    private void setIsEnabledSwitchState(ViewHolder holder) {
+        Log.d("ADAPTER: ", "setIsEnabledSwitchState(ViewHolder holder)");
+        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
+        setIsEnabledSwitchCheck(holder, (checked == 1) ? true : false);
+    }
+
+    private void setIsEnabledSwitchCheck(ViewHolder holder, boolean checked) {
+        Log.d("ADAPTER: ", "setIsEnabledSwitchState(ViewHolder holder)");
+        holder.isEnabledSwitch.setChecked(checked);
+        holder.isEnabled = checked;
     }
 
     // zwraca liczbę elementów wiązanych przez adapter
@@ -119,4 +180,12 @@ public class WebsiteItemAdapter
         this.cursor = cursor;
         notifyDataSetChanged();
     }
+
+    public int swapBooleanToInt(boolean value) {
+        if(value)
+            return 0;
+        else
+            return 1;
+    }
+
 }

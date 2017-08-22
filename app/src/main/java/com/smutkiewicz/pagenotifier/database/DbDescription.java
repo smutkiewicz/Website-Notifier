@@ -18,7 +18,7 @@ public class DbDescription {
             Uri.parse("content://" + AUTHORITY);
 
     //ogólne informacje o bazie danych
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 1;
     public static final String DB_NAME = "websites.db";
     public static final String DB_TABLE_NAME = "websites";
 
@@ -29,6 +29,7 @@ public class DbDescription {
     public static final String KEY_ALERTS = "alertsmode";
     public static final String KEY_DELAY = "delay";
     public static final String KEY_UPDATED = "updated";
+    public static final String KEY_ISENABLED = "enabled";
 
     //typy i opcje kolumn
     public static final String ID_OPTIONS = "INTEGER PRIMARY KEY AUTOINCREMENT";
@@ -37,6 +38,7 @@ public class DbDescription {
     public static final String ALERTS_OPTIONS = "INTEGER DEFAULT 1";
     public static final String DELAY_OPTIONS = "INTEGER NOT NULL";
     public static final String UPDATED_OPTIONS = "INTEGER DEFAULT 0";
+    public static final String ISENABLED_OPTIONS = "INTEGER DEFAULT 1";
 
     //numery kolumn
     public static final int ID_COLUMN = 0;
@@ -45,10 +47,11 @@ public class DbDescription {
     public static final int ALERTS_COLUMN = 3;
     public static final int DELAY_COLUMN = 4;
     public static final int UPDATED_COLUMN = 5;
+    public static final int ISENABLED_COLUMN = 5;
 
     //tablica z nazwami kolumn do obsługi kwerend
     public static final String[] columns = {KEY_ID, KEY_NAME, KEY_URL,
-            KEY_ALERTS, KEY_DELAY, KEY_UPDATED};
+            KEY_ALERTS, KEY_DELAY, KEY_UPDATED, KEY_ISENABLED};
 
     // adres Uri tabeli
     public static final Uri CONTENT_URI =

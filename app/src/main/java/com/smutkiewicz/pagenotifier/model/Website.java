@@ -11,6 +11,7 @@ public class Website implements BaseColumns {
     private String url;
     private boolean alertMode = true;
     private boolean updated = false;
+    private boolean isEnabled = true;
     private int delayInMiliseconds;
 
     public Website(String name, String url) {
@@ -51,7 +52,16 @@ public class Website implements BaseColumns {
         contentValues.put(DbDescription.KEY_ALERTS, (alertMode) ? 1 : 0);
         contentValues.put(DbDescription.KEY_UPDATED, (updated) ? 1 : 0);
         contentValues.put(DbDescription.KEY_DELAY, delayInMiliseconds);
+        contentValues.put(DbDescription.KEY_ISENABLED, (isEnabled) ? 1 : 0);
 
         return contentValues;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.isEnabled = enabled;
     }
 }

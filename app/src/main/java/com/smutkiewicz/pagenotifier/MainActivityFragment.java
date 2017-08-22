@@ -1,10 +1,12 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -41,6 +43,8 @@ public class MainActivityFragment extends Fragment
     public interface MainActivityFragmentListener {
         void displayAddEditFragment(Uri uri, int viewId);
         void displayDetailsFragment(Uri itemUri, int viewId);
+        void onGoToWebsite(String url);
+        void onChangesApplied();
     }
 
     @Override
@@ -52,9 +56,31 @@ public class MainActivityFragment extends Fragment
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
+
+        //makeSimpleDataInsertThemToDbAndShowInAdapter(setTestData());
+
         updateWebsiteItemList();
 
         return view;
+    }
+
+    private List<Website> setTestData() {
+        List<Website> list = new ArrayList<>();
+        list.add(new Website("Nowe zadanko",
+                "https://github.com/smutkiewicz/Android-Soundbank/blob/master/app/src/main/" +
+                        "java/com/smutkiewicz/soundbank/model/SoundArrayAdapter.java"));
+        list.add(new Website("Poczta", "https://medusa.elka.pw.edu.pl/"));
+        list.add(new Website("Mrow dyd", "http://www.if.pw.edu.pl/~mrow/dyd/"));
+        list.add(new Website("Staty", "https://msoundtech.bandcamp.com/stats#zplays"));
+
+        return list;
+    }
+
+    public void makeSimpleDataInsertThemToDbAndShowInAdapter(List<Website> list) {
+        for(Website w : list) {
+            Uri newItemUri = getActivity().getContentResolver().insert(
+                    DbDescription.CONTENT_URI, w.getContentValues());
+        }
     }
 
     public void setDialogOnScreen(boolean visible) {
@@ -161,15 +187,43 @@ public class MainActivityFragment extends Fragment
                     }
 
                     @Override
-                    public void onItemClick(Uri itemUri) {
-                        //TODO wyślij usera do strony docelowej
+                    public void onItemClick(String url) {
+                        mListener.onGoToWebsite(url);
                     }
 
                     @Override
-                    public void onSwitchClick(Uri itemUri) {
+                    public void onSwitchClick(Uri itemUri, int newEnableValue) {
                         //TODO włącz/wyłącz powiadomienia
+                        onSwitchClicked(itemUri, newEnableValue);
                     }
                 }
         );
+    }
+
+    private void onSwitchClicked(Uri itemUri, int newIsEnabledValue) {
+        // create ContentValues object containing contact's key-value pairs
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbDescription.KEY_ISENABLED, newIsEnabledValue);
+
+        //int updatedRows = 0;
+        int updatedRows = getActivity().getContentResolver().update(
+                itemUri, contentValues, null, null);
+        Log.d("TAG", "MainAFragment onSwitchClicked: "+itemUri);
+
+        if (updatedRows > 0) {
+
+            if(newIsEnabledValue == 1) {
+                Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
+                        R.string.main_enabled, Snackbar.LENGTH_LONG).show();
+            } else { // isEnabled == 0
+                Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
+                        R.string.main_disabled, Snackbar.LENGTH_LONG).show();
+            }
+
+        } else {
+            Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
+                    "Błąd", Snackbar.LENGTH_LONG).show();
+        }
+
     }
 }
