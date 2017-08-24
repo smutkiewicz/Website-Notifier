@@ -15,7 +15,6 @@ public class SettingsActivityFragment extends PreferenceFragment {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.preferences);
-
         setOnOffServicesPrefListener();
     }
 

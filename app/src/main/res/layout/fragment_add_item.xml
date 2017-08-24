@@ -1,5 +1,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/addEditFrameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,14 +9,14 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/nameTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/nameTextInputLayout">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/nameEditText"
@@ -28,9 +29,9 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/addressTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/addressTextInputLayout">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/urlEditText"
@@ -105,5 +106,12 @@
         android:layout_gravity="top|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_save_black_24dp"/>
+
+    <ProgressBar
+        android:id="@+id/addEditProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
 </FrameLayout>

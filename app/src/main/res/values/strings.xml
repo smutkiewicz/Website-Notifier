@@ -21,7 +21,9 @@
 
     <!-- DetailsScreen -->
     <string name="details_sample_name">Nazwa zadania</string>
-    <string name="details_sample_website"><![CDATA[https://scontent–waw1-1.xx.fbcdn.net/v/t1.0-9/20798969_1114575965340257_8102175771010109034_n.jpg?oh=3c198a11f1b916fe5639c6e5babaaa65&oe=5A260442]]></string>
+    <string name="details_sample_website">
+        <![CDATA[https://scontent–waw1-1.xx.fbcdn.net/v/t1.0-9/20798969_1114575965340257_8102175771010109034_n.jpg?oh=3c198a11f1b916fe5639c6e5babaaa65&oe=5A260442]]>
+    </string>
     <string name="details_frequency_example">co 5 minut</string>
     <string name="details_name">Nazwa:</string>
     <string name="details_url">URL:</string>
@@ -39,4 +41,16 @@
     <string name="details_updates">Status:</string>
     <string name="main_enabled">Włączono śledzenie zmian.</string>
     <string name="main_disabled">Wyłączono śledzenie zmian.</string>
+
+    <!-- AddEditFragment -->
+    <string name="addedit_new_item_added">Nowa strona do śledzenia została dodana.</string>
+    <string name="addedit_new_item_not_added">Nie dodano nowego obiektu.</string>
+    <string name="addedit_no_name">Podaj nazwę zadania!</string>
+    <string name="addedit_no_url">Podaj URL strony!</string>
+    <string name="addedit_incorrect_url">Niepoprawny URL!
+        Pamiętaj o tym, aby podać pełną nazwę - łącznie z protokołem http://
+    </string>
+    <string name="addedit_item_updated">Zaktualizowano zadanie.</string>
+    <string name="addedit_item_not_updated">Nie zaktualizowano zadania.</string>
+
 </resources>

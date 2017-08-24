@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupActivityToolbar();
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
 
         mainActivityFragment = new MainActivityFragment();
         addFragmentToContainerLayoutAndShowIt();
@@ -38,7 +39,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void displayAddEditFragment(Uri itemUri, int viewID) {
         AddEditItemFragment addEditFragment = new AddEditItemFragment();
-        addUriArgumentsToAFragment(addEditFragment, itemUri);
+        if(itemUri != Uri.EMPTY)
+            addUriArgumentsToAFragment(addEditFragment, itemUri);
+
         FragmentTransaction transaction =
                 getSupportFragmentManager().beginTransaction();
         transaction.replace(viewID, addEditFragment);
@@ -75,6 +78,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onChangesApplied() {
+        mainActivityFragment.updateWebsiteItemList();
+    }
+
+    @Override
+    public void onAddEditItemCompleted(Uri contactUri) {
+        getSupportFragmentManager().popBackStack();
         mainActivityFragment.updateWebsiteItemList();
     }
 

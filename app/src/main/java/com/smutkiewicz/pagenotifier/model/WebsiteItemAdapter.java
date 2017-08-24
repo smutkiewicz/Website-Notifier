@@ -125,12 +125,17 @@ public class WebsiteItemAdapter
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.list_item, parent, false);
-        return new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view);
+
+        /*cursor.moveToPosition(holder.getPosition());
+        cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));*/
+
+        return holder;
     }
 
     // określa tekst elementu listy w celu wyświetlenia etykiety zapytania
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         Log.d("ADAPTER: ", "onBindViewHolder(ViewHolder holder, int position)");
         cursor.moveToPosition(position);
         holder.setRowID(cursor.getLong(cursor.getColumnIndex(DbDescription.KEY_ID)));
@@ -143,6 +148,32 @@ public class WebsiteItemAdapter
         //TODO Switch
 
         setPageStateImage(holder);
+
+        /*holder.isEnabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // do something, the isChecked will be
+                    // true if the switch is in the On position
+                    int pom;
+                    if(isChecked)
+                        pom = 1;
+                    else
+                        pom = 0;
+                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(holder.rowID), pom);
+                }
+            });*/
+    }
+
+    private void setIsEnabledSwitchState(ViewHolder holder) {
+        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
+        setIsEnabledSwitchCheck(holder, (checked == 1) ? true : false);
+    }
+
+    private void setIsEnabledSwitchCheck(ViewHolder holder, boolean checked) {
+        Log.d("ADAPTER: ", "setChecked() on " + holder.rowID);
+        holder.isEnabledSwitch.setChecked(checked);
+        holder.isEnabled = checked;
     }
 
     private void setPageStateImage(ViewHolder holder) {
@@ -155,18 +186,6 @@ public class WebsiteItemAdapter
         else //updated == 0
             holder.pageStateImageView.setImageDrawable(view.getResources()
                     .getDrawable(R.drawable.ic_not_updated_black_24dp));
-    }
-
-    private void setIsEnabledSwitchState(ViewHolder holder) {
-        Log.d("ADAPTER: ", "setIsEnabledSwitchState(ViewHolder holder)");
-        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
-        setIsEnabledSwitchCheck(holder, (checked == 1) ? true : false);
-    }
-
-    private void setIsEnabledSwitchCheck(ViewHolder holder, boolean checked) {
-        Log.d("ADAPTER: ", "setIsEnabledSwitchState(ViewHolder holder)");
-        holder.isEnabledSwitch.setChecked(checked);
-        holder.isEnabled = checked;
     }
 
     // zwraca liczbę elementów wiązanych przez adapter
