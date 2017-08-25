@@ -7,12 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.smutkiewicz.pagenotifier.MainActivity;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
@@ -180,12 +180,18 @@ public class WebsiteItemAdapter
         int updated = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
         View view = holder.pageStateImageView.getRootView();
 
-        if(updated == 1)
+        if(updated == 1) {
             holder.pageStateImageView.setImageDrawable(view.getResources()
                     .getDrawable(R.drawable.ic_updated_black_24dp));
-        else //updated == 0
+            holder.pageNameTextView.setTextColor(
+                    MainActivity.getAppContext().getResources().getColor(R.color.updated_green));
+        }
+        else {//updated == 0
             holder.pageStateImageView.setImageDrawable(view.getResources()
                     .getDrawable(R.drawable.ic_not_updated_black_24dp));
+            holder.pageNameTextView.setTextColor(
+                    MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
+        }
     }
 
     // zwraca liczbę elementów wiązanych przez adapter

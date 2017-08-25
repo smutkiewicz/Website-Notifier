@@ -144,11 +144,10 @@ public class DetailsDialogFragment extends DialogFragment
     }
 
     private void setBuildersNeutralGoToWebsiteButton(AlertDialog.Builder builder) {
-        builder.setNeutralButton(R.string.details_goto_label,
+        builder.setNeutralButton(R.string.details_edit_label,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //TODO goto
-                        mListener.onGoToWebsite(url);
+                        mListener.displayAddEditFragment(itemUri, R.id.fragmentContainer);
                     }
                 }
         );
@@ -168,10 +167,10 @@ public class DetailsDialogFragment extends DialogFragment
     }
 
     private void setBuildersEditPositiveButton(AlertDialog.Builder builder) {
-        builder.setPositiveButton(R.string.details_edit_label,
+        builder.setPositiveButton(R.string.details_ok_label,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.displayAddEditFragment(itemUri, R.id.fragmentContainer);
+                        dialog.cancel();
                     }
                 }
         );

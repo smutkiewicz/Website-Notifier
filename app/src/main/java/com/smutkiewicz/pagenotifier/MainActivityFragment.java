@@ -5,15 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 import com.smutkiewicz.pagenotifier.model.Website;
@@ -39,6 +42,8 @@ public class MainActivityFragment extends Fragment
     private boolean dialogOnScreen = false;
     private WebsiteItemAdapter itemAdapter;
 
+    private EditText searchEditText;
+
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
         void displayAddEditFragment(Uri uri, int viewId);
@@ -47,17 +52,31 @@ public class MainActivityFragment extends Fragment
         void onChangesApplied();
     }
 
+    private class TextChangedListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            performSearchQuery();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         RecyclerView recyclerView =
                 (RecyclerView) view.findViewById(R.id.recyclerView);
+        searchEditText = (EditText) view.findViewById(R.id.searchEditText);
+
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
-
-        //makeSimpleDataInsertThemToDbAndShowInAdapter(setTestData());
+        setUpInputTextLayout();
 
         updateWebsiteItemList();
 
@@ -81,6 +100,10 @@ public class MainActivityFragment extends Fragment
             Uri newItemUri = getActivity().getContentResolver().insert(
                     DbDescription.CONTENT_URI, w.getContentValues());
         }
+    }
+
+    private void setUpInputTextLayout() {
+        searchEditText.addTextChangedListener(new TextChangedListener());
     }
 
     public void setDialogOnScreen(boolean visible) {
@@ -134,17 +157,29 @@ public class MainActivityFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         //TODO CursorLoader
+        String where = buildWhereClause();
+        if(where != null)
+            Log.d("TAG", where);
+
         switch (id) {
             case WEBSITE_ITEMS_LOADER:
                 return new CursorLoader(getActivity(),
                         DbDescription.CONTENT_URI, // adres Uri tabeli stron
-                        null, // rzutowanie wartości null zwraca wszystkie kolumny
-                        null, // wybranie wartości null zwraca wszystkie rzędy
-                        null, // brak argumentów selekcji
+                        null,
+                        where,
+                        null,
                         DbDescription.KEY_ID + " COLLATE NOCASE ASC"); // kolejność sortowania
             default:
                 return null;
         }
+    }
+
+    private String buildWhereClause() {
+        if(searchEditText != null)
+            return DbDescription.KEY_NAME +
+                    " LIKE '%" + searchEditText.getText().toString() + "%'";
+        else
+            return null;
     }
 
     @Override
@@ -155,6 +190,11 @@ public class MainActivityFragment extends Fragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         itemAdapter.swapCursor(null);
+    }
+
+    private void performSearchQuery() {
+        getLoaderManager().restartLoader(WEBSITE_ITEMS_LOADER, null, this);
+        updateWebsiteItemList();
     }
 
     private void setUpAddItemFab(View view) {
@@ -224,6 +264,5 @@ public class MainActivityFragment extends Fragment
             Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
                     "Błąd", Snackbar.LENGTH_LONG).show();
         }
-
     }
 }

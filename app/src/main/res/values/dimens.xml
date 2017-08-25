@@ -4,9 +4,10 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="divider_margin">16dp</dimen>
-    <dimen name="image_side_length">50dp</dimen>
+    <dimen name="image_side_length">40dp</dimen>
     <dimen name="button_margin">5dp</dimen>
     <dimen name="textview_margin">16dp</dimen>
     <dimen name="add_fragment_margin">4dp</dimen>
     <dimen name="list_item_layout_height">80dp</dimen>
+    <dimen name="freq_value_text_width">50dp</dimen>
 </resources>

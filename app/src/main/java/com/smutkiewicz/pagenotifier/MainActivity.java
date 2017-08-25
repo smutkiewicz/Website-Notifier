@@ -1,5 +1,6 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -15,12 +16,13 @@ public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,
         MainActivityFragment.MainActivityFragmentListener{
-
-    private MainActivityFragment mainActivityFragment;
-
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
     public static final String ITEM_URI = "item_uri";
+    public static ScanDelayTranslator scanDelayTranslator;
+
+    private MainActivityFragment mainActivityFragment;
+    private static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +30,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         setupActivityToolbar();
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+        context = getApplicationContext();
 
         mainActivityFragment = new MainActivityFragment();
         addFragmentToContainerLayoutAndShowIt();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setupPreferences();
         disableKeyboard();
+        initScanDelayTranslator();
     }
 
     @Override
@@ -54,6 +58,10 @@ public class MainActivity extends AppCompatActivity
         DetailsDialogFragment detailsDialog = new DetailsDialogFragment();
         addUriArgumentsToAFragment(detailsDialog, itemUri);
         detailsDialog.show(getSupportFragmentManager(), "Details fragment");
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
 
     private void addUriArgumentsToAFragment(Fragment fragment, Uri uri) {
@@ -108,6 +116,10 @@ public class MainActivity extends AppCompatActivity
     private void disableKeyboard() {
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    private void initScanDelayTranslator() {
+        scanDelayTranslator = new ScanDelayTranslator(getApplicationContext());
     }
 
     @Override

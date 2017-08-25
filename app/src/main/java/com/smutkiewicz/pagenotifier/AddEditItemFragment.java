@@ -36,6 +36,7 @@ public class AddEditItemFragment extends Fragment
     private boolean editMode = false;
     private Uri itemUri;
 
+    // zmienne widoków
     private FrameLayout addEditFrameLayout;
     private EditText nameEditText;
     private EditText urlEditText;
@@ -131,24 +132,37 @@ public class AddEditItemFragment extends Fragment
 
             setNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertsSwitchState(data.getInt(alertsIndex));
-            setFrequencyStepLabel(data.getInt(freqIndex));
+            setFrequencyStepValueLabelAndListener(data.getInt(freqIndex));
             hideLoaderProgressBar();
         }
     }
 
+    private void setAlertsSwitchState(int checked) {
+        if(checked == 1)
+            alertsSwitch.setChecked(true);
+        else //if checked == 0
+            alertsSwitch.setChecked(false);
+    }
+
+    private void setFrequencyStepValueLabelAndListener(int delayStep) {
+        frequencySeekBar.setProgress(delayStep);
+        freqValueTextView.setText(
+                MainActivity.scanDelayTranslator.putStepAndReturnItsName(delayStep));
+        setFrequencySeekBarListener();
+    }
+
+    private void setFrequencyStepLabel(int delayStep) {
+        freqValueTextView.setText(
+                MainActivity.scanDelayTranslator.putStepAndReturnItsName(delayStep));
+    }
+
+    private void setNameAndUrlTextViews(String name, String url) {
+        nameEditText.setText(name);
+        urlEditText.setText(url);
+    }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
-
-    private void getBundleArgumentsAndInitLoaderIfNeeded() {
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            editMode = true;
-            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
-        }
-
-        if (itemUri != null)
-            getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
-    }
 
     private void setUpAddEditItemFab(View view) {
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.saveFab);
@@ -158,6 +172,19 @@ public class AddEditItemFragment extends Fragment
                 saveItem();
             }
         });
+    }
+
+    private void getBundleArgumentsAndInitLoaderIfNeeded() {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            editMode = true;
+            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
+        } else {
+            addEditProgressBar.setVisibility(View.GONE);
+        }
+
+        if (itemUri != null)
+            getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
     }
 
     private void showLoaderProgressBar() {
@@ -181,7 +208,7 @@ public class AddEditItemFragment extends Fragment
                     frequencySeekBar.getProgress());
 
             if (editMode) {
-                    // zaktualizuj informacje
+                // zaktualizuj informacje
                 int updatedRows = getActivity().getContentResolver().update(
                         itemUri, contentValues, null, null);
 
@@ -227,11 +254,6 @@ public class AddEditItemFragment extends Fragment
         return true;
     }
 
-    private void showSnackbar(int messageId) {
-        Snackbar.make(addEditFrameLayout,
-                messageId, Snackbar.LENGTH_LONG).show();
-    }
-
     private int getAlertsSwitchState() {
         if(alertsSwitch.isChecked())
             return 1;
@@ -239,21 +261,23 @@ public class AddEditItemFragment extends Fragment
             return 0;
     }
 
-    private void setAlertsSwitchState(int checked) {
-        if(checked == 1)
-            alertsSwitch.setChecked(true);
-        else //if checked == 0
-            alertsSwitch.setChecked(false);
+    private void showSnackbar(int messageId) {
+        Snackbar.make(addEditFrameLayout,
+                messageId, Snackbar.LENGTH_LONG).show();
     }
 
-    private void setFrequencyStepLabel(int delay) {
-        //TODO DELAY
-        frequencySeekBar.setProgress(1);
-        freqValueTextView.setText("5 min");
-    }
+    private void setFrequencySeekBarListener() {
+        frequencySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                setFrequencyStepLabel(i);
+            }
 
-    private void setNameAndUrlTextViews(String name, String url) {
-        nameEditText.setText(name);
-        urlEditText.setText(url);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
 }

@@ -32,6 +32,7 @@
     <string name="details_delete_label">Usuń</string>
     <string name="details_title_label">Szczegóły zadania</string>
     <string name="details_goto_label">Odwiedź</string>
+    <string name="details_ok_label">OK</string>
     <string name="details_alerts_on">Włączone</string>
     <string name="details_alerts_off">Wyłączone</string>
     <string name="details_alerts">Alerty:</string>

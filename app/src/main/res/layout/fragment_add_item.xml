@@ -79,7 +79,7 @@
 
                 <TextView
                     android:id="@+id/freqValueTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/freq_value_text_width"
                     android:layout_height="wrap_content"
                     android:layout_column="0"
                     android:layout_gravity="center_vertical|right"
@@ -93,7 +93,7 @@
                     android:layout_column="1"
                     android:layout_gravity="fill_horizontal"
                     android:layout_row="0"
-                    android:max="8"
+                    android:max="7"
                     android:progress="0"/>
             </GridLayout>
         </LinearLayout>

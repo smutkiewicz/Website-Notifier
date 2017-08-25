@@ -7,7 +7,7 @@
   # TODO
  * ~~Zacz¹æ~~ (Done!)
  * ~~Layout aplikacji~~ (Done!)
- * Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania
+ * ~~Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania~~ (Done!)
  * Opcja uruchomienia us³ugi porównuj¹cej stronê z dan¹ przez u¿ytkownika czêstotliwoœci¹ (dzia³aj¹cej w tle niezale¿nie od aktywnoœci g³ównej
  * Opcja wys³ania powiadomienia przez us³ugê dzia³aj¹c¹ w tle
 
