@@ -1,4 +1,4 @@
-package com.smutkiewicz.pagenotifier;
+package com.smutkiewicz.pagenotifier.utilities;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,7 +8,7 @@ import android.view.View;
 
 // kod oparto na przykładowej implementacji przygotowanej
 // przez firmę Google: bit.ly/DividerItemDecoration.
-class ItemDivider extends RecyclerView.ItemDecoration {
+public class ItemDivider extends RecyclerView.ItemDecoration {
    private final Drawable divider;
 
    public ItemDivider(Context context) {

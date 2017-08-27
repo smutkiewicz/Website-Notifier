@@ -4,13 +4,6 @@
       tools:context="com.smutkiewicz.pagenotifier.MainActivity">
 
     <item
-        android:id="@+id/action_test"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        android:icon="@drawable/ic_not_active_black_24dp"
-        app:showAsAction="always"/>
-
-    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"

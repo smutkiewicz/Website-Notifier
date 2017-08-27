@@ -25,12 +25,19 @@ public class WebsiteDatabaseHelper extends SQLiteOpenHelper {
                         DbDescription.KEY_NAME + " " + DbDescription.NAME_OPTIONS + ", " +
                         DbDescription.KEY_URL + " " + DbDescription.URL_OPTIONS + ", " +
                         DbDescription.KEY_ALERTS + " " + DbDescription.ALERTS_OPTIONS + ", " +
-                        DbDescription.KEY_DELAY + " " + DbDescription.DELAY_OPTIONS +
+                        DbDescription.KEY_DELAY + " " + DbDescription.DELAY_OPTIONS + ", " +
+                        DbDescription.KEY_UPDATED + " " + DbDescription.UPDATED_OPTIONS + ", " +
+                        DbDescription.KEY_ISENABLED + " " + DbDescription.ISENABLED_OPTIONS +
                 ");";
         return createTable;
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion,
-                          int newVersion) { }
+                          int newVersion) {
+        String DB_DROP_SOUND_TABLE =
+                "DROP TABLE IF EXISTS " + DbDescription.DB_TABLE_NAME;
+        db.execSQL(DB_DROP_SOUND_TABLE);
+        onCreate(db);
+    }
 }

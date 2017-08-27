@@ -3,14 +3,16 @@ package com.smutkiewicz.pagenotifier.model;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
+import com.smutkiewicz.pagenotifier.MainActivity;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
@@ -20,8 +22,8 @@ public class WebsiteItemAdapter
     // po dotknięciu przez użytkownika elementu wyświetlanego w widoku RecyclerView
     public interface WebsiteItemClickListener {
         void onMoreButtonClick(Uri itemUri);
-        void onItemClick(Uri itemUri);
-        void onSwitchClick(Uri itemUri);
+        void onItemClick(String url);
+        void onSwitchClick(Uri itemUri, int newEnableValue);
     }
 
     // zmienne egzemplarzowe adaptera
@@ -36,33 +38,79 @@ public class WebsiteItemAdapter
     // wzorca ViewHolder w kontekście widoku RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView pageStateImageView;
-        public final TextView pageNameTextView;
-        private final Switch alertModeSwitch;
+        private final TextView pageNameTextView;
+        private final ToggleButton isEnabledToggle;
         private final ImageButton pageMoreImageButton;
+
         private long rowID;
         private int delayStep;
+        private boolean isEnabled;
+        private String url;
 
         // konfiguruje obiekt ViewHolder elementu widoku RecyclerView
         public ViewHolder(View itemView) {
             super(itemView);
             pageNameTextView = (TextView) itemView.findViewById(R.id.pageNameTextView);
-            alertModeSwitch = (Switch) itemView.findViewById(R.id.pageAlertSwitch);
+            isEnabledToggle = (ToggleButton) itemView.findViewById(R.id.pageAlertToggle);
             pageMoreImageButton = (ImageButton) itemView.findViewById(R.id.pageMoreImageButton);
             pageStateImageView = (ImageView) itemView.findViewById(R.id.pageStateImageView);
-            setItemListeners();
+
+            setButtonListeners();
+            setItemViewListener();
+
+            //TODO Switch
+            setIsEnabledToggleListener();
+            //TODO Switch
         }
 
-        public void setItemListeners() {
+        private void setButtonListeners() {
             pageMoreImageButton.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //TODO OnClick
-                            Uri testUri = Uri.EMPTY;
-                            clickListener.onMoreButtonClick(testUri);
+                            clickListener.onMoreButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));
                         }
                     }
             );
+        }
+
+        private void setItemViewListener() {
+            itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            clickListener.onItemClick(url);
+                        }
+                    }
+            );
+        }
+
+        private void setIsEnabledToggleListener() {
+            //TODO Switch
+            isEnabledToggle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int newSwitchValue = swapBooleanToInt(isEnabled);
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(rowID), newSwitchValue);
+                }
+            });
+
+            /*isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // do something, the isChecked will be
+                    // true if the switch is in the On position
+                    int pom;
+                    if(isChecked)
+                        pom = 1;
+                    else
+                        pom = 0;
+                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(rowID), pom);
+                }
+            });*/
         }
 
         // określ identyfikator rzędu bazy danych strony
@@ -77,20 +125,69 @@ public class WebsiteItemAdapter
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.list_item, parent, false);
-        return new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view);
+
+        return holder;
     }
 
     // określa tekst elementu listy w celu wyświetlenia etykiety zapytania
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        Log.d("ADAPTER: ", "onBindViewHolder(ViewHolder holder, int position)");
         cursor.moveToPosition(position);
-        //TODO onBindViewHolder
         holder.setRowID(cursor.getLong(cursor.getColumnIndex(DbDescription.KEY_ID)));
         holder.pageNameTextView.setText(cursor.getString(cursor.getColumnIndex(
                 DbDescription.KEY_NAME)));
+        holder.url = cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));
 
-        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ALERTS));
-        holder.alertModeSwitch.setChecked((checked == 1) ? true : false);
+        //TODO Switch
+        setIsEnabledToggleState(holder);
+        //TODO Switch
+
+        setPageStateImage(holder);
+
+        /*holder.isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // do something, the isChecked will be
+                    // true if the switch is in the On position
+                    int pom;
+                    if(isChecked)
+                        pom = 1;
+                    else
+                        pom = 0;
+                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
+                    clickListener.onSwitchClick(
+                            DbDescription.buildWebsiteItemUri(holder.rowID), pom);
+                }
+            });*/
+    }
+
+    private void setIsEnabledToggleState(ViewHolder holder) {
+        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
+        setIsEnabledToggleCheck(holder, (checked == 1) ? true : false);
+    }
+
+    private void setIsEnabledToggleCheck(ViewHolder holder, boolean checked) {
+        holder.isEnabledToggle.setChecked(checked);
+        holder.isEnabled = checked;
+    }
+
+    private void setPageStateImage(ViewHolder holder) {
+        int updated = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
+        View view = holder.pageStateImageView.getRootView();
+
+        if(updated == 1) {
+            holder.pageStateImageView.setImageDrawable(view.getResources()
+                    .getDrawable(R.drawable.ic_updated_black_24dp));
+            holder.pageNameTextView.setTextColor(
+                    MainActivity.getAppContext().getResources().getColor(R.color.updated_green));
+        }
+        else {//updated == 0
+            holder.pageStateImageView.setImageDrawable(view.getResources()
+                    .getDrawable(R.drawable.ic_not_updated_black_24dp));
+            holder.pageNameTextView.setTextColor(
+                    MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
+        }
     }
 
     // zwraca liczbę elementów wiązanych przez adapter
@@ -104,4 +201,12 @@ public class WebsiteItemAdapter
         this.cursor = cursor;
         notifyDataSetChanged();
     }
+
+    public int swapBooleanToInt(boolean value) {
+        if(value)
+            return 0;
+        else
+            return 1;
+    }
+
 }

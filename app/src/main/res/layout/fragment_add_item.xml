@@ -1,5 +1,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/addEditFrameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,35 +9,35 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/nameTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/nameTextInputLayout">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/nameEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/name_edit_text"
+                    android:hint="@string/addedit_name_edit_text"
                     android:imeOptions="actionNext"
                     android:singleLine="true"/>
 
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/addressTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/addressTextInputLayout">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/urlEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/address_edit_text"
+                    android:hint="@string/addedit_address_edit_text"
                     android:imeOptions="actionDone"
                     android:singleLine="true"/>
 
@@ -78,7 +79,7 @@
 
                 <TextView
                     android:id="@+id/freqValueTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/freq_value_text_width"
                     android:layout_height="wrap_content"
                     android:layout_column="0"
                     android:layout_gravity="center_vertical|right"
@@ -92,7 +93,7 @@
                     android:layout_column="1"
                     android:layout_gravity="fill_horizontal"
                     android:layout_row="0"
-                    android:max="8"
+                    android:max="7"
                     android:progress="0"/>
             </GridLayout>
         </LinearLayout>
@@ -105,5 +106,12 @@
         android:layout_gravity="top|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_save_black_24dp"/>
+
+    <ProgressBar
+        android:id="@+id/addEditProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
 </FrameLayout>
