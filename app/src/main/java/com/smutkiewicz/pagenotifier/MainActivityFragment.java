@@ -26,12 +26,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
-import com.smutkiewicz.pagenotifier.model.Website;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
 import com.smutkiewicz.pagenotifier.utilities.ItemDivider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -82,25 +78,6 @@ public class MainActivityFragment extends Fragment
         updateWebsiteItemList();
 
         return view;
-    }
-
-    private List<Website> setTestData() {
-        List<Website> list = new ArrayList<>();
-        list.add(new Website("Nowe zadanko",
-                "https://github.com/smutkiewicz/Android-Soundbank/blob/master/app/src/main/" +
-                        "java/com/smutkiewicz/soundbank/model/SoundArrayAdapter.java"));
-        list.add(new Website("Poczta", "https://medusa.elka.pw.edu.pl/"));
-        list.add(new Website("Mrow dyd", "http://www.if.pw.edu.pl/~mrow/dyd/"));
-        list.add(new Website("Staty", "https://msoundtech.bandcamp.com/stats#zplays"));
-
-        return list;
-    }
-
-    public void makeSimpleDataInsertThemToDbAndShowInAdapter(List<Website> list) {
-        for(Website w : list) {
-            Uri newItemUri = getActivity().getContentResolver().insert(
-                    DbDescription.CONTENT_URI, w.getContentValues());
-        }
     }
 
     private void setUpInputTextLayout() {
