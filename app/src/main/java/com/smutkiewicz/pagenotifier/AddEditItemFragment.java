@@ -1,7 +1,9 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +37,7 @@ public class AddEditItemFragment extends Fragment
     // identyfikuje obiekt Loader
     private static final int WEBSITE_ITEMS_LOADER = 0;
 
+    // zmienne instancyjne
     private boolean editMode = false;
     private Uri itemUri;
 
@@ -44,8 +49,25 @@ public class AddEditItemFragment extends Fragment
     private Switch alertsSwitch;
     private SeekBar frequencySeekBar;
     private ProgressBar addEditProgressBar;
+    private FloatingActionButton fab;
 
     private AddEditItemFragmentListener mListener;
+
+    private class TextChangedListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(s.length() != 0)
+                fab.show();
+            else
+                fab.hide();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    }
 
     public interface AddEditItemFragmentListener {
         void onFragmentInteraction();
@@ -60,10 +82,8 @@ public class AddEditItemFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
         View view =
                 inflater.inflate(R.layout.fragment_add_item, container, false);
-
         addEditFrameLayout = (FrameLayout) view.findViewById(R.id.addEditFrameLayout);
         nameEditText = (EditText) view.findViewById(R.id.nameEditText);
         urlEditText = (EditText) view.findViewById(R.id.urlEditText);
@@ -73,7 +93,9 @@ public class AddEditItemFragment extends Fragment
         addEditProgressBar = (ProgressBar) view.findViewById(R.id.addEditProgressBar);
 
         setUpAddEditItemFab(view);
+        setFormFillListener();
         getBundleArgumentsAndInitLoaderIfNeeded();
+        initNeededTypeOfView();
 
         return view;
     }
@@ -88,7 +110,7 @@ public class AddEditItemFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                //TODO delete item
+                buildDeleteDialogAndConfirmDelete();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -137,6 +159,46 @@ public class AddEditItemFragment extends Fragment
         }
     }
 
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { }
+
+    private void setUpAddEditItemFab(View view) {
+        fab = (FloatingActionButton) view.findViewById(R.id.saveFab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveItem();
+            }
+        });
+    }
+
+    private void setFormFillListener() {
+        urlEditText.addTextChangedListener(new TextChangedListener());
+    }
+
+    private void getBundleArgumentsAndInitLoaderIfNeeded() {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
+        }
+
+        if (itemUri != null)
+            getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+    }
+
+    private void initNeededTypeOfView() {
+        // zakładamy, że argumenty Bundle zostały pobrane
+        if(itemUri != null)
+            setEditModeView();
+        else
+            setNewItemModeView();
+    }
+
+    private void setNameAndUrlTextViews(String name, String url) {
+        nameEditText.setText(name);
+        urlEditText.setText(url);
+    }
+
     private void setAlertsSwitchState(int checked) {
         if(checked == 1)
             alertsSwitch.setChecked(true);
@@ -151,48 +213,63 @@ public class AddEditItemFragment extends Fragment
         setFrequencySeekBarListener();
     }
 
+    private void hideLoaderProgressBar() {
+        addEditProgressBar.setVisibility(View.GONE);
+    }
+
     private void setFrequencyStepLabel(int delayStep) {
         freqValueTextView.setText(
                 MainActivity.scanDelayTranslator.putStepAndReturnItsName(delayStep));
     }
 
-    private void setNameAndUrlTextViews(String name, String url) {
-        nameEditText.setText(name);
-        urlEditText.setText(url);
+    private void setEditModeView() {
+        fab.show();
+        editMode = true;
+        setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) { }
-
-    private void setUpAddEditItemFab(View view) {
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.saveFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveItem();
-            }
-        });
+    private void setNewItemModeView() {
+        fab.hide();
+        editMode = false;
+        setHasOptionsMenu(false);
+        addEditProgressBar.setVisibility(View.GONE);
+        setFrequencyStepValueLabelAndListener(0);
     }
 
-    private void getBundleArgumentsAndInitLoaderIfNeeded() {
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            editMode = true;
-            itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
-        } else {
-            addEditProgressBar.setVisibility(View.GONE);
+    private void buildDeleteDialogAndConfirmDelete() {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.addedit_confirm_delete);
+        builder.setMessage(R.string.addedit_message_confirm_delete);
+        builder.setNegativeButton(R.string.addedit_dont_delete_button, null);
+        builder.setPositiveButton(R.string.addedit_delete_button,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        deleteItemInEditMode();
+                    }
+                });
+        builder.create();
+        builder.show();
+    }
+
+    private void deleteItemInEditMode() {
+        // editmode = true
+        // zaktualizuj informacje
+        int updatedRows = getActivity().getContentResolver()
+                .delete(itemUri, null, null);
+
+        if (updatedRows > 0) {
+            mListener.onAddEditItemCompleted(itemUri);
+            showSnackbar(R.string.addedit_item_deleted);
         }
-
-        if (itemUri != null)
-            getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+        else {
+            showSnackbar(R.string.addedit_item_not_updated);
+        }
     }
 
     private void showLoaderProgressBar() {
         addEditProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideLoaderProgressBar() {
-        addEditProgressBar.setVisibility(View.GONE);
     }
 
     private void saveItem() {

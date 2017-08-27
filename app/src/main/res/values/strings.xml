@@ -5,6 +5,8 @@
     <string name="action_new">Nowy</string>
     <string name="search_hint">Szukaj...</string>
     <string name="frequency_seek_bar">Częstotliwość odświeżania strony</string>
+    <string name="main_enabled">Włączono śledzenie zmian.</string>
+    <string name="main_disabled">Wyłączono śledzenie zmian.</string>
 
     <!-- Settings -->
     <string name="title_activity_settings">Ustawienia</string>
@@ -14,10 +16,6 @@
     <string name="summary_author">Wersja 0.1, Michał Smutkiewicz</string>
     <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
     <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="name_edit_text">Nazwa zadania</string>
-    <string name="address_edit_text">Adres strony</string>
 
     <!-- DetailsScreen -->
     <string name="details_sample_name">Nazwa zadania</string>
@@ -40,10 +38,10 @@
     <string name="details_not_updated">Brak zmian na stronie</string>
     <string name="details_updated">Zmiany na stronie.</string>
     <string name="details_updates">Status:</string>
-    <string name="main_enabled">Włączono śledzenie zmian.</string>
-    <string name="main_disabled">Wyłączono śledzenie zmian.</string>
 
     <!-- AddEditFragment -->
+    <string name="addedit_name_edit_text">Nazwa zadania</string>
+    <string name="addedit_address_edit_text">Adres strony</string>
     <string name="addedit_new_item_added">Nowa strona do śledzenia została dodana.</string>
     <string name="addedit_new_item_not_added">Nie dodano nowego obiektu.</string>
     <string name="addedit_no_name">Podaj nazwę zadania!</string>
@@ -53,5 +51,10 @@
     </string>
     <string name="addedit_item_updated">Zaktualizowano zadanie.</string>
     <string name="addedit_item_not_updated">Nie zaktualizowano zadania.</string>
+    <string name="addedit_item_deleted">Usunięto zadanie.</string>
+    <string name="addedit_confirm_delete">Potwierdź akcję</string>
+    <string name="addedit_message_confirm_delete">Czy na pewno chcesz usunąć zadanie?</string>
+    <string name="addedit_dont_delete_button">Anuluj</string>
+    <string name="addedit_delete_button">Usuń</string>
 
 </resources>

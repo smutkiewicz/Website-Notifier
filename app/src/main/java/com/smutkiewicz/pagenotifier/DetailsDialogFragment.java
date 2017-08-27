@@ -111,12 +111,13 @@ public class DetailsDialogFragment extends DialogFragment
             int nameIndex = data.getColumnIndex(DbDescription.KEY_NAME);
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
+            int delayIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
             int updatesIndex = data.getColumnIndex(DbDescription.KEY_UPDATED);
 
             setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertModeState(data.getInt(alertsIndex));
             setStatus(data.getInt(updatesIndex));
-            setFrequencyStepLabel();
+            setFrequencyStepLabel(data.getInt(delayIndex));
         }
     }
 
@@ -207,9 +208,10 @@ public class DetailsDialogFragment extends DialogFragment
             alertsTextView.setText(R.string.details_alerts_off);
     }
 
-    private void setFrequencyStepLabel() {
-        //TODO setFreqLabeling strategy
-        frequencyTextView.setText("Co 5 minut");
+    private void setFrequencyStepLabel(int step) {
+        String text =
+                MainActivity.scanDelayTranslator.putStepAndReturnItsName(step);
+        frequencyTextView.setText("Co " + text);
     }
 
     private void setStatus(int status) {
