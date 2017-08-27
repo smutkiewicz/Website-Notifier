@@ -28,6 +28,7 @@ import android.widget.EditText;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 import com.smutkiewicz.pagenotifier.model.Website;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
+import com.smutkiewicz.pagenotifier.utilities.ItemDivider;
 
 import java.util.ArrayList;
 import java.util.List;

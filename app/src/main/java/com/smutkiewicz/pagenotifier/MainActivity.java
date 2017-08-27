@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 
+import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
+
 public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,

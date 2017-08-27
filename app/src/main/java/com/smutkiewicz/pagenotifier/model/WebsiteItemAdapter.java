@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.smutkiewicz.pagenotifier.MainActivity;
 import com.smutkiewicz.pagenotifier.R;
@@ -39,7 +39,7 @@ public class WebsiteItemAdapter
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView pageStateImageView;
         private final TextView pageNameTextView;
-        private final Switch isEnabledSwitch;
+        private final ToggleButton isEnabledToggle;
         private final ImageButton pageMoreImageButton;
 
         private long rowID;
@@ -51,7 +51,7 @@ public class WebsiteItemAdapter
         public ViewHolder(View itemView) {
             super(itemView);
             pageNameTextView = (TextView) itemView.findViewById(R.id.pageNameTextView);
-            isEnabledSwitch = (Switch) itemView.findViewById(R.id.pageAlertSwitch);
+            isEnabledToggle = (ToggleButton) itemView.findViewById(R.id.pageAlertToggle);
             pageMoreImageButton = (ImageButton) itemView.findViewById(R.id.pageMoreImageButton);
             pageStateImageView = (ImageView) itemView.findViewById(R.id.pageStateImageView);
 
@@ -59,7 +59,7 @@ public class WebsiteItemAdapter
             setItemViewListener();
 
             //TODO Switch
-            setIsEnabledSwitchListener();
+            setIsEnabledToggleListener();
             //TODO Switch
         }
 
@@ -86,9 +86,9 @@ public class WebsiteItemAdapter
             );
         }
 
-        private void setIsEnabledSwitchListener() {
+        private void setIsEnabledToggleListener() {
             //TODO Switch
-            isEnabledSwitch.setOnClickListener(new View.OnClickListener() {
+            isEnabledToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int newSwitchValue = swapBooleanToInt(isEnabled);
@@ -97,7 +97,7 @@ public class WebsiteItemAdapter
                 }
             });
 
-            /*isEnabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /*isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     // do something, the isChecked will be
                     // true if the switch is in the On position
@@ -127,9 +127,6 @@ public class WebsiteItemAdapter
                 R.layout.list_item, parent, false);
         ViewHolder holder = new ViewHolder(view);
 
-        /*cursor.moveToPosition(holder.getPosition());
-        cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));*/
-
         return holder;
     }
 
@@ -144,12 +141,12 @@ public class WebsiteItemAdapter
         holder.url = cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));
 
         //TODO Switch
-        setIsEnabledSwitchState(holder);
+        setIsEnabledToggleState(holder);
         //TODO Switch
 
         setPageStateImage(holder);
 
-        /*holder.isEnabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        /*holder.isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     // do something, the isChecked will be
                     // true if the switch is in the On position
@@ -165,14 +162,13 @@ public class WebsiteItemAdapter
             });*/
     }
 
-    private void setIsEnabledSwitchState(ViewHolder holder) {
+    private void setIsEnabledToggleState(ViewHolder holder) {
         int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
-        setIsEnabledSwitchCheck(holder, (checked == 1) ? true : false);
+        setIsEnabledToggleCheck(holder, (checked == 1) ? true : false);
     }
 
-    private void setIsEnabledSwitchCheck(ViewHolder holder, boolean checked) {
-        Log.d("ADAPTER: ", "setChecked() on " + holder.rowID);
-        holder.isEnabledSwitch.setChecked(checked);
+    private void setIsEnabledToggleCheck(ViewHolder holder, boolean checked) {
+        holder.isEnabledToggle.setChecked(checked);
         holder.isEnabled = checked;
     }
 

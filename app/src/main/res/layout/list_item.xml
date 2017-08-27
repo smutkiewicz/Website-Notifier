@@ -55,10 +55,10 @@
         app:srcCompat="@drawable/ic_more_horiz_black_24dp"/>
 
 
-    <Switch
-        android:id="@+id/pageAlertSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+    <ToggleButton
+        android:id="@+id/pageAlertToggle"
+        android:layout_width="@dimen/toggle_button_width"
+        android:layout_height="@dimen/toggle_button_height"
         android:layout_column="2"
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/button_margin"
