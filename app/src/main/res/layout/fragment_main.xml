@@ -20,6 +20,18 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/search_hint"
                 android:singleLine="true"/>
+
+            <TextView
+                android:id="@+id/taskParams"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="0.88"
+                android:gravity="center"
+
+                android:padding="15dp"
+                android:text="For debug purposes"
+                android:textSize="20sp"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.v7.widget.RecyclerView

@@ -70,7 +70,7 @@ public class AddEditItemFragment extends Fragment
     }
 
     public interface AddEditItemFragmentListener {
-        void onFragmentInteraction();
+        void onFragmentInteraction(ContentValues values);
         void onAddEditItemCompleted(Uri contactUri);
     }
 
@@ -283,6 +283,7 @@ public class AddEditItemFragment extends Fragment
                     getAlertsSwitchState());
             contentValues.put(DbDescription.KEY_DELAY,
                     frequencySeekBar.getProgress());
+            mListener.onFragmentInteraction(contentValues);
 
             if (editMode) {
                 // zaktualizuj informacje

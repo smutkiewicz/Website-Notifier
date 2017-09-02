@@ -56,8 +56,13 @@
     <string name="addedit_message_confirm_delete">Czy na pewno chcesz usunąć zadanie?</string>
     <string name="addedit_dont_delete_button">Anuluj</string>
     <string name="addedit_delete_button">Usuń</string>
+
+    <!-- service -->
     <string name="service_started">WebService started!</string>
     <string name="service_stopped">WebService stopped!</string>
     <string name="service_label">WebService</string>
+    <string name="all_jobs_cancelled">Wszystkie zadania wyłączone.</string>
+    <string name="cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
+    <string name="no_jobs_to_cancel">Brak zadań do zakończenia.</string>
 
 </resources>

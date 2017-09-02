@@ -48,10 +48,9 @@
         </provider>
 
         <service
-            android:name=".WebService"
-            android:exported="false"
-            android:process=":PageNotifierService">
-        </service>
+            android:name=".service.MyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
     </application>
 
 </manifest>
