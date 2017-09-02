@@ -1,5 +1,7 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +33,6 @@ public class MainActivity extends AppCompatActivity
     private static Context context;
     private MainActivityFragment mainActivityFragment;
     private WebService service;
-    private WebService.MyBinder binder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,42 +49,35 @@ public class MainActivity extends AppCompatActivity
         disableKeyboard();
         initScanDelayTranslator();
 
-        startWebService();
+        startService();
     }
 
-    private void startWebService() {
-        Intent service = new Intent(getApplicationContext(), WebService.class);
-        getApplicationContext().startService(service);
-
-        /*Intent notificationIntent = new Intent(this, MainActivity.class);
+    private void startService() {
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification =
-                new Notification.Builder(this, CHANNEL_DEFAULT_IMPORTANCE)
-                        .setContentTitle(getText(R.string.notification_title))
-                        .setContentText(getText(R.string.notification_message))
-                        .setSmallIcon(R.drawable.icon)
+                new Notification.Builder(getApplicationContext())
+                        .setContentTitle("notification_title")
+                        .setContentText("notification_message")
+                        .setSmallIcon(R.drawable.ic_not_updated_black_24dp)
                         .setContentIntent(pendingIntent)
-                        .setTicker(getText(R.string.ticker_text))
+                        .setTicker("ticker_text")
                         .build();
 
-        startForeground(ONGOING_NOTIFICATION_ID, notification);*/
+        startForeground(1, notification);
     }
 
     @Override
     public void onServiceInteraction() {
-        binder.updateServiceTask(1, 2, "Zadanie testowe 1",
-                "https://developer.android.com/guide/components/services.html");
-        binder.updateServiceTask(2, 3, "Zadanie testowe 2",
-                "https://developer.android.com/guide/components/services.html");
+        service.addUpdateServiceTask();
     }
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        binder = (WebService.MyBinder) iBinder;
         service = ((WebService.MyBinder) iBinder).getService();
-        Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Connected in MainActivity", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -94,14 +88,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent= new Intent(this, WebValuesService.class);
-        bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //unbindService(this);
     }
 
     @Override

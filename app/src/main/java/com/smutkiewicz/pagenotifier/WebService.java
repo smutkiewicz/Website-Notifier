@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,22 +13,29 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
-import android.util.Log;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Admin on 2017-08-31.
  */
 
 public class WebService extends Service {
-    private final IBinder mBinder = new MyBinder();
+    /*
+    * Zestaw komend do serwisu
+    */
+    private static final int MSG_START_SERVICE = 1;
+    private static final int MSG_ADD_UPDATE_TASK = 2;
+    private static final int MSG_DELETE_TASK = 3;
+    private static final int MSG_STOP_SERVICE = 4;
+
+    /** For showing and hiding our notification. */
+    private NotificationManager mNM;
+    private int mStartMode;       // indicates how to behave if the service is killed
+    private IBinder mBinder;      // interface for clients that bind
+    private boolean mAllowRebind; // indicates whether onRebind should be used
+
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-
-    private List<MyThread> tasks = new ArrayList<>();
 
     // Handler that receives messages from the thread
     private final class ServiceHandler extends Handler {
@@ -37,15 +43,11 @@ public class WebService extends Service {
             super(looper);
         }
 
-        @Override
+        /*@Override
         public void handleMessage(Message msg) {
             // Normally we would do some work here, like download a file.
             // For our sample, we just sleep for 5 seconds.
             try {
-                for(MyThread t : tasks) {
-                    t.start();
-                }
-
                 Thread.sleep(5000);
                 Context context = getApplicationContext();
                 CharSequence text = "Handle message size " + tasks.size();
@@ -60,188 +62,135 @@ public class WebService extends Service {
             // Stop the service using the startId, so that we don't stop
             // the service in the middle of handling another job
             //stopSelf(msg.arg1);
+        }*/
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_START_SERVICE:
+                    //TODO START
+                    break;
+                case MSG_ADD_UPDATE_TASK:
+                    //TODO ADD
+                    addUpdateTask(msg);
+                    break;
+                case MSG_DELETE_TASK:
+                    //TODO DELETE
+                    break;
+                case MSG_STOP_SERVICE:
+                    stopSelf(msg.arg1);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
+
+        private void addUpdateTask(Message msg) {
+            try {
+                showToast("ADD_UPDATE_TASK START " + msg.arg1);
+                Thread.sleep(5000);
+                showToast("ADD_UPDATE_TASK STOP " + msg.arg1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
     }
 
     public class MyBinder extends Binder {
         WebService getService() {
             return WebService.this;
         }
-
-        void updateServiceTask(int id, int delayStep, String name, String url) {
-            if(doTaskAlreadyExist(id)) {
-                //TODO jeśli task już istnieje, to usuń go i wywołaj nowy
-                try {
-                    deleteServiceTask(getIndexById(id));
-                    MyThread newServiceTask = new MyThread(id, delayStep, name, url);
-                    tasks.add(newServiceTask);
-                    newServiceTask.start();
-
-                } catch (InvaildIndexByIdException e) {
-                    Log.d("TAG", e.getMessage());
-                }
-
-            } else {
-                MyThread newServiceTask = new MyThread(id, delayStep, name, url);
-                tasks.add(newServiceTask);
-                newServiceTask.start();
-            }
-        }
-
-        void deleteServiceTask(int id) {
-            try {
-                tasks.remove(getIndexById(id));
-            } catch (InvaildIndexByIdException e) {
-                Log.d("TAG", e.getMessage());
-            }
-        }
-
-        void stopTask(int id) {
-            try {
-                tasks.get(getIndexById(id)).stop();
-            } catch (InvaildIndexByIdException e) {
-                Log.d("TAG", e.getMessage());
-            }
-        }
-
-        private boolean doTaskAlreadyExist(int newId) {
-            for(MyThread t : tasks) {
-                if(t.getId() == newId)
-                    return true;
-            }
-            return false;
-        }
-
-        int getIndexById(int id) throws InvaildIndexByIdException {
-            int arrayIndex = 0;
-            for(MyThread t : tasks) {
-                if(t.getId() == id)
-                    return arrayIndex;
-                else
-                    arrayIndex++;
-            }
-
-            throw new InvaildIndexByIdException("Invalid index");
-        }
-    }
-
-    private class MyThread {
-        private int id;
-        private int delayStep;
-        private String name;
-        private String url;
-
-        public MyThread(int id, int delayStep, String name, String url) {
-            this.id = id;
-            this.delayStep = delayStep;
-            this.name = name;
-            this.url = url;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void start() {
-            //TODO start()
-            Toast.makeText(getApplicationContext(), "thread starting", Toast.LENGTH_SHORT).show();
-            Message msg = mServiceHandler.obtainMessage();
-            msg.arg1 = 1;
-            mServiceHandler.sendMessage(msg);
-            pushNotification(this);
-            /*final Handler handler = new Handler();
-            final Runnable r = new Runnable() {
-                public void run() {
-                    handler.postDelayed(this, 1000);
-                    pushNotification(MyThread.this);
-                }
-            };
-            handler.postDelayed(r, 1000);*/
-        }
-
-        public void stop() {
-            //TODO stop()
-        }
     }
 
     @Override
     public void onCreate() {
-        // Start up the thread running the service.  Note that we create a
-        // separate thread because the service normally runs in the process's
-        // main thread, which we don't want to block.  We also make it
-        // background priority so CPU-intensive work will not disrupt our UI.
         HandlerThread thread = new HandlerThread("ServiceStartArguments",
                 Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
-        // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+
+        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        showNotification();
+        showToast(getText(R.string.service_started));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        // The service is starting, due to a call to startService()
 
-        // For each start request, send a message to start a job and deliver the
-        // start ID so we know which request we're stopping when we finish the job
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        mServiceHandler.sendMessage(msg);
-
-        // If we get killed, after returning from here, restart
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        // A client is binding to the service with bindService()
         return mBinder;
     }
 
     @Override
+    public boolean onUnbind(Intent intent) {
+        // All clients have unbound with unbindService()
+        return mAllowRebind;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        // A client is binding to the service with bindService(),
+        // after onUnbind() has already been called
+    }
+
+    @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        mNM.cancel(R.string.service_started);
+        showToast(getText(R.string.service_stopped));
     }
 
-    private void pushNotification(MyThread t) {
-        int notificationId = t.getId();
-        String url = t.getUrl();
-        String name = t.getName();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(WebService.this, notificationId, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_not_updated_black_24dp)
-                .setContentTitle("Zmiany na stronie w zadaniu: " + name)
-                .setContentText("Przejdź do adresu URL")
-                .setContentIntent(pendingIntent);
-
-        NotificationManager manager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(notificationId, builder.build());
+    public void addUpdateServiceTask() {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = MSG_ADD_UPDATE_TASK;
+        mServiceHandler.sendMessage(msg);
     }
 
-    private class InvaildIndexByIdException extends Exception {
-
-        public InvaildIndexByIdException(String message) {
-            super(message);
-        }
-
-        public InvaildIndexByIdException(String message, Throwable cause) {
-            super(message, cause);
-        }
+    public void stopServiceTask() {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = MSG_STOP_SERVICE;
+        mServiceHandler.sendMessage(msg);
     }
+
+    /**
+     * Show a notification while this service is running.
+     */
+    private void showNotification() {
+        // In this sample, we'll use the same text for the ticker and the expanded notification
+        CharSequence text = getText(R.string.service_started);
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.ic_not_updated_black_24dp)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(getText(R.string.service_label))  // the label of the entry
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(contentIntent)  // The intent to send when the entry is clicked
+                .build();
+
+        // Send the notification.
+        // We use a string id because it is a unique number.  We use it later to cancel.
+        mNM.notify(R.string.service_started, notification);
+    }
+
+    private void showToast(CharSequence text) {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
 }

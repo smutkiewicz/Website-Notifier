@@ -50,7 +50,7 @@
         <service
             android:name=".WebService"
             android:exported="false"
-            android:process=":com.smutkiewicz.WebService">
+            android:process=":PageNotifierService">
         </service>
     </application>
 
