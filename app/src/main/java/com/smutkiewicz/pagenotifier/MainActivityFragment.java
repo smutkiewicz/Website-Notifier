@@ -48,6 +48,7 @@ public class MainActivityFragment extends Fragment
         void displayDetailsFragment(Uri itemUri, int viewId);
         void onGoToWebsite(String url);
         void onChangesApplied();
+        void onServiceInteraction();
     }
 
     private class TextChangedListener implements TextWatcher {
@@ -87,7 +88,7 @@ public class MainActivityFragment extends Fragment
         testFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mListener.onServiceInteraction();
             }
         });
     }

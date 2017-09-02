@@ -40,6 +40,7 @@ public class AddEditItemFragment extends Fragment
     // zmienne instancyjne
     private boolean editMode = false;
     private Uri itemUri;
+    private int itemId;
 
     // zmienne widoków
     private FrameLayout addEditFrameLayout;
@@ -70,7 +71,7 @@ public class AddEditItemFragment extends Fragment
     }
 
     public interface AddEditItemFragmentListener {
-        void onFragmentInteraction(ContentValues values);
+        void onFragmentInteraction();
         void onAddEditItemCompleted(Uri contactUri);
     }
 
@@ -147,11 +148,13 @@ public class AddEditItemFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
+            int idIndex = data.getColumnIndex(DbDescription.KEY_ID);
             int nameIndex = data.getColumnIndex(DbDescription.KEY_NAME);
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int freqIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
 
+            setItemId(data.getInt(idIndex));
             setNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertsSwitchState(data.getInt(alertsIndex));
             setFrequencyStepValueLabelAndListener(data.getInt(freqIndex));
@@ -192,6 +195,10 @@ public class AddEditItemFragment extends Fragment
             setEditModeView();
         else
             setNewItemModeView();
+    }
+
+    private void setItemId(int id) {
+        itemId = id;
     }
 
     private void setNameAndUrlTextViews(String name, String url) {
@@ -283,7 +290,6 @@ public class AddEditItemFragment extends Fragment
                     getAlertsSwitchState());
             contentValues.put(DbDescription.KEY_DELAY,
                     frequencySeekBar.getProgress());
-            mListener.onFragmentInteraction(contentValues);
 
             if (editMode) {
                 // zaktualizuj informacje

@@ -3,7 +3,6 @@ package com.smutkiewicz.pagenotifier;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -25,7 +24,8 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smutkiewicz.pagenotifier.database.DbDescription;
+import com.smutkiewicz.pagenotifier.service.Job;
+import com.smutkiewicz.pagenotifier.service.JobFactory;
 import com.smutkiewicz.pagenotifier.service.MyJobService;
 import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
@@ -36,19 +36,22 @@ public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,
         MainActivityFragment.MainActivityFragmentListener {
+    public static int mJobId = 0;
 
     // JobScheduler
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static final int MSG_UNCOLOR_START = 0;
-    public static final int MSG_UNCOLOR_STOP = 1;
-    public static final int MSG_COLOR_START = 2;
-    public static final int MSG_COLOR_STOP = 3;
+    public static final int MSG_START = 0;
+    public static final int MSG_STOP = 1;
 
     public static final String MESSENGER_INTENT_KEY
             = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
     public static final String WORK_DURATION_KEY =
             BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
+    public static final String JOB_NAME_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
+    public static final String JOB_URL_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_URL_KEY";
 
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
@@ -108,53 +111,62 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
-    /**
-     * Executed when user clicks on SCHEDULE JOB.
-     */
-    public void scheduleJob(ContentValues values) {
-        //int id = values.getAsInteger(DbDescription.KEY_ID);
-        int delayStep = values.getAsInteger(DbDescription.KEY_DELAY);
-        int delay = scanDelayTranslator.putStepAndReturnItsValueInMilliseconds(delayStep);
-        //boolean requiresUnmetered = true;
-        boolean requiresAnyConnectivity = true;
-
-        JobInfo.Builder builder = new JobInfo.Builder(id, mServiceComponent);
-        //builder.setMinimumLatency(delay);
-        builder.setMinimumLatency(5000);
-
-        //TODO Decyzja czy chcemy używać do zadania Wifi czy sieci i Wifi
-        //builder.setOverrideDeadline(Long.valueOf(deadline) * 1000);
-        //builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
-
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-        builder.setRequiresDeviceIdle(true);
-        builder.setRequiresCharging(false);
-
-        // Extras, work duration.
-        PersistableBundle extras = new PersistableBundle();
-        //SAMPLE DURATION!!!
-        extras.putLong(WORK_DURATION_KEY, 5000);
-        builder.setExtras(extras);
-
-        // Schedule job
-        Log.d(TAG, "Scheduling job");
-        JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        tm.schedule(builder.build());
+    @Override
+    public void onServiceInteraction() {
+        JobFactory factory = new JobFactory();
+        Job job = factory.produceJob(JobFactory.getSampleJob());
+        scheduleJob(job);
     }
 
     /**
-     * Executed when user clicks on CANCEL ALL.
+     * Executed when user clicks on SCHEDULE JOB.
      */
+    public void scheduleJob(Job job) {
+        // sample values
+        boolean requiresUnmetered = job.requiresUnmetered; // WiFi Connectivity
+        boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // Any Connectivity
+        boolean requiresIdle = job.requiresIdle;
+        boolean requiresCharging = job.requiresCharging;
+        long delay = job.delay;
+        long workDuration = job.workDuration;
+        long deadline = job.deadline;
+        int id = job.id;
+
+        JobInfo.Builder builder = new JobInfo.Builder(id, mServiceComponent);
+        builder.setMinimumLatency(job.delay);
+        builder.setOverrideDeadline(job.deadline);
+
+        if (requiresUnmetered) {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        } else if (requiresAnyConnectivity) {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+        }
+
+        builder.setRequiresDeviceIdle(requiresIdle);
+        builder.setRequiresCharging(requiresCharging);
+
+        PersistableBundle extras = new PersistableBundle();
+        extras.putLong(WORK_DURATION_KEY, workDuration);
+        //do ustawienia powiadomienia
+        extras.putString(JOB_NAME_KEY, job.name);
+        extras.putString(JOB_URL_KEY, job.url);
+        builder.setExtras(extras);
+
+        Log.d(TAG, "Scheduling job");
+        JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        tm.schedule(builder.build());
+
+        Toast.makeText(
+                MainActivity.this, "Scheduling job", Toast.LENGTH_SHORT).show();
+    }
+
     public void cancelAllJobs(View v) {
         JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         tm.cancelAll();
         Toast.makeText(MainActivity.this, R.string.all_jobs_cancelled, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Executed when user clicks on FINISH TASK.
-     */
-    public void finishJob(View v, int jobId) {
+    public void finishJob(int jobId) {
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
         if (allPendingJobs.size() > 0) {
@@ -169,11 +181,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * A {@link Handler} allows you to send messages associated with a thread. A {@link Messenger}
-     * uses this handler to communicate from {@link MyJobService}. It's also used to make
-     * the start and stop views blink for a short period of time.
-     */
     private static class IncomingMessageHandler extends Handler {
 
         // Prevent possible leaks with a weak reference.
@@ -188,46 +195,16 @@ public class MainActivity extends AppCompatActivity
         public void handleMessage(Message msg) {
             MainActivity mainActivity = mActivity.get();
             if (mainActivity == null) {
-                // Activity is no longer available, exit.
                 return;
             }
 
             Message m;
             switch (msg.what) {
-                /*
-                 * Receives callback from the service when a job has landed
-                 * on the app. Turns on indicator and sends a message to turn it off after
-                 * a second.
-                 */
-                case MSG_COLOR_START:
-                    // Start received, turn on the indicator and show text.
+                case MSG_START:
                     updateParamsTextView(msg.obj, "started");
-
-                    // Send message to turn it off after a second.
-                    m = Message.obtain(this, MSG_UNCOLOR_START);
-                    sendMessageDelayed(m, 1000L);
                     break;
-                /*
-                 * Receives callback from the service when a job that previously landed on the
-                 * app must stop executing. Turns on indicator and sends a message to turn it
-                 * off after two seconds.
-                 */
-                case MSG_COLOR_STOP:
-                    // Stop received, turn on the indicator and show text.
-                    //showStopView.setBackgroundColor(getColor(R.color.stop_received));
+                case MSG_STOP:
                     updateParamsTextView(msg.obj, "stopped");
-
-                    // Send message to turn it off after a second.
-                    m = obtainMessage(MSG_UNCOLOR_STOP);
-                    sendMessageDelayed(m, 2000L);
-                    break;
-                case MSG_UNCOLOR_START:
-                    //showStartView.setBackgroundColor(getColor(R.color.none_received));
-                    updateParamsTextView(null, "");
-                    break;
-                case MSG_UNCOLOR_STOP:
-                    //showStopView.setBackgroundColor(getColor(R.color.none_received));
-                    updateParamsTextView(null, "");
                     break;
             }
         }
@@ -326,8 +303,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(ContentValues values) {
+    public void onFragmentInteraction() {
         //TODO implement interaction
-        scheduleJob(values);
     }
 }
