@@ -1,30 +1,37 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
 public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,
-        MainActivityFragment.MainActivityFragmentListener{
+        MainActivityFragment.MainActivityFragmentListener,
+        ServiceConnection {
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
     public static final String ITEM_URI = "item_uri";
     public static ScanDelayTranslator scanDelayTranslator;
 
-    private MainActivityFragment mainActivityFragment;
     private static Context context;
+    private MainActivityFragment mainActivityFragment;
+    private WebService service;
+    private WebService.MyBinder binder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +47,61 @@ public class MainActivity extends AppCompatActivity
         setupPreferences();
         disableKeyboard();
         initScanDelayTranslator();
+
+        startWebService();
+    }
+
+    private void startWebService() {
+        Intent service = new Intent(getApplicationContext(), WebService.class);
+        getApplicationContext().startService(service);
+
+        /*Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        Notification notification =
+                new Notification.Builder(this, CHANNEL_DEFAULT_IMPORTANCE)
+                        .setContentTitle(getText(R.string.notification_title))
+                        .setContentText(getText(R.string.notification_message))
+                        .setSmallIcon(R.drawable.icon)
+                        .setContentIntent(pendingIntent)
+                        .setTicker(getText(R.string.ticker_text))
+                        .build();
+
+        startForeground(ONGOING_NOTIFICATION_ID, notification);*/
+    }
+
+    @Override
+    public void onServiceInteraction() {
+        binder.updateServiceTask(1, 2, "Zadanie testowe 1",
+                "https://developer.android.com/guide/components/services.html");
+        binder.updateServiceTask(2, 3, "Zadanie testowe 2",
+                "https://developer.android.com/guide/components/services.html");
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        binder = (WebService.MyBinder) iBinder;
+        service = ((WebService.MyBinder) iBinder).getService();
+        Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName) {
+        service = null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent= new Intent(this, WebValuesService.class);
+        bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //unbindService(this);
     }
 
     @Override

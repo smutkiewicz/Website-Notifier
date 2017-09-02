@@ -40,6 +40,7 @@ public class MainActivityFragment extends Fragment
     private WebsiteItemAdapter itemAdapter;
 
     private EditText searchEditText;
+    private FloatingActionButton testFab;
 
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
@@ -47,6 +48,7 @@ public class MainActivityFragment extends Fragment
         void displayDetailsFragment(Uri itemUri, int viewId);
         void onGoToWebsite(String url);
         void onChangesApplied();
+        void onServiceInteraction();
     }
 
     private class TextChangedListener implements TextWatcher {
@@ -69,15 +71,26 @@ public class MainActivityFragment extends Fragment
         RecyclerView recyclerView =
                 (RecyclerView) view.findViewById(R.id.recyclerView);
         searchEditText = (EditText) view.findViewById(R.id.searchEditText);
+        testFab = (FloatingActionButton) view.findViewById(R.id.testFab);
 
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
         setUpInputTextLayout();
+        setUpTestFab();
 
         updateWebsiteItemList();
 
         return view;
+    }
+
+    private void setUpTestFab() {
+        testFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onServiceInteraction();
+            }
+        });
     }
 
     private void setUpInputTextLayout() {
