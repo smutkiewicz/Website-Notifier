@@ -36,10 +36,6 @@ public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,
         MainActivityFragment.MainActivityFragmentListener {
-    public static int mJobId = 0;
-
-    // JobScheduler
-    private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final int MSG_START = 0;
     public static final int MSG_STOP = 1;
@@ -56,19 +52,61 @@ public class MainActivity extends AppCompatActivity
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
     public static final String ITEM_URI = "item_uri";
+
+    // klasa narzędziowa
     public static ScanDelayTranslator scanDelayTranslator;
+
+    // JobScheduler
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static Context context;
 
-    // Handler for incoming messages from the service.
+    private static class IncomingMessageHandler extends Handler {
+        // zapobiega problemom z WeakReference
+        private WeakReference<MainActivity> mActivity;
+
+        IncomingMessageHandler(MainActivity activity) {
+            super();
+            this.mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity mainActivity = mActivity.get();
+            if (mainActivity == null) {
+                return;
+            }
+
+            Message m;
+            switch (msg.what) {
+                case MSG_START:
+                    //updateParamsTextView(msg.obj, "started");
+                    break;
+                case MSG_STOP:
+                    //updateParamsTextView(msg.obj, "stopped");
+                    break;
+            }
+        }
+
+        private void updateParamsTextView(@Nullable Object jobId, String action) {
+            TextView paramsTextView = (TextView) mActivity.get().findViewById(R.id.taskParams);
+            if (jobId == null) {
+                paramsTextView.setText("");
+                return;
+            }
+            String jobIdText = String.valueOf(jobId);
+            paramsTextView.setText(String.format("Job ID %s %s", jobIdText, action));
+        }
+    }
+
+    // Handler na wiadomości od serwisu
     private IncomingMessageHandler mHandler;
     private ComponentName mServiceComponent;
 
     // fragment
     private MainActivityFragment mainActivityFragment;
 
-    public static int id = 0;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupActivityToolbar();
@@ -87,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         Intent startServiceIntent = new Intent(this, MyJobService.class);
         Messenger messengerIncoming = new Messenger(mHandler);
@@ -96,31 +134,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         stopService(new Intent(this, MyJobService.class));
         super.onStop();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
     }
 
-    @Override
-    public void onServiceInteraction() {
-        JobFactory factory = new JobFactory();
-        Job job = factory.produceJob(JobFactory.getSampleJob());
-        scheduleJob(job);
-    }
-
-    /**
-     * Executed when user clicks on SCHEDULE JOB.
-     */
     public void scheduleJob(Job job) {
         // sample values
         boolean requiresUnmetered = job.requiresUnmetered; // WiFi Connectivity
@@ -181,45 +209,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private static class IncomingMessageHandler extends Handler {
-
-        // Prevent possible leaks with a weak reference.
-        private WeakReference<MainActivity> mActivity;
-
-        IncomingMessageHandler(MainActivity activity) {
-            super(/* default looper */);
-            this.mActivity = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            MainActivity mainActivity = mActivity.get();
-            if (mainActivity == null) {
-                return;
-            }
-
-            Message m;
-            switch (msg.what) {
-                case MSG_START:
-                    updateParamsTextView(msg.obj, "started");
-                    break;
-                case MSG_STOP:
-                    updateParamsTextView(msg.obj, "stopped");
-                    break;
-            }
-        }
-
-        private void updateParamsTextView(@Nullable Object jobId, String action) {
-            TextView paramsTextView = (TextView) mActivity.get().findViewById(R.id.taskParams);
-            if (jobId == null) {
-                paramsTextView.setText("");
-                return;
-            }
-            String jobIdText = String.valueOf(jobId);
-            paramsTextView.setText(String.format("Job ID %s %s", jobIdText, action));
-        }
-    }
-
     @Override
     public void displayAddEditFragment(Uri itemUri, int viewID) {
         AddEditItemFragment addEditFragment = new AddEditItemFragment();
@@ -240,23 +229,6 @@ public class MainActivity extends AppCompatActivity
         detailsDialog.show(getSupportFragmentManager(), "Details fragment");
     }
 
-    public static Context getAppContext() {
-        return MainActivity.context;
-    }
-
-    private void addUriArgumentsToAFragment(Fragment fragment, Uri uri) {
-        // przekaż adres Uri jako argument fragmentu
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(ITEM_URI, uri);
-        fragment.setArguments(arguments);
-    }
-
-    @Override
-    public void onItemDeleted() {
-        getSupportFragmentManager().popBackStack();
-        mainActivityFragment.updateWebsiteItemList();
-    }
-
     @Override
     public void onGoToWebsite(String url) {
         Intent i = new Intent(Intent.ACTION_VIEW);
@@ -270,9 +242,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAddEditItemCompleted(Uri contactUri) {
+    public void onDeleteItemCompleted(int jobId) {
         getSupportFragmentManager().popBackStack();
         mainActivityFragment.updateWebsiteItemList();
+        finishJob(jobId);
+    }
+
+    @Override
+    public void onAddEditItemCompleted(Job job) {
+        getSupportFragmentManager().popBackStack();
+        mainActivityFragment.updateWebsiteItemList();
+        scheduleJob(job);
+    }
+
+    @Override
+    public void onFragmentInteraction() {
+        //TODO implement interaction
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
 
     private void setupActivityToolbar() {
@@ -286,6 +275,13 @@ public class MainActivity extends AppCompatActivity
                 getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragmentContainer, mainActivityFragment);
         transaction.commit(); // wyświetl obiekt ContactsFragment
+    }
+
+    private void addUriArgumentsToAFragment(Fragment fragment, Uri uri) {
+        // przekaż adres Uri jako argument fragmentu
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(ITEM_URI, uri);
+        fragment.setArguments(arguments);
     }
 
     //SharedPreferences
@@ -302,8 +298,9 @@ public class MainActivity extends AppCompatActivity
         scanDelayTranslator = new ScanDelayTranslator(getApplicationContext());
     }
 
-    @Override
-    public void onFragmentInteraction() {
-        //TODO implement interaction
+    private void onServiceInteraction() {
+        JobFactory factory = new JobFactory();
+        Job job = factory.produceJob(JobFactory.getSampleJob());
+        scheduleJob(job);
     }
 }

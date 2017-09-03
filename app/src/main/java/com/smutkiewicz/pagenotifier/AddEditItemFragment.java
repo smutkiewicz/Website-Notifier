@@ -15,6 +15,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
+import com.smutkiewicz.pagenotifier.service.Job;
+import com.smutkiewicz.pagenotifier.service.JobFactory;
 
 import static android.webkit.URLUtil.isValidUrl;
 
@@ -72,7 +75,8 @@ public class AddEditItemFragment extends Fragment
 
     public interface AddEditItemFragmentListener {
         void onFragmentInteraction();
-        void onAddEditItemCompleted(Uri contactUri);
+        void onAddEditItemCompleted(Job job);
+        void onDeleteItemCompleted(int jobId);
     }
 
     @Override
@@ -267,7 +271,7 @@ public class AddEditItemFragment extends Fragment
                 .delete(itemUri, null, null);
 
         if (updatedRows > 0) {
-            mListener.onAddEditItemCompleted(itemUri);
+            mListener.onDeleteItemCompleted(itemId);
             showSnackbar(R.string.addedit_item_deleted);
         }
         else {
@@ -281,15 +285,8 @@ public class AddEditItemFragment extends Fragment
 
     private void saveItem() {
         if(checkIfCorrect()) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(DbDescription.KEY_NAME,
-                    nameEditText.getText().toString());
-            contentValues.put(DbDescription.KEY_URL,
-                    urlEditText.getText().toString());
-            contentValues.put(DbDescription.KEY_ALERTS,
-                    getAlertsSwitchState());
-            contentValues.put(DbDescription.KEY_DELAY,
-                    frequencySeekBar.getProgress());
+            JobFactory factory = new JobFactory();
+            ContentValues contentValues = getContentValuesForSavingItemOperation();
 
             if (editMode) {
                 // zaktualizuj informacje
@@ -297,23 +294,39 @@ public class AddEditItemFragment extends Fragment
                         itemUri, contentValues, null, null);
 
                 if (updatedRows > 0) {
-                    mListener.onAddEditItemCompleted(itemUri);
+                    // itemId został już pobrany w loaderze
+                    contentValues.put(DbDescription.KEY_ID, itemId);
+                    Job job = factory.produceJob(contentValues);
+                    mListener.onAddEditItemCompleted(job);
                     showSnackbar(R.string.addedit_item_updated);
                 }
                 else {
                     showSnackbar(R.string.addedit_item_not_updated);
                 }
+
             } else {
+                // dodaj nowe informacje
                 Uri newItemUri = getActivity().getContentResolver().insert(
                         DbDescription.CONTENT_URI, contentValues);
 
                 if (newItemUri != null) {
-                    showSnackbar(R.string.addedit_new_item_added);
-                    mListener.onAddEditItemCompleted(newItemUri);
+                    try {
+                        // zadanie zostało dopiero stworzone, więc musimy zdobyć
+                        // autoinkrementowane przez bazę ID itemu
+                        itemId = getIdOfJobFromAnUri(newItemUri);
+                        contentValues.put(DbDescription.KEY_ID, itemId);
+                        Job job = factory.produceJob(contentValues);
+                        mListener.onAddEditItemCompleted(job);
+                        showSnackbar(R.string.addedit_new_item_added);
+                    } catch (InvalidJobUriException e) {
+                        Log.d("TAG", e.getMessage());
+                    }
+
                 } else {
                     showSnackbar(R.string.addedit_new_item_not_added);
                 }
-            }
+
+            } // editMode
         } // checkIfCorrect();
     }
 
@@ -363,5 +376,41 @@ public class AddEditItemFragment extends Fragment
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+    }
+
+    private int getIdOfJobFromAnUri(Uri itemUri) throws InvalidJobUriException {
+        Cursor cursor = getActivity()
+                .getContentResolver().query(itemUri, null, null, null, null);
+
+        if(cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DbDescription.KEY_ID);
+            int id = cursor.getInt(idIndex);
+            return id;
+        }
+
+        throw new InvalidJobUriException("Invalid job Uri");
+    }
+
+    private ContentValues getContentValuesForSavingItemOperation() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbDescription.KEY_NAME,
+                nameEditText.getText().toString());
+        contentValues.put(DbDescription.KEY_URL,
+                urlEditText.getText().toString());
+        contentValues.put(DbDescription.KEY_ALERTS,
+                getAlertsSwitchState());
+        contentValues.put(DbDescription.KEY_DELAY,
+                frequencySeekBar.getProgress());
+        return contentValues;
+    }
+
+    private class InvalidJobUriException extends Exception {
+        public InvalidJobUriException(String message) {
+           super(message);
+        }
+
+        public InvalidJobUriException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

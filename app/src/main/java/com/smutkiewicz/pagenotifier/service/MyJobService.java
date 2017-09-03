@@ -81,7 +81,7 @@ public class MyJobService extends JobService {
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
         Log.i(TAG, "on stop job: " + params.getJobId());
-        showToast("Job stopped ! ! !");
+        showToast("Job stopped " + params.getJobId() + "! ! !");
         return false;
     }
 

@@ -24,6 +24,7 @@ public class DetailsDialogFragment extends DialogFragment
 
     // adres uri wyświetlanego itemu
     private Uri itemUri;
+    private int itemId;
     private String url;
 
     // pola do wyświetlania szczegółów obiektu
@@ -37,7 +38,7 @@ public class DetailsDialogFragment extends DialogFragment
 
     public interface DetailsDialogFragmentListener {
         void displayAddEditFragment(Uri itemUri, int viewId);
-        void onItemDeleted(); // odświeża listę po zmianach w bazie danych
+        void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
         void onGoToWebsite(String url);
     }
 
@@ -108,12 +109,14 @@ public class DetailsDialogFragment extends DialogFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
+            int idIndex = data.getColumnIndex(DbDescription.KEY_ID);
             int nameIndex = data.getColumnIndex(DbDescription.KEY_NAME);
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int delayIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
             int updatesIndex = data.getColumnIndex(DbDescription.KEY_UPDATED);
 
+            setItemId(data.getInt(idIndex));
             setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertModeState(data.getInt(alertsIndex));
             setStatus(data.getInt(updatesIndex));
@@ -161,7 +164,7 @@ public class DetailsDialogFragment extends DialogFragment
                         //TODO usuń
                         getActivity().getContentResolver().delete(
                                 itemUri, null, null);
-                        mListener.onItemDeleted();
+                        mListener.onDeleteItemCompleted(itemId);
                     }
                 }
         );
@@ -193,6 +196,10 @@ public class DetailsDialogFragment extends DialogFragment
 
     private void initLoader() {
         getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+    }
+
+    private void setItemId(int id) {
+        itemId = id;
     }
 
     private void setDetailsNameAndUrlTextViews(String name, String url) {
