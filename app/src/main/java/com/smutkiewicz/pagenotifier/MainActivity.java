@@ -13,7 +13,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smutkiewicz.pagenotifier.service.Job;
@@ -88,16 +86,6 @@ public class MainActivity extends AppCompatActivity
                     //updateParamsTextView(msg.obj, "stopped");
                     break;
             }
-        }
-
-        private void updateParamsTextView(@Nullable Object jobId, String action) {
-            TextView paramsTextView = (TextView) mActivity.get().findViewById(R.id.taskParams);
-            if (jobId == null) {
-                paramsTextView.setText("");
-                return;
-            }
-            String jobIdText = String.valueOf(jobId);
-            paramsTextView.setText(String.format("Job ID %s %s", jobIdText, action));
         }
     }
 

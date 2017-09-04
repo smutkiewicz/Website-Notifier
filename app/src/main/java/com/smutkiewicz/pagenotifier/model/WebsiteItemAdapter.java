@@ -24,8 +24,8 @@ public class WebsiteItemAdapter
     public interface WebsiteItemClickListener {
         void onMoreButtonClick(Uri itemUri);
         void onItemClick(String url);
-        void onSwitchClick(Uri itemUri, int newEnableValue);
         void onToggleClick(Job job, boolean newToggleValue);
+        void onSwitchClick(Uri itemUri, int newEnableValue);
     }
 
     // zmienne egzemplarzowe adaptera
@@ -90,10 +90,10 @@ public class WebsiteItemAdapter
             isEnabledToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int newSwitchValue = swapBooleanToInt(isEnabled);
-                    clickListener.onSwitchClick(
-                            getItemUri(), newSwitchValue);
-                    //clickListener.onToggleClick(job, newSwitchValue);
+                    //int newSwitchValue = swapBooleanToInt(isEnabled);
+                    /*clickListener.onSwitchClick(
+                            getItemUri(), newSwitchValue);*/
+                    clickListener.onToggleClick(job, !isEnabled);
                 }
             });
         }
@@ -112,6 +112,17 @@ public class WebsiteItemAdapter
         private Uri getItemUri() {
             return DbDescription.buildWebsiteItemUri(rowID);
         }
+    }
+
+    @Override
+    public int getItemCount() {
+        return (cursor != null) ? cursor.getCount() : 0;
+    }
+
+    // zamień bieżący obiekt Cursor adaptera na nowy
+    public void swapCursor(Cursor cursor) {
+        this.cursor = cursor;
+        notifyDataSetChanged();
     }
 
     // ustala nowy element listy i jego obiekt ViewHolder
@@ -160,7 +171,7 @@ public class WebsiteItemAdapter
         if(isUpdated)
             setUpdatedPageStateImage(holder);
         else
-            setNotUpdatedPageStateImage(holder);
+            setAbortedPageStateImage(holder);
     }
 
     // ON Pressed, not updated
@@ -185,23 +196,20 @@ public class WebsiteItemAdapter
                 MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
     }
 
+    private void setAbortedPageStateImage(ViewHolder holder) {
+        View view = holder.pageStateImageView.getRootView();
+        holder.pageStateImageView.setImageDrawable(view.getResources()
+                .getDrawable(R.drawable.ic_cancel_black_24dp));
+        holder.pageNameTextView.setTextColor(
+                MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
+    }
+
     private void setIsEnabledToggleCheck(ViewHolder holder, boolean checked) {
         holder.isEnabledToggle.setChecked(checked);
         holder.isEnabled = checked;
     }
 
-    @Override
-    public int getItemCount() {
-        return (cursor != null) ? cursor.getCount() : 0;
-    }
-
-    // zamień bieżący obiekt Cursor adaptera na nowy
-    public void swapCursor(Cursor cursor) {
-        this.cursor = cursor;
-        notifyDataSetChanged();
-    }
-
-    public int swapBooleanToInt(boolean value) {
+    private int swapBooleanToInt(boolean value) {
         return (value) ? 0 : 1;
     }
 }

@@ -12,4 +12,5 @@
     <dimen name="freq_value_text_width">50dp</dimen>
     <dimen name="toggle_button_width">72dp</dimen>
     <dimen name="toggle_button_height">48dp</dimen>
+    <dimen name="elevation">40dp</dimen>
 </resources>

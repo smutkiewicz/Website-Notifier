@@ -72,26 +72,14 @@ public class MainActivityFragment extends Fragment
         RecyclerView recyclerView =
                 (RecyclerView) view.findViewById(R.id.recyclerView);
         searchEditText = (EditText) view.findViewById(R.id.searchEditText);
-        testFab = (FloatingActionButton) view.findViewById(R.id.testFab);
 
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
         setUpInputTextLayout();
-        setUpTestFab();
-
         updateWebsiteItemList();
 
         return view;
-    }
-
-    private void setUpTestFab() {
-        testFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
     }
 
     private void setUpInputTextLayout() {
@@ -226,27 +214,25 @@ public class MainActivityFragment extends Fragment
                     @Override
                     public void onSwitchClick(Uri itemUri, int newEnableValue) {
                         //TODO włącz/wyłącz powiadomienia
-                        onSwitchClicked(itemUri, newEnableValue);
+                        onToggleClicked(itemUri, newEnableValue);
                     }
 
                     @Override
                     public void onToggleClick(Job job, boolean newToggleValue) {
+                        onToggleClicked(job.uri, (newToggleValue) ? 1 : 0);
                         mListener.onToggleAction(job, newToggleValue);
                     }
                 }
         );
     }
 
-    private void onSwitchClicked(Uri itemUri, int newIsEnabledValue) {
-        // create ContentValues object containing contact's key-value pairs
+    private void onToggleClicked(Uri itemUri, int newIsEnabledValue) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbDescription.KEY_ISENABLED, newIsEnabledValue);
         contentValues.put(DbDescription.KEY_UPDATED, 0);
 
-        //int updatedRows = 0;
         int updatedRows = getActivity().getContentResolver().update(
                 itemUri, contentValues, null, null);
-        Log.d("TAG", "MainAFragment onSwitchClicked: "+itemUri);
 
         if (updatedRows > 0) {
 
