@@ -27,6 +27,7 @@ import android.widget.EditText;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
+import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.utilities.ItemDivider;
 
 public class MainActivityFragment extends Fragment
@@ -47,6 +48,7 @@ public class MainActivityFragment extends Fragment
         void displayAddEditFragment(Uri uri, int viewId);
         void displayDetailsFragment(Uri itemUri, int viewId);
         void onGoToWebsite(String url);
+        void onToggleAction(Job job, boolean isSchedulingNeeded);
         void onChangesApplied();
     }
 
@@ -226,6 +228,11 @@ public class MainActivityFragment extends Fragment
                         //TODO włącz/wyłącz powiadomienia
                         onSwitchClicked(itemUri, newEnableValue);
                     }
+
+                    @Override
+                    public void onToggleClick(Job job, boolean newToggleValue) {
+                        mListener.onToggleAction(job, newToggleValue);
+                    }
                 }
         );
     }
@@ -234,6 +241,7 @@ public class MainActivityFragment extends Fragment
         // create ContentValues object containing contact's key-value pairs
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbDescription.KEY_ISENABLED, newIsEnabledValue);
+        contentValues.put(DbDescription.KEY_UPDATED, 0);
 
         //int updatedRows = 0;
         int updatedRows = getActivity().getContentResolver().update(

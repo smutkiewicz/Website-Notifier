@@ -34,6 +34,7 @@ import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.service.JobFactory;
 
 import static android.webkit.URLUtil.isValidUrl;
+import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
 
 public class AddEditItemFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -74,8 +75,8 @@ public class AddEditItemFragment extends Fragment
     }
 
     public interface AddEditItemFragmentListener {
-        void onFragmentInteraction();
-        void onAddEditItemCompleted(Job job);
+        void onAddItemCompleted(Job job);
+        void onEditItemCompleted();
         void onDeleteItemCompleted(int jobId);
     }
 
@@ -296,8 +297,9 @@ public class AddEditItemFragment extends Fragment
                 if (updatedRows > 0) {
                     // itemId został już pobrany w loaderze
                     contentValues.put(DbDescription.KEY_ID, itemId);
+                    contentValues.put(JOB_URI_KEY, itemUri.toString());
                     Job job = factory.produceJob(contentValues);
-                    mListener.onAddEditItemCompleted(job);
+                    mListener.onEditItemCompleted();
                     showSnackbar(R.string.addedit_item_updated);
                 }
                 else {
@@ -315,8 +317,9 @@ public class AddEditItemFragment extends Fragment
                         // autoinkrementowane przez bazę ID itemu
                         itemId = getIdOfJobFromAnUri(newItemUri);
                         contentValues.put(DbDescription.KEY_ID, itemId);
+                        contentValues.put(JOB_URI_KEY, newItemUri.toString());
                         Job job = factory.produceJob(contentValues);
-                        mListener.onAddEditItemCompleted(job);
+                        mListener.onAddItemCompleted(job);
                         showSnackbar(R.string.addedit_new_item_added);
                     } catch (InvalidJobUriException e) {
                         Log.d("TAG", e.getMessage());

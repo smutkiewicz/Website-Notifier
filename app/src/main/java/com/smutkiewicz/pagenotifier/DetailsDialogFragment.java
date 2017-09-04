@@ -39,7 +39,6 @@ public class DetailsDialogFragment extends DialogFragment
     public interface DetailsDialogFragmentListener {
         void displayAddEditFragment(Uri itemUri, int viewId);
         void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
-        void onGoToWebsite(String url);
     }
 
     @Override

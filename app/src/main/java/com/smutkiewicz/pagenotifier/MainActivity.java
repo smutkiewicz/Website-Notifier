@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smutkiewicz.pagenotifier.service.Job;
-import com.smutkiewicz.pagenotifier.service.JobFactory;
 import com.smutkiewicz.pagenotifier.service.MyJobService;
 import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
@@ -48,6 +47,10 @@ public class MainActivity extends AppCompatActivity
             BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
     public static final String JOB_URL_KEY =
             BuildConfig.APPLICATION_ID + ".JOB_URL_KEY";
+    public static final String JOB_ALERTS_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_ALERTS_KEY";
+    public static final String JOB_URI_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_URI_KEY";
 
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
@@ -153,16 +156,13 @@ public class MainActivity extends AppCompatActivity
         // sample values
         boolean requiresUnmetered = job.requiresUnmetered; // WiFi Connectivity
         boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // Any Connectivity
-        boolean requiresIdle = job.requiresIdle;
-        boolean requiresCharging = job.requiresCharging;
-        long delay = job.delay;
-        long workDuration = job.workDuration;
-        long deadline = job.deadline;
-        int id = job.id;
 
-        JobInfo.Builder builder = new JobInfo.Builder(id, mServiceComponent);
+        // build Job for JobService
+        JobInfo.Builder builder = new JobInfo.Builder(job.id, mServiceComponent);
         builder.setMinimumLatency(job.delay);
         builder.setOverrideDeadline(job.deadline);
+        builder.setRequiresDeviceIdle(job.requiresIdle);
+        builder.setRequiresCharging(job.requiresCharging);
 
         if (requiresUnmetered) {
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
@@ -170,20 +170,15 @@ public class MainActivity extends AppCompatActivity
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         }
 
-        builder.setRequiresDeviceIdle(requiresIdle);
-        builder.setRequiresCharging(requiresCharging);
-
-        PersistableBundle extras = new PersistableBundle();
-        extras.putLong(WORK_DURATION_KEY, workDuration);
-        //do ustawienia powiadomienia
-        extras.putString(JOB_NAME_KEY, job.name);
-        extras.putString(JOB_URL_KEY, job.url);
+        // put extras for service
+        PersistableBundle extras = putExtrasToAPersistableBundle(job);
         builder.setExtras(extras);
 
-        Log.d(TAG, "Scheduling job");
+        // schedule
         JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         tm.schedule(builder.build());
 
+        Log.d(TAG, "Scheduling job");
         Toast.makeText(
                 MainActivity.this, "Scheduling job", Toast.LENGTH_SHORT).show();
     }
@@ -191,7 +186,9 @@ public class MainActivity extends AppCompatActivity
     public void cancelAllJobs(View v) {
         JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         tm.cancelAll();
-        Toast.makeText(MainActivity.this, R.string.all_jobs_cancelled, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Cancelling all jobs");
+        Toast.makeText(MainActivity.this, R.string.all_jobs_cancelled,
+                Toast.LENGTH_SHORT).show();
     }
 
     public void finishJob(int jobId) {
@@ -243,21 +240,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDeleteItemCompleted(int jobId) {
-        getSupportFragmentManager().popBackStack();
-        mainActivityFragment.updateWebsiteItemList();
+        returnToMainFragmentAndUpdateItemList();
         finishJob(jobId);
     }
 
     @Override
-    public void onAddEditItemCompleted(Job job) {
-        getSupportFragmentManager().popBackStack();
-        mainActivityFragment.updateWebsiteItemList();
+    public void onEditItemCompleted() {
+        // po edycji nie wymuszamy od razu startu nowego zadania
+        returnToMainFragmentAndUpdateItemList();
+    }
+
+    @Override
+    public void onAddItemCompleted(Job job) {
+        // dodajemy nowe czyste zadanie i je uruchamiamy
+        returnToMainFragmentAndUpdateItemList();
         scheduleJob(job);
     }
 
     @Override
-    public void onFragmentInteraction() {
-        //TODO implement interaction
+    public void onToggleAction(Job job, boolean isSchedulingNeeded) {
+        // obsługujemy akcję wciśnięcia toggle buttona przez użytkownika
+        if(isSchedulingNeeded)
+            scheduleJob(job);
+        else
+            finishJob(job.id);
     }
 
     public static Context getAppContext() {
@@ -298,9 +304,25 @@ public class MainActivity extends AppCompatActivity
         scanDelayTranslator = new ScanDelayTranslator(getApplicationContext());
     }
 
+    private PersistableBundle putExtrasToAPersistableBundle(Job job) {
+        PersistableBundle extras = new PersistableBundle();
+        extras.putLong(WORK_DURATION_KEY, job.workDuration);
+        //do ustawienia powiadomienia
+        extras.putString(JOB_NAME_KEY, job.name);
+        extras.putString(JOB_URL_KEY, job.url);
+        extras.putInt(JOB_ALERTS_KEY, (job.alertsEnabled) ? 1 : 0);
+        extras.putString(JOB_URI_KEY, (job.uri).toString());
+        return extras;
+    }
+
+    private void returnToMainFragmentAndUpdateItemList() {
+        getSupportFragmentManager().popBackStack();
+        mainActivityFragment.updateWebsiteItemList();
+    }
+
     private void onServiceInteraction() {
-        JobFactory factory = new JobFactory();
+        /*JobFactory factory = new JobFactory();
         Job job = factory.produceJob(JobFactory.getSampleJob());
-        scheduleJob(job);
+        scheduleJob(job);*/
     }
 }

@@ -64,5 +64,6 @@
     <string name="all_jobs_cancelled">Wszystkie zadania wyłączone.</string>
     <string name="cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
     <string name="no_jobs_to_cancel">Brak zadań do zakończenia.</string>
+    <string name="service_website_updated">Zmiany na stronie!</string>
 
 </resources>

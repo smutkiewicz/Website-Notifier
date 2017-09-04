@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,8 +18,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.smutkiewicz.pagenotifier.R;
+import com.smutkiewicz.pagenotifier.database.DbDescription;
 
+import static com.smutkiewicz.pagenotifier.MainActivity.JOB_ALERTS_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_NAME_KEY;
+import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URL_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MESSENGER_INTENT_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
@@ -54,25 +58,34 @@ public class MyJobService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
-        showToast("On Start Job " + params.getJobId());
-        sendMessage(MSG_START, params.getJobId());
+        final int jobId = params.getJobId();
+        sendMessage(MSG_START, jobId);
 
+        final int alerts = params.getExtras().getInt(JOB_ALERTS_KEY);
         long duration = params.getExtras().getLong(WORK_DURATION_KEY);
         final String name = params.getExtras().getString(JOB_NAME_KEY);
         final String url = params.getExtras().getString(JOB_URL_KEY);
+        final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
+        final boolean alertsEnabled = (alerts == 1);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                sendMessage(MSG_STOP, params.getJobId());
+                sendMessage(MSG_STOP, jobId);
+                setCurrentItemUpdated(uri);
+
+                if(alertsEnabled) {
+                    showNotification(name, url);
+                }
+
                 showToast("Job finished ! ! !");
-                showNotification(name, url);
                 jobFinished(params, false);
             }
         }, duration);
 
-        Log.i(TAG, "on start job: " + params.getJobId());
+        Log.i(TAG, "on start job: " + jobId);
+        showToast("On Start Job " + jobId);
 
         return true;
     }
@@ -80,6 +93,7 @@ public class MyJobService extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
+
         Log.i(TAG, "on stop job: " + params.getJobId());
         showToast("Job stopped " + params.getJobId() + "! ! !");
         return false;
@@ -111,7 +125,7 @@ public class MyJobService extends JobService {
 
     private void showNotification(String name, String url) {
         NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        CharSequence text = getText(R.string.service_started);
+        CharSequence text = getText(R.string.service_website_updated);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
@@ -120,7 +134,7 @@ public class MyJobService extends JobService {
                 intent, 0);
 
         Notification notification = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_not_updated_black_24dp)
+                .setSmallIcon(R.drawable.ic_updated_white_24dp)
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(name)
@@ -129,6 +143,14 @@ public class MyJobService extends JobService {
                 .build();
 
         manager.notify(R.string.service_started, notification);
+    }
+
+    private void setCurrentItemUpdated(Uri jobUri) {
+        ContentValues values = new ContentValues();
+        values.put(DbDescription.KEY_UPDATED, 1);
+        values.put(DbDescription.KEY_ISENABLED, 0);
+        getContentResolver().update(jobUri, values, null, null);
+        Log.d("TAG", "Updated in database");
     }
 }
 
