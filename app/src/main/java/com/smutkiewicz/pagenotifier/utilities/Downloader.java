@@ -1,4 +1,4 @@
-package com.smutkiewicz.pagenotifier;
+package com.smutkiewicz.pagenotifier.utilities;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
+
+import com.smutkiewicz.pagenotifier.BuildConfig;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

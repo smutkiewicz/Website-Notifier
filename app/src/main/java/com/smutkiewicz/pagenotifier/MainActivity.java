@@ -149,8 +149,8 @@ public class MainActivity extends AppCompatActivity
 
     public void scheduleJob(Job job) {
         // sample values
-        boolean requiresUnmetered = job.requiresUnmetered; // WiFi Connectivity
-        boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // Any Connectivity
+        boolean requiresUnmetered = job.requiresUnmetered; // wymaga połączenia tylko przez WiFi
+        boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // wymaga WiFi lub czegokolwiek
 
         // build Job for JobService
         JobInfo.Builder builder = new JobInfo.Builder(job.id, mServiceComponent);

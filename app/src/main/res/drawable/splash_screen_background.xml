@@ -8,7 +8,7 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@android:drawable/ic_menu_info_details"/>
+            android:src="@android:drawable/ic_notification_overlay"/>
     </item>
 
 </layer-list>

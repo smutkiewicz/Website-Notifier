@@ -25,10 +25,9 @@ public class WebsiteItemAdapter
     // interfejs implementowany przez MainActivityFragment
     // po dotknięciu przez użytkownika elementu wyświetlanego w widoku RecyclerView
     public interface WebsiteItemClickListener {
-        void onMoreButtonClick(Uri itemUri);
-        void onItemClick(String url);
+        void onEditButtonClick(Uri itemUri, int viewId);
+        void onItemClick(Uri itemUri);
         void onToggleClick(Job job, boolean newToggleValue);
-        void onSwitchClick(Uri itemUri, int newEnableValue);
     }
 
     // zmienne egzemplarzowe adaptera
@@ -45,7 +44,7 @@ public class WebsiteItemAdapter
         private final ImageView pageStateImageView;
         private final TextView pageNameTextView;
         private final ToggleButton isEnabledToggle;
-        private final ImageButton pageMoreImageButton;
+        private final ImageButton pageEditImageButton;
 
         private long rowID;
         private int delayStep;
@@ -58,7 +57,7 @@ public class WebsiteItemAdapter
             super(itemView);
             pageNameTextView = (TextView) itemView.findViewById(R.id.pageNameTextView);
             isEnabledToggle = (ToggleButton) itemView.findViewById(R.id.pageAlertToggle);
-            pageMoreImageButton = (ImageButton) itemView.findViewById(R.id.pageMoreImageButton);
+            pageEditImageButton = (ImageButton) itemView.findViewById(R.id.pageEditImageButton);
             pageStateImageView = (ImageView) itemView.findViewById(R.id.pageStateImageView);
 
             setButtonListeners();
@@ -67,12 +66,15 @@ public class WebsiteItemAdapter
         }
 
         private void setButtonListeners() {
-            pageMoreImageButton.setOnClickListener(
+            pageEditImageButton.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            clickListener.onMoreButtonClick(
-                                    DbDescription.buildWebsiteItemUri(rowID));
+                            clickListener.onEditButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID),
+                                    R.id.fragmentContainer);
+                            /*clickListener.onMoreButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));*/
                         }
                     }
             );
@@ -83,7 +85,8 @@ public class WebsiteItemAdapter
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            clickListener.onItemClick(url);
+                            clickListener.onItemClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));
                         }
                     }
             );
@@ -93,9 +96,6 @@ public class WebsiteItemAdapter
             isEnabledToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //int newSwitchValue = swapBooleanToInt(isEnabled);
-                    /*clickListener.onSwitchClick(
-                            getItemUri(), newSwitchValue);*/
                     clickListener.onToggleClick(job, !isEnabled);
                 }
             });

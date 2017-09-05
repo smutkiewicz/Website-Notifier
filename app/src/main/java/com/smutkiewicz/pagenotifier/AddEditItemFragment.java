@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.service.JobFactory;
+import com.smutkiewicz.pagenotifier.utilities.InvalidJobUriException;
 
 import static android.webkit.URLUtil.isValidUrl;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
@@ -48,6 +49,8 @@ public class AddEditItemFragment extends Fragment
     private boolean editMode = false;
     private Uri itemUri;
     private int itemId;
+
+    // aktualny stan zadania ON/OFF
     private boolean isEnabled;
 
     // zmienne widoków
@@ -61,6 +64,8 @@ public class AddEditItemFragment extends Fragment
     private FloatingActionButton fab;
 
     private AddEditItemFragmentListener mListener;
+
+    // obserwator zmian w aktualnym zadaniu z identyfikatorem itemUri
     private MyContentObserver mObserver;
 
     private class TextChangedListener implements TextWatcher {
@@ -502,15 +507,5 @@ public class AddEditItemFragment extends Fragment
         contentValues.put(DbDescription.KEY_DELAY,
                 frequencySeekBar.getProgress());
         return contentValues;
-    }
-
-    private class InvalidJobUriException extends Exception {
-        public InvalidJobUriException(String message) {
-           super(message);
-        }
-
-        public InvalidJobUriException(String message, Throwable cause) {
-            super(message, cause);
-        }
     }
 }

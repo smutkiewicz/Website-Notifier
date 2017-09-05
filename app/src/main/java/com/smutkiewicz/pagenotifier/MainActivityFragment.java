@@ -47,7 +47,6 @@ public class MainActivityFragment extends Fragment
     public interface MainActivityFragmentListener {
         void displayAddEditFragment(Uri uri, int viewId);
         void displayDetailsFragment(Uri itemUri, int viewId);
-        void onGoToWebsite(String url);
         void onToggleAction(Job job, boolean isSchedulingNeeded);
     }
 
@@ -201,19 +200,13 @@ public class MainActivityFragment extends Fragment
         itemAdapter = new WebsiteItemAdapter(
                 new WebsiteItemAdapter.WebsiteItemClickListener() {
                     @Override
-                    public void onMoreButtonClick(Uri itemUri) {
+                    public void onEditButtonClick(Uri itemUri, int viewId) {
+                        mListener.displayAddEditFragment(itemUri, viewId);
+                    }
+
+                    @Override
+                    public void onItemClick(Uri itemUri) {
                         mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
-                    }
-
-                    @Override
-                    public void onItemClick(String url) {
-                        mListener.onGoToWebsite(url);
-                    }
-
-                    @Override
-                    public void onSwitchClick(Uri itemUri, int newEnableValue) {
-                        //TODO włącz/wyłącz powiadomienia
-                        onToggleClicked(itemUri, newEnableValue);
                     }
 
                     @Override

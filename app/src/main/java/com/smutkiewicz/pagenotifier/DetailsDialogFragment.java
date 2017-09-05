@@ -43,12 +43,13 @@ public class DetailsDialogFragment extends DialogFragment
     private TextView alertsTextView;
     private TextView updatedTextView;
 
+    private Dialog mDialog;
     private DetailsDialogFragmentListener mListener;
     private MyContentObserver mObserver;
 
     public interface DetailsDialogFragmentListener {
-        void displayAddEditFragment(Uri itemUri, int viewId);
         void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
+        void onGoToWebsite(String url);
     }
 
     @SuppressLint("NewApi")
@@ -84,8 +85,8 @@ public class DetailsDialogFragment extends DialogFragment
         initLoader();
         //setBuildersIconAndStatusTextView(builder);
         initObserver();
-
-        return builder.create();
+        mDialog = builder.create();
+        return mDialog;
     }
 
     // poinformuj obiekt MainActivityFragment o tym,
@@ -181,10 +182,10 @@ public class DetailsDialogFragment extends DialogFragment
     }
 
     private void setBuildersNeutralGoToWebsiteButton(AlertDialog.Builder builder) {
-        builder.setNeutralButton(R.string.details_edit_label,
+        builder.setNeutralButton(R.string.details_goto_label,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.displayAddEditFragment(itemUri, R.id.fragmentContainer);
+                        mListener.onGoToWebsite(url);
                     }
                 }
         );
@@ -282,6 +283,8 @@ public class DetailsDialogFragment extends DialogFragment
 
         isUpdatedStatus = (status == 1);
     }
+
+
 
     // TODO nowy sposób ustawiania stanu
     private void setIsEnabledAndIsUpdated(int isEnabled, int updates) {

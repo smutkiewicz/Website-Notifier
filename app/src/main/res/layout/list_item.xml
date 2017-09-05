@@ -52,15 +52,16 @@
     </GridLayout>
 
     <ImageButton
-        android:id="@+id/pageMoreImageButton"
+        android:id="@+id/pageEditImageButton"
         android:layout_width="@dimen/toggle_button_height"
-        android:layout_height="@dimen/toggle_button_height"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/button_margin"
         android:layout_marginLeft="@dimen/button_margin"
         android:layout_marginRight="@dimen/button_margin"
         android:layout_marginTop="@dimen/button_margin"
+        android:background="@null"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_more_horiz_black_24dp"/>
+        app:srcCompat="@drawable/ic_edit_black_24dp"/>
 
 </LinearLayout>
