@@ -49,7 +49,6 @@ public class MainActivityFragment extends Fragment
         void displayDetailsFragment(Uri itemUri, int viewId);
         void onGoToWebsite(String url);
         void onToggleAction(Job job, boolean isSchedulingNeeded);
-        void onChangesApplied();
     }
 
     private class TextChangedListener implements TextWatcher {

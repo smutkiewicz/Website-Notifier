@@ -17,6 +17,9 @@ import com.smutkiewicz.pagenotifier.database.DbDescription;
 import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.service.JobFactory;
 
+import static com.smutkiewicz.pagenotifier.MainActivity.ENABLED_ITEM_STATE;
+import static com.smutkiewicz.pagenotifier.MainActivity.NOT_ENABLED_ITEM_STATE;
+
 public class WebsiteItemAdapter
     extends RecyclerView.Adapter<WebsiteItemAdapter.ViewHolder> {
     // interfejs implementowany przez MainActivityFragment
@@ -149,13 +152,14 @@ public class WebsiteItemAdapter
     }
 
     private void setItemState(ViewHolder holder) {
-        int state = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
+        int state =
+                cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
         switch (state) {
-            case 0:
+            case NOT_ENABLED_ITEM_STATE:
                 // OFF Pressed, not updated or already updated
                 setNotEnabledState(holder);
                 break;
-            case 1:
+            case ENABLED_ITEM_STATE:
                 // ON Pressed, not updated
                 setEnabledState(holder);
                 break;
@@ -164,7 +168,8 @@ public class WebsiteItemAdapter
 
     // OFF Pressed, not updated or already updated
     private void setNotEnabledState(ViewHolder holder) {
-        int isItemUpdated = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
+        int isItemUpdated =
+                cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
         boolean isUpdated = (isItemUpdated == 1);
         setIsEnabledToggleCheck(holder, false);
 

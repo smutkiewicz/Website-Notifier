@@ -6,6 +6,17 @@
               android:orientation="horizontal"
               android:useDefaultMargins="true">
 
+    <ImageView
+        android:id="@+id/pageStateImageView"
+        android:layout_width="@dimen/image_side_length"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/button_margin"
+        android:layout_marginTop="@dimen/button_margin"
+        android:contentDescription=""
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_not_updated_black_24dp"/>
+
     <ToggleButton
         android:id="@+id/pageAlertToggle"
         android:layout_width="@dimen/toggle_button_width"
@@ -17,19 +28,6 @@
         android:layout_marginTop="@dimen/button_margin"
         android:elevation="@dimen/elevation"
         android:scaleType="fitCenter"/>
-
-    <ImageButton
-        android:id="@+id/pageMoreImageButton"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/button_margin"
-        android:layout_marginLeft="@dimen/button_margin"
-        android:layout_marginRight="@dimen/button_margin"
-        android:layout_marginTop="@dimen/button_margin"
-        android:scaleType="fitCenter"
-        android:background="@null"
-        app:srcCompat="@drawable/ic_more_horiz_black_24dp"/>
 
     <GridLayout
         android:layout_width="0dp"
@@ -53,16 +51,16 @@
 
     </GridLayout>
 
-    <ImageView
-        android:id="@+id/pageStateImageView"
-        android:layout_width="@dimen/image_side_length"
-        android:layout_height="match_parent"
+    <ImageButton
+        android:id="@+id/pageMoreImageButton"
+        android:layout_width="@dimen/toggle_button_height"
+        android:layout_height="@dimen/toggle_button_height"
+        android:layout_gravity="center"
         android:layout_marginBottom="@dimen/button_margin"
         android:layout_marginLeft="@dimen/button_margin"
         android:layout_marginRight="@dimen/button_margin"
         android:layout_marginTop="@dimen/button_margin"
-        android:contentDescription=""
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_not_updated_black_24dp"/>
+        app:srcCompat="@drawable/ic_more_horiz_black_24dp"/>
 
 </LinearLayout>

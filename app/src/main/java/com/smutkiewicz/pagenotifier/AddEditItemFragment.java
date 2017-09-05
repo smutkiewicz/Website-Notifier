@@ -1,12 +1,15 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -45,6 +48,7 @@ public class AddEditItemFragment extends Fragment
     private boolean editMode = false;
     private Uri itemUri;
     private int itemId;
+    private boolean isEnabled;
 
     // zmienne widoków
     private FrameLayout addEditFrameLayout;
@@ -57,6 +61,7 @@ public class AddEditItemFragment extends Fragment
     private FloatingActionButton fab;
 
     private AddEditItemFragmentListener mListener;
+    private MyContentObserver mObserver;
 
     private class TextChangedListener implements TextWatcher {
         @Override
@@ -74,9 +79,34 @@ public class AddEditItemFragment extends Fragment
         public void afterTextChanged(Editable s) {}
     }
 
+    @SuppressLint("NewApi")
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            this.onChange(selfChange, null);
+            try {
+                boolean value =
+                        getIsEnabledValueOfJobFromAnUri(itemUri);
+                setIsEnabled(value);
+            } catch (InvalidJobUriException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+
+        }
+    }
+
     public interface AddEditItemFragmentListener {
         void onAddItemCompleted(Job job);
         void onEditItemCompleted();
+        void onEditItemThatNeedsRestartingCompleted(Job job);
         void onDeleteItemCompleted(int jobId);
     }
 
@@ -131,6 +161,12 @@ public class AddEditItemFragment extends Fragment
     @Override
     public void onDetach() {
         super.onDetach();
+        if(editMode) {
+            getActivity().getContentResolver().
+                    unregisterContentObserver(mObserver);
+            mObserver = null;
+        }
+
         mListener = null;
     }
 
@@ -158,24 +194,36 @@ public class AddEditItemFragment extends Fragment
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int freqIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
+            int isEnabledIndex = data.getColumnIndex(DbDescription.KEY_ISENABLED);
+            int isEnabledValue = data.getInt(isEnabledIndex);
 
             setItemId(data.getInt(idIndex));
             setNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertsSwitchState(data.getInt(alertsIndex));
             setFrequencyStepValueLabelAndListener(data.getInt(freqIndex));
+            setIsEnabled(isEnabledValue == 1);
             hideLoaderProgressBar();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) { }
+    public void onLoaderReset(Loader<Cursor> loader) {}
 
     private void setUpAddEditItemFab(View view) {
         fab = (FloatingActionButton) view.findViewById(R.id.saveFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveItem();
+                if(editMode) {
+
+                    if(isEnabled)
+                        buildEditDialogAndConfirmEdit();
+                    else
+                        saveItem();
+
+                } else {
+                    saveItem();
+                }
             }
         });
     }
@@ -190,8 +238,10 @@ public class AddEditItemFragment extends Fragment
             itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
         }
 
-        if (itemUri != null)
+        if (itemUri != null) {
             getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+            initObserver();
+        }
     }
 
     private void initNeededTypeOfView() {
@@ -200,6 +250,15 @@ public class AddEditItemFragment extends Fragment
             setEditModeView();
         else
             setNewItemModeView();
+    }
+
+    private void initObserver() {
+        mObserver = new MyContentObserver(new Handler());
+        getActivity().getContentResolver().
+                registerContentObserver(
+                        itemUri,
+                        true,
+                        mObserver);
     }
 
     private void setItemId(int id) {
@@ -223,6 +282,10 @@ public class AddEditItemFragment extends Fragment
         freqValueTextView.setText(
                 MainActivity.scanDelayTranslator.putStepAndReturnItsName(delayStep));
         setFrequencySeekBarListener();
+    }
+
+    private void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
     private void hideLoaderProgressBar() {
@@ -265,6 +328,23 @@ public class AddEditItemFragment extends Fragment
         builder.show();
     }
 
+    private void buildEditDialogAndConfirmEdit() {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.addedit_confirm_edit);
+        builder.setMessage(R.string.addedit_message_confirm_edit);
+        builder.setNegativeButton(R.string.addedit_dont_edit_button, null);
+        builder.setPositiveButton(R.string.addedit_edit_button,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        saveItem();
+                    }
+                });
+        builder.create();
+        builder.show();
+    }
+
     private void deleteItemInEditMode() {
         // editmode = true
         // zaktualizuj informacje
@@ -296,10 +376,15 @@ public class AddEditItemFragment extends Fragment
 
                 if (updatedRows > 0) {
                     // itemId został już pobrany w loaderze
-                    contentValues.put(DbDescription.KEY_ID, itemId);
-                    contentValues.put(JOB_URI_KEY, itemUri.toString());
-                    Job job = factory.produceJob(contentValues);
-                    mListener.onEditItemCompleted();
+                    if(isEnabled) {
+                        contentValues.put(DbDescription.KEY_ID, itemId);
+                        contentValues.put(JOB_URI_KEY, itemUri.toString());
+                        Job job = factory.produceJob(contentValues);
+                        mListener.onEditItemThatNeedsRestartingCompleted(job);
+                    } else {
+                        mListener.onEditItemCompleted();
+                    }
+
                     showSnackbar(R.string.addedit_item_updated);
                 }
                 else {
@@ -381,14 +466,26 @@ public class AddEditItemFragment extends Fragment
         });
     }
 
+    private boolean getIsEnabledValueOfJobFromAnUri(Uri itemUri) throws InvalidJobUriException {
+        Cursor cursor = getActivity()
+                .getContentResolver().query(itemUri, null, null, null, null);
+
+        if(cursor != null && cursor.moveToFirst()) {
+            int isEnabledIndex = cursor.getColumnIndex(DbDescription.KEY_ISENABLED);
+            int isEnabled = cursor.getInt(isEnabledIndex);
+            return (isEnabled == 1);
+        }
+
+        throw new InvalidJobUriException("Invalid job Uri");
+    }
+
     private int getIdOfJobFromAnUri(Uri itemUri) throws InvalidJobUriException {
         Cursor cursor = getActivity()
                 .getContentResolver().query(itemUri, null, null, null, null);
 
         if(cursor != null && cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DbDescription.KEY_ID);
-            int id = cursor.getInt(idIndex);
-            return id;
+            return cursor.getInt(idIndex);
         }
 
         throw new InvalidJobUriException("Invalid job Uri");

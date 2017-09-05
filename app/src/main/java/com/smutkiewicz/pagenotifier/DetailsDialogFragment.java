@@ -1,21 +1,28 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
+
+import static com.smutkiewicz.pagenotifier.MainActivity.ENABLED_ITEM_STATE;
+import static com.smutkiewicz.pagenotifier.MainActivity.NOT_ENABLED_ITEM_STATE;
 
 public class DetailsDialogFragment extends DialogFragment
     implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -26,6 +33,8 @@ public class DetailsDialogFragment extends DialogFragment
     private Uri itemUri;
     private int itemId;
     private String url;
+    private boolean isUpdatedStatus;
+    private boolean isEnabledStatus;
 
     // pola do wyświetlania szczegółów obiektu
     private TextView nameTextView;
@@ -35,10 +44,29 @@ public class DetailsDialogFragment extends DialogFragment
     private TextView updatedTextView;
 
     private DetailsDialogFragmentListener mListener;
+    private MyContentObserver mObserver;
 
     public interface DetailsDialogFragmentListener {
         void displayAddEditFragment(Uri itemUri, int viewId);
         void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
+    }
+
+    @SuppressLint("NewApi")
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            this.onChange(selfChange, null);
+            restartLoader();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            restartLoader();
+        }
     }
 
     @Override
@@ -47,13 +75,15 @@ public class DetailsDialogFragment extends DialogFragment
                 new AlertDialog.Builder(getActivity());
         View detailsDialogView = inflateAndReturnDetailsView();
 
+        findViewsAndAssignThem(detailsDialogView);
         setBuildersViewAndTitle(builder, detailsDialogView);
         setBuildersNeutralGoToWebsiteButton(builder);
         setBuildersDeleteNegativeButton(builder);
         setBuildersEditPositiveButton(builder);
-        findViewsAndAssignThem(detailsDialogView);
         getBundleArguments();
         initLoader();
+        //setBuildersIconAndStatusTextView(builder);
+        initObserver();
 
         return builder.create();
     }
@@ -77,6 +107,8 @@ public class DetailsDialogFragment extends DialogFragment
     public void onDetach() {
         super.onDetach();
         MainActivityFragment fragment = getMainActivityFragment();
+        getActivity().getContentResolver().
+                unregisterContentObserver(mObserver);
 
         if (fragment != null)
             fragment.setDialogOnScreen(false);
@@ -114,11 +146,13 @@ public class DetailsDialogFragment extends DialogFragment
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int delayIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
             int updatesIndex = data.getColumnIndex(DbDescription.KEY_UPDATED);
+            int isEnabledIndex = data.getColumnIndex(DbDescription.KEY_ISENABLED);
 
             setItemId(data.getInt(idIndex));
             setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertModeState(data.getInt(alertsIndex));
             setStatus(data.getInt(updatesIndex));
+            //setIsEnabledAndIsUpdated(data.getInt(isEnabledIndex), data.getInt(updatesIndex));
             setFrequencyStepLabel(data.getInt(delayIndex));
         }
     }
@@ -160,7 +194,6 @@ public class DetailsDialogFragment extends DialogFragment
         builder.setNegativeButton(R.string.details_delete_label,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //TODO usuń
                         getActivity().getContentResolver().delete(
                                 itemUri, null, null);
                         mListener.onDeleteItemCompleted(itemId);
@@ -197,6 +230,23 @@ public class DetailsDialogFragment extends DialogFragment
         getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
     }
 
+    private void restartLoader() {
+        getLoaderManager().restartLoader(WEBSITE_ITEMS_LOADER, null, this);
+    }
+
+    private void initObserver() {
+        mObserver = new MyContentObserver(new Handler());
+        getActivity().getContentResolver().
+                registerContentObserver(
+                        itemUri,
+                        true,
+                        mObserver);
+    }
+
+    private void setBuildersIconAndStatusTextView(AlertDialog.Builder builder) {
+        setItemState(builder);
+    }
+
     private void setItemId(int id) {
         itemId = id;
     }
@@ -208,7 +258,7 @@ public class DetailsDialogFragment extends DialogFragment
     }
 
     private void setAlertModeState(int areAlertsEnabled) {
-        if((areAlertsEnabled == 1) ? true : false)
+        if(areAlertsEnabled == 1)
             alertsTextView.setText(R.string.details_alerts_on);
         else
             alertsTextView.setText(R.string.details_alerts_off);
@@ -222,12 +272,74 @@ public class DetailsDialogFragment extends DialogFragment
 
     private void setStatus(int status) {
         // 1 == website updated
-        if((status == 1) ? true : false) {
+        if(status == 1) {
             updatedTextView.setText(R.string.details_updated);
             updatedTextView.setTextColor(Color.GREEN);
         } else {
             updatedTextView.setText(R.string.details_not_updated);
             updatedTextView.setTextColor(Color.RED);
         }
+
+        isUpdatedStatus = (status == 1);
+    }
+
+    // TODO nowy sposób ustawiania stanu
+    private void setIsEnabledAndIsUpdated(int isEnabled, int updates) {
+        isEnabledStatus = (isEnabled == 1);
+        isUpdatedStatus = (updates == 1);
+        Log.d("LOADER_STATE", "isEnabled = " + isEnabled);
+        if(isEnabledStatus) Log.d("LOADER_STATE", "true isEnabled = " + isEnabled);
+        Log.d("LOADER_STATE", "updates = " + updates);
+        if(isUpdatedStatus) Log.d("LOADER_STATE", "true updates = " + updates);
+    }
+
+    private void setItemState(AlertDialog.Builder builder) {
+        int status = (isEnabledStatus) ? 1 : 0;
+        Log.d("STATE", "status = " + status);
+
+        switch (status) {
+            case NOT_ENABLED_ITEM_STATE:
+                // OFF Pressed, not updated or already updated
+                Log.d("STATE", "NOT_ENABLED_ITEM_STATE");
+                setNotEnabledState(builder);
+                break;
+            case ENABLED_ITEM_STATE:
+                // ON Pressed, not updated
+                Log.d("STATE", "ENABLED_ITEM_STATE");
+                setEnabledState(builder);
+                break;
+        }
+    }
+
+    // OFF Pressed, not updated or already updated
+    private void setNotEnabledState(AlertDialog.Builder builder) {
+        if(isUpdatedStatus) {
+            setUpdatedTextView();
+            builder.setIcon(R.drawable.ic_updated_black_24dp);
+        } else {
+            setAbortedTextView();
+            builder.setIcon(R.drawable.ic_cancel_black_24dp);
+        }
+    }
+
+    // ON Pressed, not updated
+    private void setEnabledState(AlertDialog.Builder builder) {
+        setNotUpdatedTextView();
+        builder.setIcon(R.drawable.ic_not_updated_black_24dp);
+    }
+
+    private void setNotUpdatedTextView() {
+        updatedTextView.setText(R.string.details_not_updated);
+        updatedTextView.setTextColor(Color.RED);
+    }
+
+    private void setUpdatedTextView() {
+        updatedTextView.setText(R.string.details_updated);
+        updatedTextView.setTextColor(Color.GREEN);
+    }
+
+    private void setAbortedTextView() {
+        updatedTextView.setText(R.string.details_aborted);
+        updatedTextView.setTextColor(Color.RED);
     }
 }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PageNotifier</string>
     <string name="action_settings">Settings</string>
-    <string name="list_item_test_text">Dużo tekstu po to żeby zobaczyć ile tego wlezie na ekran</string>
+    <string name="list_item_test_text">Test text</string>
     <string name="action_new">Nowy</string>
     <string name="search_hint">Szukaj...</string>
     <string name="frequency_seek_bar">Częstotliwość odświeżania strony</string>
@@ -38,6 +38,7 @@
     <string name="details_not_updated">Brak zmian na stronie</string>
     <string name="details_updated">Zmiany na stronie.</string>
     <string name="details_updates">Status:</string>
+    <string name="details_aborted">Śledzenie zmian zatrzymane przez użytkownika</string>
 
     <!-- AddEditFragment -->
     <string name="addedit_name_edit_text">Nazwa zadania</string>
@@ -65,5 +66,10 @@
     <string name="cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
     <string name="no_jobs_to_cancel">Brak zadań do zakończenia.</string>
     <string name="service_website_updated">Zmiany na stronie!</string>
+    <string name="addedit_confirm_edit">Potwierdź edycję</string>
+    <string name="addedit_message_confirm_edit">Zadanie jest już włączone. Może być konieczny restart zadania - kontynuować?</string>
+    <string name="addedit_dont_edit_button">Odrzuć</string>
+    <string name="addedit_edit_button">Potwierdź</string>
+    <string name="main_my_jobs_title">Moje zadania</string>
 
 </resources>

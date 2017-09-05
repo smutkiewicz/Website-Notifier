@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,12 @@ public class MainActivity extends AppCompatActivity
     public static final int MSG_START = 0;
     public static final int MSG_STOP = 1;
 
+    // OFF Pressed, not updated or already updated
+    public static final int NOT_ENABLED_ITEM_STATE = 0;
+    // ON Pressed, not updated
+    public static final int ENABLED_ITEM_STATE = 1;
+
+    // zestaw stałych do obsługi dołączania Extras dla serwisu
     public static final String MESSENGER_INTENT_KEY
             = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
     public static final String WORK_DURATION_KEY =
@@ -80,10 +87,10 @@ public class MainActivity extends AppCompatActivity
             Message m;
             switch (msg.what) {
                 case MSG_START:
-                    //updateParamsTextView(msg.obj, "started");
+                    // TODO REAKCJA NA START JOB-U W SERWISIE
                     break;
                 case MSG_STOP:
-                    //updateParamsTextView(msg.obj, "stopped");
+                    // TODO REAKCJA NA STOP JOB-U W SERWISIE
                     break;
             }
         }
@@ -194,6 +201,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void restartJob(Job job) {
+        finishJob(job.id);
+        scheduleJob(job);
+    }
+
     @Override
     public void displayAddEditFragment(Uri itemUri, int viewID) {
         AddEditItemFragment addEditFragment = new AddEditItemFragment();
@@ -222,11 +234,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onChangesApplied() {
-        mainActivityFragment.updateWebsiteItemList();
-    }
-
-    @Override
     public void onDeleteItemCompleted(int jobId) {
         returnToMainFragmentAndUpdateItemList();
         finishJob(jobId);
@@ -236,6 +243,14 @@ public class MainActivity extends AppCompatActivity
     public void onEditItemCompleted() {
         // po edycji nie wymuszamy od razu startu nowego zadania
         returnToMainFragmentAndUpdateItemList();
+    }
+
+    @Override
+    public void onEditItemThatNeedsRestartingCompleted(Job job) {
+        returnToMainFragmentAndUpdateItemList();
+        Snackbar.make(findViewById(R.id.fragmentContainer),
+                "Restarting job " + job.id, Toast.LENGTH_SHORT).show();
+        restartJob(job);
     }
 
     @Override
@@ -252,6 +267,10 @@ public class MainActivity extends AppCompatActivity
             scheduleJob(job);
         else
             finishJob(job.id);
+    }
+
+    public void onChangesApplied() {
+        mainActivityFragment.updateWebsiteItemList();
     }
 
     public static Context getAppContext() {
@@ -306,11 +325,5 @@ public class MainActivity extends AppCompatActivity
     private void returnToMainFragmentAndUpdateItemList() {
         getSupportFragmentManager().popBackStack();
         mainActivityFragment.updateWebsiteItemList();
-    }
-
-    private void onServiceInteraction() {
-        /*JobFactory factory = new JobFactory();
-        Job job = factory.produceJob(JobFactory.getSampleJob());
-        scheduleJob(job);*/
     }
 }

@@ -23,6 +23,16 @@
 
         </android.support.design.widget.TextInputLayout>
 
+        <TextView
+            android:id="@+id/myJobsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/divider_margin"
+            android:paddingStart="@dimen/my_job_title_margin"
+            android:paddingTop="@dimen/divider_margin"
+            android:text="@string/main_my_jobs_title"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
