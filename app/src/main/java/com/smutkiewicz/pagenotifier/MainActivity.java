@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -182,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         tm.cancelAll();
         Log.d(TAG, "Cancelling all jobs");
-        Toast.makeText(MainActivity.this, R.string.all_jobs_cancelled,
+        Toast.makeText(MainActivity.this, R.string.main_all_jobs_cancelled,
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -192,11 +193,11 @@ public class MainActivity extends AppCompatActivity
         if (allPendingJobs.size() > 0) {
             jobScheduler.cancel(jobId);
             Toast.makeText(
-                    MainActivity.this, String.format(getString(R.string.cancelled_job), jobId),
+                    MainActivity.this, String.format(getString(R.string.main_cancelled_job), jobId),
                     Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(
-                    MainActivity.this, getString(R.string.no_jobs_to_cancel),
+                    MainActivity.this, getString(R.string.main_no_jobs_to_cancel),
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -217,6 +218,7 @@ public class MainActivity extends AppCompatActivity
         transaction.replace(viewID, addEditFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+        hideAddItemFab();
     }
 
     @Override
@@ -325,5 +327,11 @@ public class MainActivity extends AppCompatActivity
     private void returnToMainFragmentAndUpdateItemList() {
         getSupportFragmentManager().popBackStack();
         mainActivityFragment.updateWebsiteItemList();
+    }
+
+
+    private void hideAddItemFab() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.addFab);
+        fab.hide();
     }
 }

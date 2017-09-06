@@ -41,7 +41,7 @@ public class MainActivityFragment extends Fragment
     private WebsiteItemAdapter itemAdapter;
 
     private EditText searchEditText;
-    private FloatingActionButton testFab;
+    private FloatingActionButton fab;
 
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
@@ -98,6 +98,7 @@ public class MainActivityFragment extends Fragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        hideAddItemFab();
     }
 
     @Override
@@ -176,14 +177,19 @@ public class MainActivityFragment extends Fragment
     }
 
     private void setUpAddItemFab(View view) {
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.addFab);
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.addFab);
+        fab.show();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO URI
                 mListener.displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
+                hideAddItemFab();
             }
         });
+    }
+
+    private void hideAddItemFab() {
+        fab.hide();
     }
 
     private void setUpRecyclerView(RecyclerView recyclerView) {

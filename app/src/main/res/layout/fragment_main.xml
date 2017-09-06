@@ -18,7 +18,7 @@
                 android:id="@+id/searchEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_hint"
+                android:hint="@string/main_search_hint"
                 android:singleLine="true"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -39,14 +39,5 @@
             android:layout_height="match_parent"/>
 
     </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_add_black_24dp"/>
 
 </FrameLayout>

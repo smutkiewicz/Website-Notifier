@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:opacity="opaque">
 
     <item
@@ -8,7 +9,8 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@android:drawable/ic_notification_overlay"/>
+            android:mipMap="@mipmap/ic_launcher"
+            android:src="@drawable/ic_action_notification"/>
     </item>
 
 </layer-list>
