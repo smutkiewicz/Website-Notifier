@@ -1,12 +1,15 @@
 package com.smutkiewicz.pagenotifier;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -15,6 +18,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,8 +33,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
+import com.smutkiewicz.pagenotifier.service.Job;
+import com.smutkiewicz.pagenotifier.service.JobFactory;
+import com.smutkiewicz.pagenotifier.utilities.InvalidJobUriException;
 
 import static android.webkit.URLUtil.isValidUrl;
+import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
 
 public class AddEditItemFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -40,6 +48,10 @@ public class AddEditItemFragment extends Fragment
     // zmienne instancyjne
     private boolean editMode = false;
     private Uri itemUri;
+    private int itemId;
+
+    // aktualny stan zadania ON/OFF
+    private boolean isEnabled;
 
     // zmienne widoków
     private FrameLayout addEditFrameLayout;
@@ -52,6 +64,9 @@ public class AddEditItemFragment extends Fragment
     private FloatingActionButton fab;
 
     private AddEditItemFragmentListener mListener;
+
+    // obserwator zmian w aktualnym zadaniu z identyfikatorem itemUri
+    private MyContentObserver mObserver;
 
     private class TextChangedListener implements TextWatcher {
         @Override
@@ -69,9 +84,35 @@ public class AddEditItemFragment extends Fragment
         public void afterTextChanged(Editable s) {}
     }
 
+    @SuppressLint("NewApi")
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            this.onChange(selfChange, null);
+            try {
+                boolean value =
+                        getIsEnabledValueOfJobFromAnUri(itemUri);
+                setIsEnabled(value);
+            } catch (InvalidJobUriException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+
+        }
+    }
+
     public interface AddEditItemFragmentListener {
-        void onFragmentInteraction();
-        void onAddEditItemCompleted(Uri contactUri);
+        void onAddItemCompleted(Job job);
+        void onEditItemCompleted();
+        void onEditItemThatNeedsRestartingCompleted(Job job);
+        void onDeleteItemCompleted(int jobId);
     }
 
     @Override
@@ -125,6 +166,12 @@ public class AddEditItemFragment extends Fragment
     @Override
     public void onDetach() {
         super.onDetach();
+        if(editMode) {
+            getActivity().getContentResolver().
+                    unregisterContentObserver(mObserver);
+            mObserver = null;
+        }
+
         mListener = null;
     }
 
@@ -147,27 +194,41 @@ public class AddEditItemFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
+            int idIndex = data.getColumnIndex(DbDescription.KEY_ID);
             int nameIndex = data.getColumnIndex(DbDescription.KEY_NAME);
             int urlIndex = data.getColumnIndex(DbDescription.KEY_URL);
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int freqIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
+            int isEnabledIndex = data.getColumnIndex(DbDescription.KEY_ISENABLED);
+            int isEnabledValue = data.getInt(isEnabledIndex);
 
+            setItemId(data.getInt(idIndex));
             setNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertsSwitchState(data.getInt(alertsIndex));
             setFrequencyStepValueLabelAndListener(data.getInt(freqIndex));
+            setIsEnabled(isEnabledValue == 1);
             hideLoaderProgressBar();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) { }
+    public void onLoaderReset(Loader<Cursor> loader) {}
 
     private void setUpAddEditItemFab(View view) {
         fab = (FloatingActionButton) view.findViewById(R.id.saveFab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveItem();
+                if(editMode) {
+
+                    if(isEnabled)
+                        buildEditDialogAndConfirmEdit();
+                    else
+                        saveItem();
+
+                } else {
+                    saveItem();
+                }
             }
         });
     }
@@ -182,8 +243,10 @@ public class AddEditItemFragment extends Fragment
             itemUri = arguments.getParcelable(MainActivity.ITEM_URI);
         }
 
-        if (itemUri != null)
+        if (itemUri != null) {
             getLoaderManager().initLoader(WEBSITE_ITEMS_LOADER, null, this);
+            initObserver();
+        }
     }
 
     private void initNeededTypeOfView() {
@@ -192,6 +255,19 @@ public class AddEditItemFragment extends Fragment
             setEditModeView();
         else
             setNewItemModeView();
+    }
+
+    private void initObserver() {
+        mObserver = new MyContentObserver(new Handler());
+        getActivity().getContentResolver().
+                registerContentObserver(
+                        itemUri,
+                        true,
+                        mObserver);
+    }
+
+    private void setItemId(int id) {
+        itemId = id;
     }
 
     private void setNameAndUrlTextViews(String name, String url) {
@@ -211,6 +287,10 @@ public class AddEditItemFragment extends Fragment
         freqValueTextView.setText(
                 MainActivity.scanDelayTranslator.putStepAndReturnItsName(delayStep));
         setFrequencySeekBarListener();
+    }
+
+    private void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
     private void hideLoaderProgressBar() {
@@ -253,6 +333,23 @@ public class AddEditItemFragment extends Fragment
         builder.show();
     }
 
+    private void buildEditDialogAndConfirmEdit() {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.addedit_confirm_edit);
+        builder.setMessage(R.string.addedit_message_confirm_edit);
+        builder.setNegativeButton(R.string.addedit_dont_edit_button, null);
+        builder.setPositiveButton(R.string.addedit_edit_button,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        saveItem();
+                    }
+                });
+        builder.create();
+        builder.show();
+    }
+
     private void deleteItemInEditMode() {
         // editmode = true
         // zaktualizuj informacje
@@ -260,7 +357,7 @@ public class AddEditItemFragment extends Fragment
                 .delete(itemUri, null, null);
 
         if (updatedRows > 0) {
-            mListener.onAddEditItemCompleted(itemUri);
+            mListener.onDeleteItemCompleted(itemId);
             showSnackbar(R.string.addedit_item_deleted);
         }
         else {
@@ -274,15 +371,8 @@ public class AddEditItemFragment extends Fragment
 
     private void saveItem() {
         if(checkIfCorrect()) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(DbDescription.KEY_NAME,
-                    nameEditText.getText().toString());
-            contentValues.put(DbDescription.KEY_URL,
-                    urlEditText.getText().toString());
-            contentValues.put(DbDescription.KEY_ALERTS,
-                    getAlertsSwitchState());
-            contentValues.put(DbDescription.KEY_DELAY,
-                    frequencySeekBar.getProgress());
+            JobFactory factory = new JobFactory();
+            ContentValues contentValues = getContentValuesForSavingItemOperation();
 
             if (editMode) {
                 // zaktualizuj informacje
@@ -290,23 +380,46 @@ public class AddEditItemFragment extends Fragment
                         itemUri, contentValues, null, null);
 
                 if (updatedRows > 0) {
-                    mListener.onAddEditItemCompleted(itemUri);
+                    // itemId został już pobrany w loaderze
+                    if(isEnabled) {
+                        contentValues.put(DbDescription.KEY_ID, itemId);
+                        contentValues.put(JOB_URI_KEY, itemUri.toString());
+                        Job job = factory.produceJob(contentValues);
+                        mListener.onEditItemThatNeedsRestartingCompleted(job);
+                    } else {
+                        mListener.onEditItemCompleted();
+                    }
+
                     showSnackbar(R.string.addedit_item_updated);
                 }
                 else {
                     showSnackbar(R.string.addedit_item_not_updated);
                 }
+
             } else {
+                // dodaj nowe informacje
                 Uri newItemUri = getActivity().getContentResolver().insert(
                         DbDescription.CONTENT_URI, contentValues);
 
                 if (newItemUri != null) {
-                    showSnackbar(R.string.addedit_new_item_added);
-                    mListener.onAddEditItemCompleted(newItemUri);
+                    try {
+                        // zadanie zostało dopiero stworzone, więc musimy zdobyć
+                        // autoinkrementowane przez bazę ID itemu
+                        itemId = getIdOfJobFromAnUri(newItemUri);
+                        contentValues.put(DbDescription.KEY_ID, itemId);
+                        contentValues.put(JOB_URI_KEY, newItemUri.toString());
+                        Job job = factory.produceJob(contentValues);
+                        mListener.onAddItemCompleted(job);
+                        showSnackbar(R.string.addedit_new_item_added);
+                    } catch (InvalidJobUriException e) {
+                        Log.d("TAG", e.getMessage());
+                    }
+
                 } else {
                     showSnackbar(R.string.addedit_new_item_not_added);
                 }
-            }
+
+            } // editMode
         } // checkIfCorrect();
     }
 
@@ -356,5 +469,43 @@ public class AddEditItemFragment extends Fragment
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+    }
+
+    private boolean getIsEnabledValueOfJobFromAnUri(Uri itemUri) throws InvalidJobUriException {
+        Cursor cursor = getActivity()
+                .getContentResolver().query(itemUri, null, null, null, null);
+
+        if(cursor != null && cursor.moveToFirst()) {
+            int isEnabledIndex = cursor.getColumnIndex(DbDescription.KEY_ISENABLED);
+            int isEnabled = cursor.getInt(isEnabledIndex);
+            return (isEnabled == 1);
+        }
+
+        throw new InvalidJobUriException("Invalid job Uri");
+    }
+
+    private int getIdOfJobFromAnUri(Uri itemUri) throws InvalidJobUriException {
+        Cursor cursor = getActivity()
+                .getContentResolver().query(itemUri, null, null, null, null);
+
+        if(cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DbDescription.KEY_ID);
+            return cursor.getInt(idIndex);
+        }
+
+        throw new InvalidJobUriException("Invalid job Uri");
+    }
+
+    private ContentValues getContentValuesForSavingItemOperation() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbDescription.KEY_NAME,
+                nameEditText.getText().toString());
+        contentValues.put(DbDescription.KEY_URL,
+                urlEditText.getText().toString());
+        contentValues.put(DbDescription.KEY_ALERTS,
+                getAlertsSwitchState());
+        contentValues.put(DbDescription.KEY_DELAY,
+                frequencySeekBar.getProgress());
+        return contentValues;
     }
 }

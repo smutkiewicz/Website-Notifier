@@ -1,5 +1,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/addEditFrameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -51,10 +52,12 @@
                 android:layout_marginLeft="@dimen/add_fragment_margin"
                 android:layout_marginRight="@dimen/add_fragment_margin"
                 android:layout_marginTop="@dimen/divider_margin"
+                android:checked="true"
                 android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
                 android:text="Otrzymuj powiadomienia"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"
-                android:textColor="?android:attr/textColorHint"/>
+                android:textColor="?android:attr/textColorHint"
+                tools:checked="true"/>
 
             <TextView
                 android:id="@+id/frequencyTextView"
@@ -64,7 +67,7 @@
                 android:layout_marginLeft="@dimen/add_fragment_margin"
                 android:layout_marginRight="@dimen/add_fragment_margin"
                 android:layout_marginTop="@dimen/add_fragment_margin"
-                android:text="@string/frequency_seek_bar"
+                android:text="@string/addedit_frequency_seek_bar"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"/>
 
             <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"

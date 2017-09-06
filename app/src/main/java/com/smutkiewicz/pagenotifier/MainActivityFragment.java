@@ -26,12 +26,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
-import com.smutkiewicz.pagenotifier.model.Website;
 import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
+import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.utilities.ItemDivider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -44,13 +41,13 @@ public class MainActivityFragment extends Fragment
     private WebsiteItemAdapter itemAdapter;
 
     private EditText searchEditText;
+    private FloatingActionButton fab;
 
     // interfejs do komunikacji z innymi fragmentami
     public interface MainActivityFragmentListener {
         void displayAddEditFragment(Uri uri, int viewId);
         void displayDetailsFragment(Uri itemUri, int viewId);
-        void onGoToWebsite(String url);
-        void onChangesApplied();
+        void onToggleAction(Job job, boolean isSchedulingNeeded);
     }
 
     private class TextChangedListener implements TextWatcher {
@@ -78,29 +75,9 @@ public class MainActivityFragment extends Fragment
         setUpAddItemFab(view);
         setUpRecyclerView(recyclerView);
         setUpInputTextLayout();
-
         updateWebsiteItemList();
 
         return view;
-    }
-
-    private List<Website> setTestData() {
-        List<Website> list = new ArrayList<>();
-        list.add(new Website("Nowe zadanko",
-                "https://github.com/smutkiewicz/Android-Soundbank/blob/master/app/src/main/" +
-                        "java/com/smutkiewicz/soundbank/model/SoundArrayAdapter.java"));
-        list.add(new Website("Poczta", "https://medusa.elka.pw.edu.pl/"));
-        list.add(new Website("Mrow dyd", "http://www.if.pw.edu.pl/~mrow/dyd/"));
-        list.add(new Website("Staty", "https://msoundtech.bandcamp.com/stats#zplays"));
-
-        return list;
-    }
-
-    public void makeSimpleDataInsertThemToDbAndShowInAdapter(List<Website> list) {
-        for(Website w : list) {
-            Uri newItemUri = getActivity().getContentResolver().insert(
-                    DbDescription.CONTENT_URI, w.getContentValues());
-        }
     }
 
     private void setUpInputTextLayout() {
@@ -121,6 +98,7 @@ public class MainActivityFragment extends Fragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        hideAddItemFab();
     }
 
     @Override
@@ -199,14 +177,19 @@ public class MainActivityFragment extends Fragment
     }
 
     private void setUpAddItemFab(View view) {
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.addFab);
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.addFab);
+        fab.show();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO URI
                 mListener.displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
+                hideAddItemFab();
             }
         });
+    }
+
+    private void hideAddItemFab() {
+        fab.hide();
     }
 
     private void setUpRecyclerView(RecyclerView recyclerView) {
@@ -223,33 +206,31 @@ public class MainActivityFragment extends Fragment
         itemAdapter = new WebsiteItemAdapter(
                 new WebsiteItemAdapter.WebsiteItemClickListener() {
                     @Override
-                    public void onMoreButtonClick(Uri itemUri) {
+                    public void onEditButtonClick(Uri itemUri, int viewId) {
+                        mListener.displayAddEditFragment(itemUri, viewId);
+                    }
+
+                    @Override
+                    public void onItemClick(Uri itemUri) {
                         mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
                     }
 
                     @Override
-                    public void onItemClick(String url) {
-                        mListener.onGoToWebsite(url);
-                    }
-
-                    @Override
-                    public void onSwitchClick(Uri itemUri, int newEnableValue) {
-                        //TODO włącz/wyłącz powiadomienia
-                        onSwitchClicked(itemUri, newEnableValue);
+                    public void onToggleClick(Job job, boolean newToggleValue) {
+                        onToggleClicked(job.uri, (newToggleValue) ? 1 : 0);
+                        mListener.onToggleAction(job, newToggleValue);
                     }
                 }
         );
     }
 
-    private void onSwitchClicked(Uri itemUri, int newIsEnabledValue) {
-        // create ContentValues object containing contact's key-value pairs
+    private void onToggleClicked(Uri itemUri, int newIsEnabledValue) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbDescription.KEY_ISENABLED, newIsEnabledValue);
+        contentValues.put(DbDescription.KEY_UPDATED, 0);
 
-        //int updatedRows = 0;
         int updatedRows = getActivity().getContentResolver().update(
                 itemUri, contentValues, null, null);
-        Log.d("TAG", "MainAFragment onSwitchClicked: "+itemUri);
 
         if (updatedRows > 0) {
 

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.smutkiewicz.pagenotifier">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,8 +44,13 @@
             android:name=".database.WebsiteContentProvider"
             android:authorities="com.smutkiewicz.pagenotifier.database"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
         </provider>
+
+        <service
+            android:name=".service.MyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
     </application>
 
 </manifest>

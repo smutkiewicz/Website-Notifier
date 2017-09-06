@@ -2,6 +2,18 @@
 <resources>
     <integer-array
         name="delay_values_array">
+        <item>3000</item>
+        <item>9000</item>
+        <item>18000</item>
+        <item>36000</item>
+        <item>21600</item>
+        <item>86400</item>
+        <item>604800</item>
+        <item>0</item>
+    </integer-array>
+
+    <integer-array
+        name="delay_values_array_new">
         <item>300000</item>
         <item>900000</item>
         <item>1800000</item>

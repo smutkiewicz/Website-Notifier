@@ -3,7 +3,6 @@ package com.smutkiewicz.pagenotifier.model;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +14,20 @@ import android.widget.ToggleButton;
 import com.smutkiewicz.pagenotifier.MainActivity;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
+import com.smutkiewicz.pagenotifier.service.Job;
+import com.smutkiewicz.pagenotifier.service.JobFactory;
+
+import static com.smutkiewicz.pagenotifier.MainActivity.ENABLED_ITEM_STATE;
+import static com.smutkiewicz.pagenotifier.MainActivity.NOT_ENABLED_ITEM_STATE;
 
 public class WebsiteItemAdapter
     extends RecyclerView.Adapter<WebsiteItemAdapter.ViewHolder> {
     // interfejs implementowany przez MainActivityFragment
     // po dotknięciu przez użytkownika elementu wyświetlanego w widoku RecyclerView
     public interface WebsiteItemClickListener {
-        void onMoreButtonClick(Uri itemUri);
-        void onItemClick(String url);
-        void onSwitchClick(Uri itemUri, int newEnableValue);
+        void onEditButtonClick(Uri itemUri, int viewId);
+        void onItemClick(Uri itemUri);
+        void onToggleClick(Job job, boolean newToggleValue);
     }
 
     // zmienne egzemplarzowe adaptera
@@ -40,36 +44,37 @@ public class WebsiteItemAdapter
         private final ImageView pageStateImageView;
         private final TextView pageNameTextView;
         private final ToggleButton isEnabledToggle;
-        private final ImageButton pageMoreImageButton;
+        private final ImageButton pageEditImageButton;
 
         private long rowID;
         private int delayStep;
         private boolean isEnabled;
         private String url;
+        private Job job;
 
         // konfiguruje obiekt ViewHolder elementu widoku RecyclerView
         public ViewHolder(View itemView) {
             super(itemView);
             pageNameTextView = (TextView) itemView.findViewById(R.id.pageNameTextView);
             isEnabledToggle = (ToggleButton) itemView.findViewById(R.id.pageAlertToggle);
-            pageMoreImageButton = (ImageButton) itemView.findViewById(R.id.pageMoreImageButton);
+            pageEditImageButton = (ImageButton) itemView.findViewById(R.id.pageEditImageButton);
             pageStateImageView = (ImageView) itemView.findViewById(R.id.pageStateImageView);
 
             setButtonListeners();
             setItemViewListener();
-
-            //TODO Switch
             setIsEnabledToggleListener();
-            //TODO Switch
         }
 
         private void setButtonListeners() {
-            pageMoreImageButton.setOnClickListener(
+            pageEditImageButton.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            clickListener.onMoreButtonClick(
-                                    DbDescription.buildWebsiteItemUri(rowID));
+                            clickListener.onEditButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID),
+                                    R.id.fragmentContainer);
+                            /*clickListener.onMoreButtonClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));*/
                         }
                     }
             );
@@ -80,37 +85,20 @@ public class WebsiteItemAdapter
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            clickListener.onItemClick(url);
+                            clickListener.onItemClick(
+                                    DbDescription.buildWebsiteItemUri(rowID));
                         }
                     }
             );
         }
 
         private void setIsEnabledToggleListener() {
-            //TODO Switch
             isEnabledToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int newSwitchValue = swapBooleanToInt(isEnabled);
-                    clickListener.onSwitchClick(
-                            DbDescription.buildWebsiteItemUri(rowID), newSwitchValue);
+                    clickListener.onToggleClick(job, !isEnabled);
                 }
             });
-
-            /*isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    // do something, the isChecked will be
-                    // true if the switch is in the On position
-                    int pom;
-                    if(isChecked)
-                        pom = 1;
-                    else
-                        pom = 0;
-                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
-                    clickListener.onSwitchClick(
-                            DbDescription.buildWebsiteItemUri(rowID), pom);
-                }
-            });*/
         }
 
         // określ identyfikator rzędu bazy danych strony
@@ -118,6 +106,26 @@ public class WebsiteItemAdapter
         public void setRowID(long rowID) {
             this.rowID = rowID;
         }
+
+        private void setJob() {
+            JobFactory factory = new JobFactory();
+            job = factory.produceJobFromACursor(cursor, getItemUri());
+        }
+
+        private Uri getItemUri() {
+            return DbDescription.buildWebsiteItemUri(rowID);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return (cursor != null) ? cursor.getCount() : 0;
+    }
+
+    // zamień bieżący obiekt Cursor adaptera na nowy
+    public void swapCursor(Cursor cursor) {
+        this.cursor = cursor;
+        notifyDataSetChanged();
     }
 
     // ustala nowy element listy i jego obiekt ViewHolder
@@ -133,38 +141,72 @@ public class WebsiteItemAdapter
     // określa tekst elementu listy w celu wyświetlenia etykiety zapytania
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Log.d("ADAPTER: ", "onBindViewHolder(ViewHolder holder, int position)");
         cursor.moveToPosition(position);
         holder.setRowID(cursor.getLong(cursor.getColumnIndex(DbDescription.KEY_ID)));
         holder.pageNameTextView.setText(cursor.getString(cursor.getColumnIndex(
                 DbDescription.KEY_NAME)));
         holder.url = cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));
+        holder.setJob();
 
-        //TODO Switch
-        setIsEnabledToggleState(holder);
-        //TODO Switch
-
-        setPageStateImage(holder);
-
-        /*holder.isEnabledToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    // do something, the isChecked will be
-                    // true if the switch is in the On position
-                    int pom;
-                    if(isChecked)
-                        pom = 1;
-                    else
-                        pom = 0;
-                    Log.d("ViewHolder: ", "setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()");
-                    clickListener.onSwitchClick(
-                            DbDescription.buildWebsiteItemUri(holder.rowID), pom);
-                }
-            });*/
+        setItemState(holder);
     }
 
-    private void setIsEnabledToggleState(ViewHolder holder) {
-        int checked = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
-        setIsEnabledToggleCheck(holder, (checked == 1) ? true : false);
+    private void setItemState(ViewHolder holder) {
+        int state =
+                cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ISENABLED));
+        switch (state) {
+            case NOT_ENABLED_ITEM_STATE:
+                // OFF Pressed, not updated or already updated
+                setNotEnabledState(holder);
+                break;
+            case ENABLED_ITEM_STATE:
+                // ON Pressed, not updated
+                setEnabledState(holder);
+                break;
+        }
+    }
+
+    // OFF Pressed, not updated or already updated
+    private void setNotEnabledState(ViewHolder holder) {
+        int isItemUpdated =
+                cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
+        boolean isUpdated = (isItemUpdated == 1);
+        setIsEnabledToggleCheck(holder, false);
+
+        if(isUpdated)
+            setUpdatedPageStateImage(holder);
+        else
+            setAbortedPageStateImage(holder);
+    }
+
+    // ON Pressed, not updated
+    private void setEnabledState(ViewHolder holder) {
+        setIsEnabledToggleCheck(holder, true);
+        setNotUpdatedPageStateImage(holder);
+    }
+
+    private void setUpdatedPageStateImage(ViewHolder holder) {
+        View view = holder.pageStateImageView.getRootView();
+        holder.pageStateImageView.setImageDrawable(view.getResources()
+                .getDrawable(R.drawable.ic_updated_black_24dp));
+        holder.pageNameTextView.setTextColor(
+                MainActivity.getAppContext().getResources().getColor(R.color.updated_green));
+    }
+
+    private void setNotUpdatedPageStateImage(ViewHolder holder) {
+        View view = holder.pageStateImageView.getRootView();
+        holder.pageStateImageView.setImageDrawable(view.getResources()
+                .getDrawable(R.drawable.ic_not_updated_black_24dp));
+        holder.pageNameTextView.setTextColor(
+                MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
+    }
+
+    private void setAbortedPageStateImage(ViewHolder holder) {
+        View view = holder.pageStateImageView.getRootView();
+        holder.pageStateImageView.setImageDrawable(view.getResources()
+                .getDrawable(R.drawable.ic_cancel_black_24dp));
+        holder.pageNameTextView.setTextColor(
+                MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
     }
 
     private void setIsEnabledToggleCheck(ViewHolder holder, boolean checked) {
@@ -172,41 +214,7 @@ public class WebsiteItemAdapter
         holder.isEnabled = checked;
     }
 
-    private void setPageStateImage(ViewHolder holder) {
-        int updated = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_UPDATED));
-        View view = holder.pageStateImageView.getRootView();
-
-        if(updated == 1) {
-            holder.pageStateImageView.setImageDrawable(view.getResources()
-                    .getDrawable(R.drawable.ic_updated_black_24dp));
-            holder.pageNameTextView.setTextColor(
-                    MainActivity.getAppContext().getResources().getColor(R.color.updated_green));
-        }
-        else {//updated == 0
-            holder.pageStateImageView.setImageDrawable(view.getResources()
-                    .getDrawable(R.drawable.ic_not_updated_black_24dp));
-            holder.pageNameTextView.setTextColor(
-                    MainActivity.getAppContext().getResources().getColor(R.color.secondary_text));
-        }
+    private int swapBooleanToInt(boolean value) {
+        return (value) ? 0 : 1;
     }
-
-    // zwraca liczbę elementów wiązanych przez adapter
-    @Override
-    public int getItemCount() {
-        return (cursor != null) ? cursor.getCount() : 0;
-    }
-
-    // zamień bieżący obiekt Cursor adaptera na nowy
-    public void swapCursor(Cursor cursor) {
-        this.cursor = cursor;
-        notifyDataSetChanged();
-    }
-
-    public int swapBooleanToInt(boolean value) {
-        if(value)
-            return 0;
-        else
-            return 1;
-    }
-
 }

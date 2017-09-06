@@ -1,5 +1,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragmentMain">
@@ -17,9 +18,20 @@
                 android:id="@+id/searchEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_hint"
+                android:hint="@string/main_search_hint"
                 android:singleLine="true"/>
+
         </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/myJobsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/divider_margin"
+            android:paddingStart="@dimen/my_job_title_margin"
+            android:paddingTop="@dimen/divider_margin"
+            android:text="@string/main_my_jobs_title"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -27,14 +39,5 @@
             android:layout_height="match_parent"/>
 
     </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_add_black_24dp"/>
 
 </FrameLayout>
