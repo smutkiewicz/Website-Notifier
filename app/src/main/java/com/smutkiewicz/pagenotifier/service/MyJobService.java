@@ -17,6 +17,16 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.StringRequest;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
@@ -27,11 +37,13 @@ import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URL_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MESSENGER_INTENT_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
+import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
 
 public class MyJobService extends JobService {
 
     private static final String TAG = MyJobService.class.getSimpleName();
+    private static final String ERROR_IN_REQUEST = "error_in_request";
 
     private Messenger mActivityMessenger;
 
@@ -68,25 +80,37 @@ public class MyJobService extends JobService {
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        Handler preJobHandler = initPreJobHandler(jobId, url);
+
+        Handler jobHandler = new Handler();
+        jobHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                sendMessage(MSG_STOP, jobId);
-                setCurrentItemUpdated(uri);
+                startRequestForOldWebsite(jobId, url);
 
-                if(alertsEnabled) {
-                    showNotification(name, url);
+                if(ResponseMatcher.checkForChanges(jobId)) {
+                    sendMessage(MSG_STOP, jobId);
+                    setCurrentItemUpdated(uri);
+                    ResponseMatcher.cleanFinishedJobData(jobId);
+
+                    if(alertsEnabled)
+                        showNotification(name, url);
+
+                    showToast("Job finished ! ! !");
+                    jobFinished(params, false);
+                } else {
+                    //TODO jak zrestartować zadanie
+                    sendMessage(MSG_RESTART, jobId);
+                    setCurrentItemUpdated(uri);
+                    ResponseMatcher.cleanNewWebsiteData(jobId);
+
+                    showToast("Job should be restarted ! ! !");
+                    jobFinished(params, false);
                 }
-
-                showToast("Job finished ! ! !");
-                jobFinished(params, false);
             }
         }, duration);
 
-        Log.i(TAG, "on start job: " + jobId);
         showToast("On Start Job " + jobId);
-
         return true;
     }
 
@@ -97,6 +121,17 @@ public class MyJobService extends JobService {
         Log.i(TAG, "on stop job: " + params.getJobId());
         showToast("Job stopped " + params.getJobId() + "! ! !");
         return false;
+    }
+
+    private Handler initPreJobHandler(final int jobId, final String url) {
+        Handler preJobHandler = new Handler();
+        preJobHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                startRequestForNewWebsite(jobId, url);
+            }
+        });
+        return preJobHandler;
     }
 
     private void sendMessage(int messageID, @Nullable Object params) {
@@ -151,6 +186,80 @@ public class MyJobService extends JobService {
         values.put(DbDescription.KEY_ISENABLED, 0);
         getContentResolver().update(jobUri, values, null, null);
         Log.d("TAG", "Updated in database");
+    }
+
+    private void startRequestForNewWebsite(int jobId, String url) {
+        RequestQueue mRequestQueue = initRequestQueue();
+        StringRequest stringRequest = createStringRequestForNewWebsite(jobId, url);
+        mRequestQueue.add(stringRequest);
+    }
+
+    private void startRequestForOldWebsite(int jobId, String url) {
+        RequestQueue mRequestQueue = initRequestQueue();
+        StringRequest stringRequest = createStringRequestForOldWebsite(jobId, url);
+        mRequestQueue.add(stringRequest);
+    }
+
+    private StringRequest createStringRequestForNewWebsite(final int jobId, String url) {
+        // Formulate the request and handle the response.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Do something with the response
+                        showToast("Response of new is: "+ response.substring(0,500));
+                        ResponseMatcher.saveNewWebsite(jobId, response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                        showToast("Error!");
+                        ResponseMatcher.saveNewWebsite(jobId, ERROR_IN_REQUEST);
+                    }
+                });
+
+        return stringRequest;
+    }
+
+    private StringRequest createStringRequestForOldWebsite(final int jobId, String url) {
+        // Formulate the request and handle the response.
+        return new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Do something with the response
+                        showToast("Response of old: "+ response.substring(0,500));
+                        ResponseMatcher.saveOldWebsite(jobId, response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                        showToast("Error!");
+                        ResponseMatcher.saveOldWebsite(jobId, ERROR_IN_REQUEST);
+                    }
+                });
+    }
+
+    private RequestQueue initRequestQueue() {
+        RequestQueue mRequestQueue;
+
+        // Instantiate the cache
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+
+        // Set up the network to use HttpURLConnection as the HTTP client.
+        Network network = new BasicNetwork(new HurlStack());
+
+        // Instantiate the RequestQueue with the cache and network.
+        mRequestQueue = new RequestQueue(cache, network);
+
+        // Start the queue
+        mRequestQueue.start();
+
+        return mRequestQueue;
     }
 }
 

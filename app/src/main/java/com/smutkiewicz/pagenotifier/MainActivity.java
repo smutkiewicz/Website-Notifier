@@ -36,8 +36,10 @@ public class MainActivity extends AppCompatActivity
         DetailsDialogFragment.DetailsDialogFragmentListener,
         MainActivityFragment.MainActivityFragmentListener {
 
+    // komunikacja serwisu z aktywnością
     public static final int MSG_START = 0;
     public static final int MSG_STOP = 1;
+    public static final int MSG_RESTART = 2;
 
     // OFF Pressed, not updated or already updated
     public static final int NOT_ENABLED_ITEM_STATE = 0;
@@ -85,13 +87,15 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            Message m;
             switch (msg.what) {
                 case MSG_START:
                     // TODO REAKCJA NA START JOB-U W SERWISIE
                     break;
                 case MSG_STOP:
                     // TODO REAKCJA NA STOP JOB-U W SERWISIE
+                    break;
+                case MSG_RESTART:
+                    // TODO REAKCJA NA RESTART JOB-U W SERWISIE
                     break;
             }
         }
