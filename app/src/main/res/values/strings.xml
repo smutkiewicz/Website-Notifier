@@ -72,5 +72,8 @@
     <string name="service_stopped">WebService stopped!</string>
     <string name="service_label">WebService</string>
     <string name="service_website_updated">Zmiany na stronie!</string>
+    <string name="service_notification_channel_name">Zmiany na stronach</string>
+    <string name="granter_write_permission_denied">Aplikacja nie ma zezwolenia na dostęp do pamięci.</string>
+    <string name="main_update_database_failed">Błąd</string>
 
 </resources>

@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 
 import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.service.MyJobService;
+import com.smutkiewicz.pagenotifier.utilities.PermissionGranter;
 import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
 import java.lang.ref.WeakReference;
@@ -152,6 +155,32 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_ADD: {
+                if(grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
+                } else {
+                    showSnackbar(getString(R.string.granter_write_permission_denied));
+                }
+                break;
+            }
+            case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_EDIT: {
+                if(grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    showSnackbar(getString(R.string.granter_write_permission_denied));
+                }
+                break;
+            }
+        }
+    }
+
     public void scheduleJob(Job job) {
         // sample values
         boolean requiresUnmetered = job.requiresUnmetered; // wymaga połączenia tylko przez WiFi
@@ -214,7 +243,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void displayAddEditFragment(Uri itemUri, int viewID) {
         AddEditItemFragment addEditFragment = new AddEditItemFragment();
-        if(itemUri != Uri.EMPTY)
+        if (itemUri != Uri.EMPTY)
             addUriArgumentsToAFragment(addEditFragment, itemUri);
 
         FragmentTransaction transaction =
@@ -254,8 +283,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onEditItemThatNeedsRestartingCompleted(Job job) {
         returnToMainFragmentAndUpdateItemList();
-        Snackbar.make(findViewById(R.id.fragmentContainer),
-                "Restarting job " + job.id, Toast.LENGTH_SHORT).show();
+        showSnackbar("Restarting job " + job.id);
         restartJob(job);
     }
 
@@ -333,9 +361,13 @@ public class MainActivity extends AppCompatActivity
         mainActivityFragment.updateWebsiteItemList();
     }
 
-
     private void hideAddItemFab() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.addFab);
         fab.hide();
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(findViewById(R.id.fragmentContainer),
+                message, Toast.LENGTH_SHORT).show();
     }
 }

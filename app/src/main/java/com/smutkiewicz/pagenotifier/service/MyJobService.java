@@ -1,6 +1,8 @@
 package com.smutkiewicz.pagenotifier.service;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobParameters;
@@ -8,7 +10,9 @@ import android.app.job.JobService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -44,6 +48,7 @@ public class MyJobService extends JobService {
 
     private static final String TAG = MyJobService.class.getSimpleName();
     private static final String ERROR_IN_REQUEST = "error_in_request";
+    private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
 
     private Messenger mActivityMessenger;
 
@@ -86,7 +91,8 @@ public class MyJobService extends JobService {
         jobHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                startRequestForOldWebsite(jobId, url);
+                Log.d("TAG", "Started request for new website");
+                startRequestForNewWebsite(jobId, url);
 
                 if(ResponseMatcher.checkForChanges(jobId)) {
                     sendMessage(MSG_STOP, jobId);
@@ -101,7 +107,6 @@ public class MyJobService extends JobService {
                 } else {
                     //TODO jak zrestartować zadanie
                     sendMessage(MSG_RESTART, jobId);
-                    setCurrentItemUpdated(uri);
                     ResponseMatcher.cleanNewWebsiteData(jobId);
 
                     showToast("Job should be restarted ! ! !");
@@ -128,7 +133,7 @@ public class MyJobService extends JobService {
         preJobHandler.post(new Runnable() {
             @Override
             public void run() {
-                startRequestForNewWebsite(jobId, url);
+                startRequestForOldWebsite(jobId, url);
             }
         });
         return preJobHandler;
@@ -168,16 +173,34 @@ public class MyJobService extends JobService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 intent, 0);
 
-        Notification notification = new Notification.Builder(this)
+        Notification.Builder builder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.ic_updated_white_24dp)
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(name)
                 .setContentText(url)
-                .setContentIntent(contentIntent)
-                .build();
+                .setContentIntent(contentIntent);
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setNotificationChannel();
+            builder.setChannelId(PAGE_NOTIFIER_CHANNEL_ID);
+        }
+
+        Notification notification = builder.build();
         manager.notify(R.string.service_started, notification);
+    }
+
+    @TargetApi(26)
+    private void setNotificationChannel() {
+        NotificationChannel notificationChannel =
+                new NotificationChannel(PAGE_NOTIFIER_CHANNEL_ID,
+                        getString(R.string.service_notification_channel_name),
+                        NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setLightColor(Color.RED);
+
+        NotificationManager nm =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.createNotificationChannel(notificationChannel);
     }
 
     private void setCurrentItemUpdated(Uri jobUri) {
@@ -208,7 +231,7 @@ public class MyJobService extends JobService {
                     public void onResponse(String response) {
                         // Do something with the response
                         showToast("Response of new is: "+ response.substring(0,500));
-                        ResponseMatcher.saveNewWebsite(jobId, response);
+                        ResponseMatcher.saveNewWebsite(jobId, response, getApplicationContext());
                     }
                 },
                 new Response.ErrorListener() {
@@ -216,7 +239,7 @@ public class MyJobService extends JobService {
                     public void onErrorResponse(VolleyError error) {
                         // Handle error
                         showToast("Error!");
-                        ResponseMatcher.saveNewWebsite(jobId, ERROR_IN_REQUEST);
+                        ResponseMatcher.saveNewWebsite(jobId, ERROR_IN_REQUEST, getApplicationContext());
                     }
                 });
 
@@ -231,7 +254,8 @@ public class MyJobService extends JobService {
                     public void onResponse(String response) {
                         // Do something with the response
                         showToast("Response of old: "+ response.substring(0,500));
-                        ResponseMatcher.saveOldWebsite(jobId, response);
+                        ResponseMatcher.saveOldWebsite(
+                                jobId, response, getApplicationContext());
                     }
                 },
                 new Response.ErrorListener() {
@@ -239,7 +263,8 @@ public class MyJobService extends JobService {
                     public void onErrorResponse(VolleyError error) {
                         // Handle error
                         showToast("Error!");
-                        ResponseMatcher.saveOldWebsite(jobId, ERROR_IN_REQUEST);
+                        ResponseMatcher.saveOldWebsite(
+                                jobId, ERROR_IN_REQUEST, getApplicationContext());
                     }
                 });
     }

@@ -30,6 +30,10 @@ import com.smutkiewicz.pagenotifier.model.WebsiteItemAdapter;
 import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.utilities.ItemDivider;
 
+import static com.smutkiewicz.pagenotifier.utilities.PermissionGranter.WRITE_READ_PERMISSIONS_FOR_ADD;
+import static com.smutkiewicz.pagenotifier.utilities.PermissionGranter.WRITE_READ_PERMISSIONS_FOR_EDIT;
+import static com.smutkiewicz.pagenotifier.utilities.PermissionGranter.permissionsGranted;
+
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
     // identyfikuje obiekt Loader
@@ -135,7 +139,6 @@ public class MainActivityFragment extends Fragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //TODO CursorLoader
         String where = buildWhereClause();
         if(where != null)
             Log.d("TAG", where);
@@ -182,8 +185,11 @@ public class MainActivityFragment extends Fragment
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
-                hideAddItemFab();
+                if(permissionsGranted(
+                        getActivity(), WRITE_READ_PERMISSIONS_FOR_ADD)) {
+                    mListener.displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
+                    hideAddItemFab();
+                }
             }
         });
     }
@@ -207,18 +213,25 @@ public class MainActivityFragment extends Fragment
                 new WebsiteItemAdapter.WebsiteItemClickListener() {
                     @Override
                     public void onEditButtonClick(Uri itemUri, int viewId) {
-                        mListener.displayAddEditFragment(itemUri, viewId);
+                        if(permissionsGranted(
+                                getActivity(), WRITE_READ_PERMISSIONS_FOR_EDIT))
+                            mListener.displayAddEditFragment(itemUri, viewId);
                     }
 
                     @Override
                     public void onItemClick(Uri itemUri) {
-                        mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
+                        if(permissionsGranted(
+                                getActivity(), WRITE_READ_PERMISSIONS_FOR_EDIT))
+                            mListener.displayDetailsFragment(itemUri, R.id.fragmentContainer);
                     }
 
                     @Override
                     public void onToggleClick(Job job, boolean newToggleValue) {
-                        onToggleClicked(job.uri, (newToggleValue) ? 1 : 0);
-                        mListener.onToggleAction(job, newToggleValue);
+                        if(permissionsGranted(
+                                getActivity(), WRITE_READ_PERMISSIONS_FOR_EDIT)) {
+                            onToggleClicked(job.uri, (newToggleValue) ? 1 : 0);
+                            mListener.onToggleAction(job, newToggleValue);
+                        }
                     }
                 }
         );
@@ -233,18 +246,18 @@ public class MainActivityFragment extends Fragment
                 itemUri, contentValues, null, null);
 
         if (updatedRows > 0) {
-
             if(newIsEnabledValue == 1) {
-                Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
-                        R.string.main_enabled, Snackbar.LENGTH_LONG).show();
+                showSnackbar(R.string.main_enabled);
             } else { // isEnabled == 0
-                Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
-                        R.string.main_disabled, Snackbar.LENGTH_LONG).show();
+                showSnackbar(R.string.main_disabled);
             }
-
         } else {
-            Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
-                    "Błąd", Snackbar.LENGTH_LONG).show();
+            showSnackbar(R.string.main_update_database_failed);
         }
+    }
+
+    private void showSnackbar(int messageId) {
+        Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
+                getString(messageId), Snackbar.LENGTH_LONG).show();
     }
 }
