@@ -39,13 +39,13 @@ import static com.smutkiewicz.pagenotifier.MainActivity.JOB_NAME_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URL_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MESSENGER_INTENT_KEY;
+import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
-import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.*;
 
 public class MyJobService extends JobService {
-
     private static final String TAG = MyJobService.class.getSimpleName();
     private static final String ERROR_IN_REQUEST = "error_in_request";
     private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
@@ -91,32 +91,63 @@ public class MyJobService extends JobService {
         jobHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d("TAG", "Started request for new website");
-                startRequestForNewWebsite(jobId, url);
+                RequestQueue mRequestQueue = initRequestQueue();
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("ResponseMatcher", "onResponse new");
+                                saveWebsite(getNewFilePath(jobId),
+                                        response, getApplicationContext());
 
-                if(ResponseMatcher.checkForChanges(jobId)) {
-                    sendMessage(MSG_STOP, jobId);
-                    setCurrentItemUpdated(uri);
-                    ResponseMatcher.cleanFinishedJobData(jobId);
+                                if(checkForChanges(jobId)) {
+                                    if(alertsEnabled) {
+                                        showNotification(name, url);
+                                    }
+                                    handleFinishedJob(jobId, uri);
+                                    jobFinished(params, false);
+                                } else {
+                                    handleRestartedJob(jobId, uri);
+                                    jobFinished(params, false);
+                                }
 
-                    if(alertsEnabled)
-                        showNotification(name, url);
+                                showToast("Response of new is: "
+                                        + response.substring(0,500));
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("ResponseMatcher", "onErrorResponse new");
+                                showToast("Response of new is: error");
+                            }
+                        });
 
-                    showToast("Job finished ! ! !");
-                    jobFinished(params, false);
-                } else {
-                    //TODO jak zrestartować zadanie
-                    sendMessage(MSG_RESTART, jobId);
-                    ResponseMatcher.cleanNewWebsiteData(jobId);
-
-                    showToast("Job should be restarted ! ! !");
-                    jobFinished(params, false);
-                }
+                mRequestQueue.add(stringRequest);
             }
         }, duration);
 
         showToast("On Start Job " + jobId);
         return true;
+    }
+
+    private void handleFinishedJob(int jobId, Uri uri) {
+        Log.d("ResponseMatcher", "Checked for changes: true");
+        sendMessage(MSG_STOP, jobId);
+        setCurrentItemUpdated(uri);
+
+        cleanFinishedJobData(jobId);
+        showToast("Job finished ! ! !");
+    }
+
+    private void handleRestartedJob(int jobId, Uri uri) {
+        //TODO jak zrestartować zadanie
+        Log.d("ResponseMatcher", "Checked for changes: false");
+        sendMessage(MSG_RESTART, jobId);
+        setCurrentItemUpdated(uri);
+
+        cleanNotFinishedWebsiteData(jobId);
+        showToast("Job should be restarted ! ! !");
     }
 
     @Override
@@ -208,13 +239,6 @@ public class MyJobService extends JobService {
         values.put(DbDescription.KEY_UPDATED, 1);
         values.put(DbDescription.KEY_ISENABLED, 0);
         getContentResolver().update(jobUri, values, null, null);
-        Log.d("TAG", "Updated in database");
-    }
-
-    private void startRequestForNewWebsite(int jobId, String url) {
-        RequestQueue mRequestQueue = initRequestQueue();
-        StringRequest stringRequest = createStringRequestForNewWebsite(jobId, url);
-        mRequestQueue.add(stringRequest);
     }
 
     private void startRequestForOldWebsite(int jobId, String url) {
@@ -223,67 +247,32 @@ public class MyJobService extends JobService {
         mRequestQueue.add(stringRequest);
     }
 
-    private StringRequest createStringRequestForNewWebsite(final int jobId, String url) {
-        // Formulate the request and handle the response.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Do something with the response
-                        showToast("Response of new is: "+ response.substring(0,500));
-                        ResponseMatcher.saveNewWebsite(jobId, response, getApplicationContext());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Handle error
-                        showToast("Error!");
-                        ResponseMatcher.saveNewWebsite(jobId, ERROR_IN_REQUEST, getApplicationContext());
-                    }
-                });
-
-        return stringRequest;
-    }
-
     private StringRequest createStringRequestForOldWebsite(final int jobId, String url) {
-        // Formulate the request and handle the response.
         return new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Do something with the response
-                        showToast("Response of old: "+ response.substring(0,500));
-                        ResponseMatcher.saveOldWebsite(
-                                jobId, response, getApplicationContext());
+                        Log.d("ResponseMatcher", "onResponse old");
+                        ResponseMatcher.saveWebsite(getOldFilePath(jobId),
+                                response, getApplicationContext());
+                        showToast("Response of old: " + response.substring(0,500));
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Handle error
-                        showToast("Error!");
-                        ResponseMatcher.saveOldWebsite(
-                                jobId, ERROR_IN_REQUEST, getApplicationContext());
+                        Log.d("ResponseMatcher", "onErrorResponse old");
+                        showToast("Response of old: error");
                     }
                 });
     }
 
     private RequestQueue initRequestQueue() {
         RequestQueue mRequestQueue;
-
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-
-        // Set up the network to use HttpURLConnection as the HTTP client.
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024);
         Network network = new BasicNetwork(new HurlStack());
-
-        // Instantiate the RequestQueue with the cache and network.
         mRequestQueue = new RequestQueue(cache, network);
-
-        // Start the queue
         mRequestQueue.start();
-
         return mRequestQueue;
     }
 }

@@ -3,6 +3,7 @@ package com.smutkiewicz.pagenotifier.utilities;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -22,23 +23,27 @@ public class PermissionGranter {
             Manifest.permission.READ_EXTERNAL_STORAGE};
 
     public static boolean permissionsGranted(Activity myActivity, int code) {
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        int result;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            List<String> listPermissionsNeeded = new ArrayList<>();
+            int result;
 
-        for (String p: permissions) {
-            result = ContextCompat.checkSelfPermission(myActivity, p);
-            if (result != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded.add(p);
+            for (String p : permissions) {
+                result = ContextCompat.checkSelfPermission(myActivity, p);
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    listPermissionsNeeded.add(p);
+                }
             }
-        }
 
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(myActivity,
-                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
-                    code);
-            return false;
-        }
+            if (!listPermissionsNeeded.isEmpty()) {
+                ActivityCompat.requestPermissions(myActivity,
+                        listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
+                        code);
+                return false;
+            }
 
-        return true;
+            return true;
+        } else {
+            return true;
+        }
     }
 }

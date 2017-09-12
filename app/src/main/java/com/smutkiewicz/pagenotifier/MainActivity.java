@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity
         builder.setOverrideDeadline(job.deadline);
         builder.setRequiresDeviceIdle(job.requiresIdle);
         builder.setRequiresCharging(job.requiresCharging);
+        builder.setPersisted(true);
 
         if (requiresUnmetered) {
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
