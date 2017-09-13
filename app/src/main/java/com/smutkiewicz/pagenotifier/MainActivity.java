@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     public static final int MSG_START = 0;
     public static final int MSG_STOP = 1;
     public static final int MSG_RESTART = 2;
+    public static final int MSG_FINISHED = 3;
 
     // OFF Pressed, not updated or already updated
     public static final int NOT_ENABLED_ITEM_STATE = 0;
@@ -52,8 +54,6 @@ public class MainActivity extends AppCompatActivity
     // zestaw stałych do obsługi dołączania Extras dla serwisu
     public static final String MESSENGER_INTENT_KEY
             = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
-    public static final String WORK_DURATION_KEY =
-            BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
     public static final String JOB_NAME_KEY =
             BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
     public static final String JOB_URL_KEY =
@@ -99,6 +99,9 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case MSG_RESTART:
                     // TODO REAKCJA NA RESTART JOB-U W SERWISIE
+                    break;
+                case MSG_FINISHED:
+                    // TODO REAKCJA NA FINISH JOB-U W SERWISIE
                     break;
             }
         }
@@ -187,12 +190,9 @@ public class MainActivity extends AppCompatActivity
 
         // build Job for JobService
         JobInfo.Builder builder = new JobInfo.Builder(job.id, mServiceComponent);
-        builder.setMinimumLatency(job.delay);
-        builder.setOverrideDeadline(job.deadline);
         builder.setRequiresDeviceIdle(job.requiresIdle);
         builder.setRequiresCharging(job.requiresCharging);
-        //builder.setPeriodic(job.delay);
-        builder.setPersisted(true);
+        setJobPeriodic(builder, job.delay);
 
         if (requiresUnmetered) {
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
@@ -346,9 +346,19 @@ public class MainActivity extends AppCompatActivity
         scanDelayTranslator = new ScanDelayTranslator(getApplicationContext());
     }
 
+    private void setJobPeriodic(JobInfo.Builder builder, long delay) {
+        // obsługa różnicy w funkcjonowaniu serwisu na API > 23
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder.setPeriodic(delay, delay);
+        } else {
+            builder.setPeriodic(delay);
+        }
+
+        builder.setPersisted(true);
+    }
+
     private PersistableBundle putExtrasToAPersistableBundle(Job job) {
         PersistableBundle extras = new PersistableBundle();
-        extras.putLong(WORK_DURATION_KEY, job.workDuration);
         //do ustawienia powiadomienia
         extras.putString(JOB_NAME_KEY, job.name);
         extras.putString(JOB_URL_KEY, job.url);

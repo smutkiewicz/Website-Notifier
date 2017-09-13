@@ -39,11 +39,16 @@ import static com.smutkiewicz.pagenotifier.MainActivity.JOB_NAME_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URL_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MESSENGER_INTENT_KEY;
+import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
-import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
-import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.*;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.cleanFinishedJobData;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.cleanNotFinishedJobData;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
@@ -78,19 +83,18 @@ public class MyJobService extends JobService {
         sendMessage(MSG_START, jobId);
 
         final int alerts = params.getExtras().getInt(JOB_ALERTS_KEY);
-        long duration = params.getExtras().getLong(WORK_DURATION_KEY);
         final String name = params.getExtras().getString(JOB_NAME_KEY);
         final String url = params.getExtras().getString(JOB_URL_KEY);
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
+        final RequestQueue mRequestQueue = initRequestQueue();
 
-        Handler preJobHandler = initPreJobHandler(jobId, url);
+        Handler preJobHandler = initPreJobHandler(mRequestQueue, jobId, url);
 
         Handler jobHandler = new Handler();
-        jobHandler.postDelayed(new Runnable() {
+        jobHandler.post(new Runnable() {
             @Override
             public void run() {
-                RequestQueue mRequestQueue = initRequestQueue();
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                         new Response.Listener<String>() {
                             @Override
@@ -108,7 +112,7 @@ public class MyJobService extends JobService {
                                     jobFinished(params, false);
                                 } else {
                                     handleRestartedJob(jobId, uri);
-                                    jobFinished(params, false);
+                                    jobFinished(params, true);
                                 }
                             }
                         },
@@ -117,12 +121,13 @@ public class MyJobService extends JobService {
                             public void onErrorResponse(VolleyError error) {
                                 Log.d("ResponseMatcher", "onErrorResponse new");
                                 handleErrorJob(jobId, uri);
+                                jobFinished(params, false);
                             }
                         });
 
                 mRequestQueue.add(stringRequest);
             }
-        }, duration);
+        });
 
         showToast("On Start Job " + jobId);
         return true;
@@ -130,7 +135,7 @@ public class MyJobService extends JobService {
 
     private void handleFinishedJob(int jobId, Uri uri) {
         Log.d("ResponseMatcher", "Checked for changes: true");
-        sendMessage(MSG_STOP, jobId);
+        sendMessage(MSG_FINISHED, jobId);
         setCurrentItemUpdated(uri);
 
         cleanFinishedJobData(jobId, getApplicationContext());
@@ -141,7 +146,6 @@ public class MyJobService extends JobService {
         //TODO jak zrestartować zadanie
         Log.d("ResponseMatcher", "Checked for changes: false");
         sendMessage(MSG_RESTART, jobId);
-        setCurrentItemUpdated(uri);
 
         cleanNotFinishedJobData(jobId, getApplicationContext());
         showToast("Job should be restarted ! ! !");
@@ -165,12 +169,13 @@ public class MyJobService extends JobService {
         return false;
     }
 
-    private Handler initPreJobHandler(final int jobId, final String url) {
+    private Handler initPreJobHandler(final RequestQueue requestQueue,
+                                      final int jobId, final String url) {
         Handler preJobHandler = new Handler();
         preJobHandler.post(new Runnable() {
             @Override
             public void run() {
-                startRequestForOldWebsite(jobId, url);
+                startRequestForOldWebsite(requestQueue, jobId, url);
             }
         });
         return preJobHandler;
@@ -254,10 +259,9 @@ public class MyJobService extends JobService {
         getContentResolver().update(jobUri, values, null, null);
     }
 
-    private void startRequestForOldWebsite(int jobId, String url) {
-        RequestQueue mRequestQueue = initRequestQueue();
+    private void startRequestForOldWebsite(RequestQueue requestQueue, int jobId, String url) {
         StringRequest stringRequest = createStringRequestForOldWebsite(jobId, url);
-        mRequestQueue.add(stringRequest);
+        requestQueue.add(stringRequest);
     }
 
     private RequestQueue initRequestQueue() {
