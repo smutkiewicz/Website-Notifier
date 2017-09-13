@@ -170,10 +170,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_EDIT: {
-                if(grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
+                if(!(grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    onChangesApplied();
                     showSnackbar(getString(R.string.granter_write_permission_denied));
                 }
                 break;
@@ -192,6 +191,7 @@ public class MainActivity extends AppCompatActivity
         builder.setOverrideDeadline(job.deadline);
         builder.setRequiresDeviceIdle(job.requiresIdle);
         builder.setRequiresCharging(job.requiresCharging);
+        //builder.setPeriodic(job.delay);
         builder.setPersisted(true);
 
         if (requiresUnmetered) {
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void restartJob(Job job) {
+    public void resetJob(Job job) {
         finishJob(job.id);
         scheduleJob(job);
     }
@@ -285,7 +285,7 @@ public class MainActivity extends AppCompatActivity
     public void onEditItemThatNeedsRestartingCompleted(Job job) {
         returnToMainFragmentAndUpdateItemList();
         showSnackbar("Restarting job " + job.id);
-        restartJob(job);
+        resetJob(job);
     }
 
     @Override

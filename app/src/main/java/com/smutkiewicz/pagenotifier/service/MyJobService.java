@@ -47,7 +47,6 @@ import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.*;
 
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
-    private static final String ERROR_IN_REQUEST = "error_in_request";
     private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
 
     private Messenger mActivityMessenger;
@@ -97,29 +96,27 @@ public class MyJobService extends JobService {
                             @Override
                             public void onResponse(String response) {
                                 Log.d("ResponseMatcher", "onResponse new");
-                                saveWebsite(getNewFilePath(jobId),
+                                saveFile(getNewFilePath(jobId),
                                         response, getApplicationContext());
 
-                                if(checkForChanges(jobId)) {
+                                if(checkForChanges(jobId, getApplicationContext())) {
                                     if(alertsEnabled) {
                                         showNotification(name, url);
                                     }
+
                                     handleFinishedJob(jobId, uri);
                                     jobFinished(params, false);
                                 } else {
                                     handleRestartedJob(jobId, uri);
                                     jobFinished(params, false);
                                 }
-
-                                showToast("Response of new is: "
-                                        + response.substring(0,500));
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Log.d("ResponseMatcher", "onErrorResponse new");
-                                showToast("Response of new is: error");
+                                handleErrorJob(jobId, uri);
                             }
                         });
 
@@ -136,7 +133,7 @@ public class MyJobService extends JobService {
         sendMessage(MSG_STOP, jobId);
         setCurrentItemUpdated(uri);
 
-        cleanFinishedJobData(jobId);
+        cleanFinishedJobData(jobId, getApplicationContext());
         showToast("Job finished ! ! !");
     }
 
@@ -146,8 +143,17 @@ public class MyJobService extends JobService {
         sendMessage(MSG_RESTART, jobId);
         setCurrentItemUpdated(uri);
 
-        cleanNotFinishedWebsiteData(jobId);
+        cleanNotFinishedJobData(jobId, getApplicationContext());
         showToast("Job should be restarted ! ! !");
+    }
+
+    private void handleErrorJob(int jobId, Uri uri) {
+        Log.d("ResponseMatcher", "Checked for changes: error");
+        sendMessage(MSG_STOP, jobId);
+        setCurrentItemJobEscapedWithError(uri);
+
+        cleanFinishedJobData(jobId, getApplicationContext());
+        showToast("Job error.");
     }
 
     @Override
@@ -241,30 +247,17 @@ public class MyJobService extends JobService {
         getContentResolver().update(jobUri, values, null, null);
     }
 
+    private void setCurrentItemJobEscapedWithError(Uri jobUri) {
+        ContentValues values = new ContentValues();
+        values.put(DbDescription.KEY_UPDATED, 0);
+        values.put(DbDescription.KEY_ISENABLED, 0);
+        getContentResolver().update(jobUri, values, null, null);
+    }
+
     private void startRequestForOldWebsite(int jobId, String url) {
         RequestQueue mRequestQueue = initRequestQueue();
         StringRequest stringRequest = createStringRequestForOldWebsite(jobId, url);
         mRequestQueue.add(stringRequest);
-    }
-
-    private StringRequest createStringRequestForOldWebsite(final int jobId, String url) {
-        return new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("ResponseMatcher", "onResponse old");
-                        ResponseMatcher.saveWebsite(getOldFilePath(jobId),
-                                response, getApplicationContext());
-                        showToast("Response of old: " + response.substring(0,500));
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("ResponseMatcher", "onErrorResponse old");
-                        showToast("Response of old: error");
-                    }
-                });
     }
 
     private RequestQueue initRequestQueue() {
@@ -275,5 +268,23 @@ public class MyJobService extends JobService {
         mRequestQueue.start();
         return mRequestQueue;
     }
-}
 
+    private StringRequest createStringRequestForOldWebsite(final int jobId, String url) {
+        return new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("ResponseMatcher", "onResponse old");
+                        ResponseMatcher.saveFile(getOldFilePath(jobId),
+                                response, getApplicationContext());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("ResponseMatcher", "onErrorResponse old");
+                        showToast("Response of old: error");
+                    }
+                });
+    }
+}
