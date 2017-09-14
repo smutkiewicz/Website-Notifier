@@ -43,9 +43,8 @@ import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
+import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
-import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.cleanFinishedJobData;
-import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.cleanNotFinishedJobData;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
@@ -85,6 +84,7 @@ public class MyJobService extends JobService {
         final int alerts = params.getExtras().getInt(JOB_ALERTS_KEY);
         final String name = params.getExtras().getString(JOB_NAME_KEY);
         final String url = params.getExtras().getString(JOB_URL_KEY);
+        long duration = params.getExtras().getLong(WORK_DURATION_KEY);
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
         final RequestQueue mRequestQueue = initRequestQueue();
@@ -92,7 +92,7 @@ public class MyJobService extends JobService {
         Handler preJobHandler = initPreJobHandler(mRequestQueue, jobId, url);
 
         Handler jobHandler = new Handler();
-        jobHandler.post(new Runnable() {
+        jobHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -109,10 +109,10 @@ public class MyJobService extends JobService {
                                     }
 
                                     handleFinishedJob(jobId, uri);
-                                    jobFinished(params, false);
+                                    jobFinished(params, true);
                                 } else {
                                     handleRestartedJob(jobId, uri);
-                                    jobFinished(params, true);
+                                    jobFinished(params, false);
                                 }
                             }
                         },
@@ -121,42 +121,39 @@ public class MyJobService extends JobService {
                             public void onErrorResponse(VolleyError error) {
                                 Log.d("ResponseMatcher", "onErrorResponse new");
                                 handleErrorJob(jobId, uri);
-                                jobFinished(params, false);
+                                jobFinished(params, true);
                             }
                         });
 
                 mRequestQueue.add(stringRequest);
             }
-        });
+        }, duration);
 
         showToast("On Start Job " + jobId);
         return true;
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
-        Log.d("ResponseMatcher", "Checked for changes: true");
+        Log.d("ResponseMatcher", "handle finished job");
         sendMessage(MSG_FINISHED, jobId);
         setCurrentItemUpdated(uri);
 
-        cleanFinishedJobData(jobId, getApplicationContext());
         showToast("Job finished ! ! !");
     }
 
     private void handleRestartedJob(int jobId, Uri uri) {
         //TODO jak zrestartować zadanie
-        Log.d("ResponseMatcher", "Checked for changes: false");
+        Log.d("ResponseMatcher", " handle restarted job");
         sendMessage(MSG_RESTART, jobId);
 
-        cleanNotFinishedJobData(jobId, getApplicationContext());
         showToast("Job should be restarted ! ! !");
     }
 
     private void handleErrorJob(int jobId, Uri uri) {
-        Log.d("ResponseMatcher", "Checked for changes: error");
+        Log.d("ResponseMatcher", "handle error job");
         sendMessage(MSG_STOP, jobId);
         setCurrentItemJobEscapedWithError(uri);
 
-        cleanFinishedJobData(jobId, getApplicationContext());
         showToast("Job error.");
     }
 

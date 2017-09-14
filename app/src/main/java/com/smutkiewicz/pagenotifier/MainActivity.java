@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     // zestaw stałych do obsługi dołączania Extras dla serwisu
     public static final String MESSENGER_INTENT_KEY
             = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
+    public static final String WORK_DURATION_KEY =
+            BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
     public static final String JOB_NAME_KEY =
             BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
     public static final String JOB_URL_KEY =
@@ -184,6 +186,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void scheduleJob(Job job) {
+        Log.d("SCHEDULE", "JOB " + job.id + "SCHEDULED");
         // sample values
         boolean requiresUnmetered = job.requiresUnmetered; // wymaga połączenia tylko przez WiFi
         boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // wymaga WiFi lub czegokolwiek
@@ -349,6 +352,7 @@ public class MainActivity extends AppCompatActivity
     private void setJobPeriodic(JobInfo.Builder builder, long delay) {
         // obsługa różnicy w funkcjonowaniu serwisu na API > 23
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // TODO periodic for >= N problem
             builder.setPeriodic(delay, delay);
         } else {
             builder.setPeriodic(delay);
@@ -359,6 +363,7 @@ public class MainActivity extends AppCompatActivity
 
     private PersistableBundle putExtrasToAPersistableBundle(Job job) {
         PersistableBundle extras = new PersistableBundle();
+        extras.putLong(WORK_DURATION_KEY, job.workDuration);
         //do ustawienia powiadomienia
         extras.putString(JOB_NAME_KEY, job.name);
         extras.putString(JOB_URL_KEY, job.url);

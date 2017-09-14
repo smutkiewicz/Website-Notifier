@@ -73,8 +73,6 @@ public class WebsiteItemAdapter
                             clickListener.onEditButtonClick(
                                     DbDescription.buildWebsiteItemUri(rowID),
                                     R.id.fragmentContainer);
-                            /*clickListener.onMoreButtonClick(
-                                    DbDescription.buildWebsiteItemUri(rowID));*/
                         }
                     }
             );
