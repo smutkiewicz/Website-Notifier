@@ -27,13 +27,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.smutkiewicz.pagenotifier.service.Job;
 import com.smutkiewicz.pagenotifier.service.MyJobService;
+import com.smutkiewicz.pagenotifier.service.MyStringRequest;
 import com.smutkiewicz.pagenotifier.utilities.PermissionGranter;
 import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
+import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 
 public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
@@ -94,15 +99,19 @@ public class MainActivity extends AppCompatActivity
 
             switch (msg.what) {
                 case MSG_START:
+                    Log.d("Response", "MSG_START");
                     // TODO REAKCJA NA START JOB-U W SERWISIE
                     break;
                 case MSG_STOP:
+                    Log.d("Response", "MSG_STOP");
                     // TODO REAKCJA NA STOP JOB-U W SERWISIE
                     break;
                 case MSG_RESTART:
+                    Log.d("Response", "MSG_RESTART");
                     // TODO REAKCJA NA RESTART JOB-U W SERWISIE
                     break;
                 case MSG_FINISHED:
+                    Log.d("Response", "MSG_FINISHED");
                     // TODO REAKCJA NA FINISH JOB-U W SERWISIE
                     break;
             }
@@ -170,7 +179,7 @@ public class MainActivity extends AppCompatActivity
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
                 } else {
-                    showSnackbar(getString(R.string.granter_write_permission_denied));
+                    showSnackbar(getString(R.string.main_granter_write_permission_denied));
                 }
                 break;
             }
@@ -178,7 +187,7 @@ public class MainActivity extends AppCompatActivity
                 if(!(grantResults.length > 0 &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     onChangesApplied();
-                    showSnackbar(getString(R.string.granter_write_permission_denied));
+                    showSnackbar(getString(R.string.main_granter_write_permission_denied));
                 }
                 break;
             }
@@ -186,7 +195,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void scheduleJob(Job job) {
-        Log.d("SCHEDULE", "JOB " + job.id + "SCHEDULED");
+        Log.d("Response", "Scheduling job");
+
         // sample values
         boolean requiresUnmetered = job.requiresUnmetered; // wymaga połączenia tylko przez WiFi
         boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // wymaga WiFi lub czegokolwiek
@@ -208,12 +218,38 @@ public class MainActivity extends AppCompatActivity
         builder.setExtras(extras);
 
         // schedule
-        JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        tm.schedule(builder.build());
+        JobScheduler service = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        service.schedule(builder.build());
 
-        Log.d(TAG, "Scheduling job");
+        // handle pre job tasks
+        initPreJobTasks(job);
+
         Toast.makeText(
                 MainActivity.this, "Scheduling job", Toast.LENGTH_SHORT).show();
+    }
+
+    private void initPreJobTasks(Job job) {
+        startRequestForOldWebsite(job.id, job.url);
+    }
+
+    public void startRequestForOldWebsite(final int jobId, String url) {
+        MyStringRequest request =
+                new MyStringRequest(getApplicationContext(),
+                        new MyStringRequest.ResponseInterface() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("Response", "Prejob task - downloading old website: success");
+                saveFile(getOldFilePath(jobId),
+                        response, getApplicationContext());
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Response", "Prejob task - downloading old website: failed");
+            }
+        });
+
+        request.startRequestForWebsite(url);
     }
 
     public void cancelAllJobs(View v) {

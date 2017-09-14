@@ -21,16 +21,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.StringRequest;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
@@ -46,7 +37,6 @@ import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
 import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
-import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 
 public class MyJobService extends JobService {
@@ -87,63 +77,59 @@ public class MyJobService extends JobService {
         long duration = params.getExtras().getLong(WORK_DURATION_KEY);
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
-        final RequestQueue mRequestQueue = initRequestQueue();
-
-        Handler preJobHandler = initPreJobHandler(mRequestQueue, jobId, url);
 
         Handler jobHandler = new Handler();
-        jobHandler.postDelayed(new Runnable() {
+        jobHandler.post(new Runnable() {
             @Override
             public void run() {
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Log.d("ResponseMatcher", "onResponse new");
-                                saveFile(getNewFilePath(jobId),
-                                        response, getApplicationContext());
+                MyStringRequest requestForNewWebsite =
+                        new MyStringRequest(getApplicationContext(),
+                                new MyStringRequest.ResponseInterface() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", "New task - downloading new website: success");
+                        saveFile(getNewFilePath(jobId),
+                                response, getApplicationContext());
 
-                                if(checkForChanges(jobId, getApplicationContext())) {
-                                    if(alertsEnabled) {
-                                        showNotification(name, url);
-                                    }
-
-                                    handleFinishedJob(jobId, uri);
-                                    jobFinished(params, true);
-                                } else {
-                                    handleRestartedJob(jobId, uri);
-                                    jobFinished(params, false);
-                                }
+                        if(checkForChanges(jobId, getApplicationContext())) {
+                            if(alertsEnabled) {
+                                showNotification(name, url);
                             }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("ResponseMatcher", "onErrorResponse new");
-                                handleErrorJob(jobId, uri);
-                                jobFinished(params, true);
-                            }
-                        });
 
-                mRequestQueue.add(stringRequest);
+                            handleFinishedJob(jobId, uri);
+                            jobFinished(params, true);
+                        } else {
+                            handleRestartedJob(jobId);
+                            jobFinished(params, false);
+                        }
+                    }
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Response", "New task - downloading new website: error");
+                        handleErrorJob(jobId, uri);
+                        jobFinished(params, true);
+                    }
+                });
+
+                requestForNewWebsite.startRequestForWebsite(url);
             }
-        }, duration);
+        });
 
         showToast("On Start Job " + jobId);
         return true;
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
-        Log.d("ResponseMatcher", "handle finished job");
+        Log.d("Response", "handle finished job");
         sendMessage(MSG_FINISHED, jobId);
         setCurrentItemUpdated(uri);
 
         showToast("Job finished ! ! !");
     }
 
-    private void handleRestartedJob(int jobId, Uri uri) {
-        //TODO jak zrestartować zadanie
-        Log.d("ResponseMatcher", " handle restarted job");
+    private void handleRestartedJob(int jobId) {
+        Log.d("Response", " handle restarted job");
         sendMessage(MSG_RESTART, jobId);
 
         showToast("Job should be restarted ! ! !");
@@ -161,21 +147,8 @@ public class MyJobService extends JobService {
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
 
-        Log.i(TAG, "on stop job: " + params.getJobId());
         showToast("Job stopped " + params.getJobId() + "! ! !");
         return false;
-    }
-
-    private Handler initPreJobHandler(final RequestQueue requestQueue,
-                                      final int jobId, final String url) {
-        Handler preJobHandler = new Handler();
-        preJobHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                startRequestForOldWebsite(requestQueue, jobId, url);
-            }
-        });
-        return preJobHandler;
     }
 
     private void sendMessage(int messageID, @Nullable Object params) {
@@ -254,38 +227,5 @@ public class MyJobService extends JobService {
         values.put(DbDescription.KEY_UPDATED, 0);
         values.put(DbDescription.KEY_ISENABLED, 0);
         getContentResolver().update(jobUri, values, null, null);
-    }
-
-    private void startRequestForOldWebsite(RequestQueue requestQueue, int jobId, String url) {
-        StringRequest stringRequest = createStringRequestForOldWebsite(jobId, url);
-        requestQueue.add(stringRequest);
-    }
-
-    private RequestQueue initRequestQueue() {
-        RequestQueue mRequestQueue;
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024);
-        Network network = new BasicNetwork(new HurlStack());
-        mRequestQueue = new RequestQueue(cache, network);
-        mRequestQueue.start();
-        return mRequestQueue;
-    }
-
-    private StringRequest createStringRequestForOldWebsite(final int jobId, String url) {
-        return new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("ResponseMatcher", "onResponse old");
-                        ResponseMatcher.saveFile(getOldFilePath(jobId),
-                                response, getApplicationContext());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("ResponseMatcher", "onErrorResponse old");
-                        showToast("Response of old: error");
-                    }
-                });
     }
 }

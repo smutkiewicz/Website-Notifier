@@ -56,30 +56,35 @@ public class ResponseMatcher {
     }
 
     public static boolean checkForChanges(int jobId, Context context) {
-        if(ifWebsitesMatch(jobId, context)) {
-            Log.d("ResponseMatcher", "Websites match, no changes");
-            cleanNotFinishedJobData(jobId, context);
-            return false;
+        if(ifResponseIsValid(jobId, context)) {
+            if (ifWebsitesMatch(jobId, context)) {
+                Log.d("Response", "Websites match, no changes");
+                cleanNotFinishedJobData(jobId, context);
+                return false;
+            } else {
+                Log.d("Response", "Websites don't match, changes appeared");
+                cleanFinishedJobData(jobId, context);
+                return true;
+            }
         } else {
-            Log.d("ResponseMatcher", "Websites don't match, changes appeared");
-            cleanFinishedJobData(jobId, context);
+            Log.d("Response", "Websites don't exist - error (treating this like change)");
             return true;
         }
     }
 
     public static void cleanNotFinishedJobData(int jobId, Context context) {
         if(cleanNewWebsiteData(jobId, context)) {
-            Log.d("ResponseMatcher", "Clean not finished job data succeded");
+            Log.d("Response", "Clean not finished job data succeded");
         } else {
-            Log.d("ResponseMatcher", "Clean not finished job data failed");
+            Log.d("Response", "Clean not finished job data failed");
         }
     }
 
     public static void cleanFinishedJobData(int jobId, Context context) {
         if(cleanOldWebsiteData(jobId, context) && cleanNewWebsiteData(jobId, context)) {
-            Log.d("ResponseMatcher", "Clean finished job data succeded");
+            Log.d("Response", "Clean finished job data succeded");
         } else {
-            Log.d("ResponseMatcher", "Clean finished job data failed");
+            Log.d("Response", "Clean finished job data failed");
         }
     }
 
@@ -100,17 +105,17 @@ public class ResponseMatcher {
         if(oldFile.size() == newFile.size()) {
             if(!ifLinesMatch(oldFile, newFile)) {
                 // różnice w liniach, zmiany na stronie
-                Log.d("ResponseMatcher", "!ifLinesMatch()");
+                Log.d("Response", "Matcher: !ifLinesMatch()");
                 return false;
             }
         } else {
             // nierówna ilość linii, zmiany na stronie
-            Log.d("ResponseMatcher", "oldFile.size() != newFile.size()");
+            Log.d("Response", "Matcher: oldFile.size() != newFile.size()");
             return false;
         }
 
         // równa ilość linii i pasują do siebie, brak zmian
-        Log.d("ResponseMatcher", "oldFile.size() == newFile.size() && lines matches");
+        Log.d("Response", "Matcher: oldFile.size() == newFile.size() && lines matches");
         return true;
     }
 
@@ -131,42 +136,42 @@ public class ResponseMatcher {
     }
 
     private static boolean ifResponseIsValid(int jobId, Context context) {
-        String pathOld =
-                context.getApplicationInfo().dataDir + "/" + getOldFilePath(jobId);
-        String pathNew =
-                context.getApplicationInfo().dataDir + "/" + getNewFilePath(jobId);
-        Log.d("ResponseMatcher", pathOld);
-        Log.d("ResponseMatcher", pathNew);
+        boolean bothFilesExist;
+        String pathToNewFile = getFullPathToFile(getNewFilePath(jobId), context);
+        String pathToOldFile = getFullPathToFile(getOldFilePath(jobId), context);
 
-        File oldWebsite = new File(pathOld);
-        File newWebsite = new File(pathNew);
-        return (oldWebsite.exists() && newWebsite.exists());
+        File oldFile = new File(pathToOldFile);
+        File newFile = new File(pathToNewFile);
+
+        Log.d("Response", "Is response valid?");
+        bothFilesExist = (oldFile.exists() && newFile.exists());
+
+        if(bothFilesExist)
+            Log.d("Response", "Both files exist");
+        else
+            Log.d("Response", "Some files lack");
+
+        return bothFilesExist;
     }
 
     private static boolean cleanOldWebsiteData(int jobId, Context context) {
-        // TODO remove old data
-        String pathToData = context.getFilesDir().getPath();
-        String pathToFile = pathToData + "/" + getOldFilePath(jobId);
-        Log.d("ResponseMatcher", "Path to file: " + pathToFile);
+        String pathToFile = getFullPathToFile(getOldFilePath(jobId), context);
+        Log.d("Response", "Path to file: " + pathToFile);
 
         File file = new File(pathToFile);
-
-        if(file.exists())
-            Log.d("ResponseMatcher", "Old file exists");
-
         return file.delete();
     }
 
     private static boolean cleanNewWebsiteData(int jobId, Context context) {
-        // TODO remove new data
-        String pathToData = context.getFilesDir().getPath();
-        String pathToFile = pathToData + "/" + getNewFilePath(jobId);
+        String pathToFile = getFullPathToFile(getNewFilePath(jobId), context);
         Log.d("ResponseMatcher", "Path to file: " + pathToFile);
+
         File file = new File(pathToFile);
-
-        if(file.exists())
-            Log.d("ResponseMatcher", "New file exists");
-
         return file.delete();
+    }
+
+    private static String getFullPathToFile(String filename, Context context) {
+        String pathToData = context.getFilesDir().getPath();
+        return pathToData + "/" + filename;
     }
 }

@@ -1,6 +1,7 @@
 package com.smutkiewicz.pagenotifier.service;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -8,14 +9,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.StringRequest;
-
-/**
- * Created by Admin on 2017-09-14.
- */
+import com.android.volley.toolbox.*;
 
 public class MyStringRequest {
     private Context context;
@@ -31,9 +25,9 @@ public class MyStringRequest {
         this.responseInterface = responseInterface;
     }
 
-    private void startRequestForWebsite(int jobId, String url) {
+    public void startRequestForWebsite(String url) {
         RequestQueue requestQueue = initRequestQueue();
-        StringRequest stringRequest = createStringRequestForWebsite(jobId, url);
+        StringRequest stringRequest = createStringRequestForWebsite(url);
         requestQueue.add(stringRequest);
     }
 
@@ -46,17 +40,19 @@ public class MyStringRequest {
         return mRequestQueue;
     }
 
-    private StringRequest createStringRequestForWebsite(final int jobId, String url) {
+    private StringRequest createStringRequestForWebsite(String url) {
         return new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.d("Response", "Interface: success");
                         responseInterface.onResponse(response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.d("Response", "Interface: failed");
                         responseInterface.onErrorResponse(error);
                     }
                 });

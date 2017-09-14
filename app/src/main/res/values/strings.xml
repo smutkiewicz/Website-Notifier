@@ -11,6 +11,10 @@
     <string name="main_all_jobs_cancelled">Wszystkie zadania wyłączone.</string>
     <string name="main_cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
     <string name="main_no_jobs_to_cancel">Brak zadań do zakończenia.</string>
+    <string name="main_update_database_failed">Błąd</string>
+    <string name="main_granter_write_permission_denied">
+        Aplikacja nie ma zezwolenia na dostęp do pamięci.
+    </string>
 
     <!-- Settings -->
     <string name="title_activity_settings">Ustawienia</string>
@@ -43,6 +47,7 @@
     <string name="details_updated">Zmiany na stronie.</string>
     <string name="details_updates">Status:</string>
     <string name="details_aborted">Śledzenie zmian zatrzymane przez użytkownika</string>
+    <string name="details_co">Co</string>
 
     <!-- AddEditFragment -->
     <string name="addedit_name_edit_text">Nazwa zadania</string>
@@ -73,7 +78,4 @@
     <string name="service_label">WebService</string>
     <string name="service_website_updated">Zmiany na stronie!</string>
     <string name="service_notification_channel_name">Zmiany na stronach</string>
-    <string name="granter_write_permission_denied">Aplikacja nie ma zezwolenia na dostęp do pamięci.</string>
-    <string name="main_update_database_failed">Błąd</string>
-
 </resources>

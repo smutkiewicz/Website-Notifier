@@ -15,14 +15,10 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
-
-import static com.smutkiewicz.pagenotifier.MainActivity.ENABLED_ITEM_STATE;
-import static com.smutkiewicz.pagenotifier.MainActivity.NOT_ENABLED_ITEM_STATE;
 
 public class DetailsDialogFragment extends DialogFragment
     implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -152,7 +148,7 @@ public class DetailsDialogFragment extends DialogFragment
             setItemId(data.getInt(idIndex));
             setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertModeState(data.getInt(alertsIndex));
-            setStatus(data.getInt(updatesIndex));
+            setStatus(data.getInt(updatesIndex), data.getInt(isEnabledIndex));
             //setIsEnabledAndIsUpdated(data.getInt(isEnabledIndex), data.getInt(updatesIndex));
             setFrequencyStepLabel(data.getInt(delayIndex));
         }
@@ -244,10 +240,6 @@ public class DetailsDialogFragment extends DialogFragment
                         mObserver);
     }
 
-    private void setBuildersIconAndStatusTextView(AlertDialog.Builder builder) {
-        setItemState(builder);
-    }
-
     private void setItemId(int id) {
         itemId = id;
     }
@@ -268,81 +260,25 @@ public class DetailsDialogFragment extends DialogFragment
     private void setFrequencyStepLabel(int step) {
         String text =
                 MainActivity.scanDelayTranslator.putStepAndReturnItsName(step);
-        frequencyTextView.setText("Co " + text);
+        frequencyTextView.setText(getString(R.string.details_co) + " " + text);
     }
 
-    private void setStatus(int status) {
-        // 1 == website updated
-        if(status == 1) {
+    private void setStatus(int isUpdated, int isEnabled) {
+        if(isEnabled == 0 && isUpdated == 1) {
             updatedTextView.setText(R.string.details_updated);
             updatedTextView.setTextColor(Color.GREEN);
-        } else {
+        }
+
+        if(isEnabled == 0 && isUpdated == 0) {
+            updatedTextView.setText(R.string.details_aborted);
+            updatedTextView.setTextColor(Color.RED);
+        }
+
+        if(isEnabled == 1 && isUpdated == 0) {
             updatedTextView.setText(R.string.details_not_updated);
             updatedTextView.setTextColor(Color.RED);
         }
 
-        isUpdatedStatus = (status == 1);
-    }
-
-
-
-    // TODO nowy sposób ustawiania stanu
-    private void setIsEnabledAndIsUpdated(int isEnabled, int updates) {
-        isEnabledStatus = (isEnabled == 1);
-        isUpdatedStatus = (updates == 1);
-        Log.d("LOADER_STATE", "isEnabled = " + isEnabled);
-        if(isEnabledStatus) Log.d("LOADER_STATE", "true isEnabled = " + isEnabled);
-        Log.d("LOADER_STATE", "updates = " + updates);
-        if(isUpdatedStatus) Log.d("LOADER_STATE", "true updates = " + updates);
-    }
-
-    private void setItemState(AlertDialog.Builder builder) {
-        int status = (isEnabledStatus) ? 1 : 0;
-        Log.d("STATE", "status = " + status);
-
-        switch (status) {
-            case NOT_ENABLED_ITEM_STATE:
-                // OFF Pressed, not updated or already updated
-                Log.d("STATE", "NOT_ENABLED_ITEM_STATE");
-                setNotEnabledState(builder);
-                break;
-            case ENABLED_ITEM_STATE:
-                // ON Pressed, not updated
-                Log.d("STATE", "ENABLED_ITEM_STATE");
-                setEnabledState(builder);
-                break;
-        }
-    }
-
-    // OFF Pressed, not updated or already updated
-    private void setNotEnabledState(AlertDialog.Builder builder) {
-        if(isUpdatedStatus) {
-            setUpdatedTextView();
-            builder.setIcon(R.drawable.ic_updated_black_24dp);
-        } else {
-            setAbortedTextView();
-            builder.setIcon(R.drawable.ic_cancel_black_24dp);
-        }
-    }
-
-    // ON Pressed, not updated
-    private void setEnabledState(AlertDialog.Builder builder) {
-        setNotUpdatedTextView();
-        builder.setIcon(R.drawable.ic_not_updated_black_24dp);
-    }
-
-    private void setNotUpdatedTextView() {
-        updatedTextView.setText(R.string.details_not_updated);
-        updatedTextView.setTextColor(Color.RED);
-    }
-
-    private void setUpdatedTextView() {
-        updatedTextView.setText(R.string.details_updated);
-        updatedTextView.setTextColor(Color.GREEN);
-    }
-
-    private void setAbortedTextView() {
-        updatedTextView.setText(R.string.details_aborted);
-        updatedTextView.setTextColor(Color.RED);
+        isUpdatedStatus = (isUpdated == 1);
     }
 }
