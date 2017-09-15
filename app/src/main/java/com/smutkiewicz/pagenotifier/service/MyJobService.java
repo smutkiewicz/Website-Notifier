@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -22,19 +23,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
+import com.smutkiewicz.pagenotifier.BuildConfig;
 import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_ALERTS_KEY;
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_NAME_KEY;
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URL_KEY;
-import static com.smutkiewicz.pagenotifier.MainActivity.MESSENGER_INTENT_KEY;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
-import static com.smutkiewicz.pagenotifier.MainActivity.WORK_DURATION_KEY;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
@@ -42,6 +38,22 @@ import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
     private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
+
+    // zestaw stałych do obsługi dołączania Extras dla serwisu
+    public static final String MESSENGER_INTENT_KEY
+            = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
+    public static final String WORK_DURATION_KEY =
+            BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
+    public static final String JOB_NAME_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
+    public static final String JOB_URL_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_URL_KEY";
+    public static final String JOB_ALERTS_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_ALERTS_KEY";
+    public static final String JOB_URI_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_URI_KEY";
+    public static final String JOB_ID_KEY =
+            BuildConfig.APPLICATION_ID + ".JOB_ID_KEY";
 
     private Messenger mActivityMessenger;
 
@@ -92,9 +104,8 @@ public class MyJobService extends JobService {
                                 response, getApplicationContext());
 
                         if(checkForChanges(jobId, getApplicationContext())) {
-                            if(alertsEnabled) {
+                            if(alertsEnabled)
                                 showNotification(name, url);
-                            }
 
                             handleFinishedJob(jobId, uri);
                             jobFinished(params, true);
@@ -120,6 +131,14 @@ public class MyJobService extends JobService {
         return true;
     }
 
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        sendMessage(MSG_STOP, params.getJobId());
+
+        showToast("Job stopped " + params.getJobId() + "! ! !");
+        return false;
+    }
+
     private void handleFinishedJob(int jobId, Uri uri) {
         Log.d("Response", "handle finished job");
         sendMessage(MSG_FINISHED, jobId);
@@ -143,23 +162,20 @@ public class MyJobService extends JobService {
         showToast("Job error.");
     }
 
-    @Override
-    public boolean onStopJob(JobParameters params) {
-        sendMessage(MSG_STOP, params.getJobId());
-
-        showToast("Job stopped " + params.getJobId() + "! ! !");
-        return false;
-    }
-
     private void sendMessage(int messageID, @Nullable Object params) {
         if (mActivityMessenger == null) {
             Log.d(TAG, "Service is bound, not started. There's no callback to send a message to.");
             return;
         }
 
+        int jobId = (int)params;
+        Bundle bundle = new Bundle();
+        bundle.putInt(JOB_ID_KEY, jobId);
+
         Message m = Message.obtain();
         m.what = messageID;
         m.obj = params;
+        m.setData(bundle);
 
         try {
             mActivityMessenger.send(m);

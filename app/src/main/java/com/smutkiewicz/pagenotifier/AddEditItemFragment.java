@@ -38,7 +38,7 @@ import com.smutkiewicz.pagenotifier.service.JobFactory;
 import com.smutkiewicz.pagenotifier.utilities.InvalidJobUriException;
 
 import static android.webkit.URLUtil.isValidUrl;
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
+import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_URI_KEY;
 
 public class AddEditItemFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {

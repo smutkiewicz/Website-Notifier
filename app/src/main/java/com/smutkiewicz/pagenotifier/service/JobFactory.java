@@ -6,7 +6,7 @@ import android.net.Uri;
 
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
-import static com.smutkiewicz.pagenotifier.MainActivity.JOB_URI_KEY;
+import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_URI_KEY;
 
 /**
  * Created by Admin on 2017-09-02.

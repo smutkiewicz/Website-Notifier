@@ -37,6 +37,7 @@ import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import static com.smutkiewicz.pagenotifier.service.MyJobService.*;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 
@@ -55,20 +56,6 @@ public class MainActivity extends AppCompatActivity
     public static final int NOT_ENABLED_ITEM_STATE = 0;
     // ON Pressed, not updated
     public static final int ENABLED_ITEM_STATE = 1;
-
-    // zestaw stałych do obsługi dołączania Extras dla serwisu
-    public static final String MESSENGER_INTENT_KEY
-            = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
-    public static final String WORK_DURATION_KEY =
-            BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
-    public static final String JOB_NAME_KEY =
-            BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
-    public static final String JOB_URL_KEY =
-            BuildConfig.APPLICATION_ID + ".JOB_URL_KEY";
-    public static final String JOB_ALERTS_KEY =
-            BuildConfig.APPLICATION_ID + ".JOB_ALERTS_KEY";
-    public static final String JOB_URI_KEY =
-            BuildConfig.APPLICATION_ID + ".JOB_URI_KEY";
 
     // klucz przeznaczony do przechowywania adresu Uri
     // w obiekcie przekazywanym do fragmentu
@@ -97,22 +84,25 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
+            int jobId = msg.getData().getInt(JOB_ID_KEY);
+
             switch (msg.what) {
                 case MSG_START:
-                    Log.d("Response", "MSG_START");
-                    // TODO REAKCJA NA START JOB-U W SERWISIE
+                    Log.d("Response MSG", "MSG_START for " + jobId);
+                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_STOP:
-                    Log.d("Response", "MSG_STOP");
-                    // TODO REAKCJA NA STOP JOB-U W SERWISIE
+                    Log.d("Response MSG", "MSG_STOP for " + jobId);
+                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_RESTART:
-                    Log.d("Response", "MSG_RESTART");
-                    // TODO REAKCJA NA RESTART JOB-U W SERWISIE
+                    Log.d("Response MSG", "MSG_RESTART for " + jobId);
+                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_FINISHED:
-                    Log.d("Response", "MSG_FINISHED");
-                    // TODO REAKCJA NA FINISH JOB-U W SERWISIE
+                    Log.d("Response MSG", "MSG_FINISHED for " + jobId);
+                    jobFinished(mActivity.get().getApplicationContext(), jobId);
+                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
             }
         }
@@ -173,19 +163,20 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
+        boolean permissionsGranted = (grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED);
+
         switch (requestCode) {
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_ADD: {
-                if(grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if(permissionsGranted)
                     displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
-                } else {
+                else
                     showSnackbar(getString(R.string.main_granter_write_permission_denied));
-                }
+
                 break;
             }
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_EDIT: {
-                if(!(grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if(!permissionsGranted) {
                     onChangesApplied();
                     showSnackbar(getString(R.string.main_granter_write_permission_denied));
                 }
@@ -228,30 +219,6 @@ public class MainActivity extends AppCompatActivity
                 MainActivity.this, "Scheduling job", Toast.LENGTH_SHORT).show();
     }
 
-    private void initPreJobTasks(Job job) {
-        startRequestForOldWebsite(job.id, job.url);
-    }
-
-    public void startRequestForOldWebsite(final int jobId, String url) {
-        MyStringRequest request =
-                new MyStringRequest(getApplicationContext(),
-                        new MyStringRequest.ResponseInterface() {
-            @Override
-            public void onResponse(String response) {
-                Log.d("Response", "Prejob task - downloading old website: success");
-                saveFile(getOldFilePath(jobId),
-                        response, getApplicationContext());
-            }
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("Response", "Prejob task - downloading old website: failed");
-            }
-        });
-
-        request.startRequestForWebsite(url);
-    }
-
     public void cancelAllJobs(View v) {
         JobScheduler tm = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         tm.cancelAll();
@@ -265,6 +232,7 @@ public class MainActivity extends AppCompatActivity
         List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
         if (allPendingJobs.size() > 0) {
             jobScheduler.cancel(jobId);
+            updatePendingJobs(getApplicationContext());
             Toast.makeText(
                     MainActivity.this, String.format(getString(R.string.main_cancelled_job), jobId),
                     Toast.LENGTH_SHORT).show();
@@ -275,9 +243,38 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public static void jobFinished(Context context, int jobId) {
+        JobScheduler jobScheduler =
+                (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
+
+        if (allPendingJobs.size() > 0) {
+            jobScheduler.cancel(jobId);
+            Log.d("Response", "Forcing cancel succeded");
+        } else {
+            Log.d("Response", "Forcing cancel failed");
+        }
+    }
+
     public void resetJob(Job job) {
         finishJob(job.id);
         scheduleJob(job);
+    }
+
+    public static void updatePendingJobs(Context context) {
+        JobScheduler jobScheduler =
+                (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
+        String text = "";
+
+        if (allPendingJobs.size() > 0) {
+            for(JobInfo job : allPendingJobs) {
+                text = text + job.getId() + " ";
+            }
+            Log.d("Response", "Pending jobs info: " + text);
+        } else {
+            Log.d("Response", "Pending jobs info: no pending jobs");
+        }
     }
 
     @Override
@@ -406,6 +403,38 @@ public class MainActivity extends AppCompatActivity
         extras.putInt(JOB_ALERTS_KEY, (job.alertsEnabled) ? 1 : 0);
         extras.putString(JOB_URI_KEY, (job.uri).toString());
         return extras;
+    }
+
+    private void initPreJobTasks(final Job job) {
+        Handler preJobTask = new Handler();
+        preJobTask.post(new Runnable() {
+            @Override
+            public void run() {
+                startRequestForOldWebsite(job.id, job.url);
+            }
+        });
+    }
+
+    private void startRequestForOldWebsite(final int jobId, String url) {
+        MyStringRequest request =
+                new MyStringRequest(getApplicationContext(),
+                        new MyStringRequest.ResponseInterface() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("Response",
+                                        "Prejob task - downloading old website: success");
+                                saveFile(getOldFilePath(jobId),
+                                        response, getApplicationContext());
+                            }
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("Response",
+                                        "Prejob task - downloading old website: failed");
+                            }
+                        });
+
+        request.startRequestForWebsite(url);
     }
 
     private void returnToMainFragmentAndUpdateItemList() {

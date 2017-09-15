@@ -13,7 +13,7 @@
     </integer-array>
 
     <integer-array
-        name="delay_values_array_new">
+        name="delay_values_array_test">
         <item>300000</item>
         <item>900000</item>
         <item>1800000</item>

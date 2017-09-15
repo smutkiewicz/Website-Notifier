@@ -26,7 +26,7 @@ public class ResponseMatcher {
             fos.write(response.getBytes());
             fos.close();
         } catch (IOException e) {
-            Log.e("ResponseMatcher", "File write failed: " + e.toString());
+            Log.e("Response", "File write failed: " + e.toString());
         }
     }
 
@@ -37,7 +37,7 @@ public class ResponseMatcher {
         try {
             in = context.openFileInput(path);
         } catch (FileNotFoundException e) {
-            Log.d("ResponseMatcher", "IOException in open file");
+            Log.d("Response", "IOException in open file");
         }
 
         try {
@@ -49,7 +49,7 @@ public class ResponseMatcher {
                 fileArray.add(line);
 
         } catch (IOException e) {
-            Log.d("ResponseMatcher", "IOException in opening file");
+            Log.d("Response", "IOException in opening file");
         }
 
         return fileArray;
@@ -164,7 +164,7 @@ public class ResponseMatcher {
 
     private static boolean cleanNewWebsiteData(int jobId, Context context) {
         String pathToFile = getFullPathToFile(getNewFilePath(jobId), context);
-        Log.d("ResponseMatcher", "Path to file: " + pathToFile);
+        Log.d("Response", "Path to file: " + pathToFile);
 
         File file = new File(pathToFile);
         return file.delete();
