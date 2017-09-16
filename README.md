@@ -31,6 +31,8 @@
  * ~~Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania~~ (Done!)
  * ~~Opcja uruchomienia us³ugi porównuj¹cej stronê z dan¹ przez u¿ytkownika czêstotliwoœci¹ (dzia³aj¹cej w tle niezale¿nie od aktywnoœci g³ównej~~ (Done!)
  * ~~Opcja wys³ania powiadomienia przez us³ugê dzia³aj¹c¹ w tle~~ (Done!)
+ * Porz¹dne czyszczenie kodu - usuniêcie logów do debuggowania
+ * Refactor metod do uruchamiania serwisu w MainActivity (mo¿e oddzielna klasa?)
  * Œledzenie pobranej iloœci danych
  * Uruchamianie zadania w zale¿noœci od dostêpnoœci WiFi lub sieci
  * Logo aplikacji i t³umaczenie stringów na jêzyk angielski

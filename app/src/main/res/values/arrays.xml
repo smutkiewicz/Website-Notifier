@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer-array
-        name="delay_values_array">
+        name="delay_values_array_test">
         <item>3000</item>
         <item>9000</item>
         <item>18000</item>
@@ -13,7 +13,7 @@
     </integer-array>
 
     <integer-array
-        name="delay_values_array_test">
+        name="delay_values_array">
         <item>300000</item>
         <item>900000</item>
         <item>1800000</item>

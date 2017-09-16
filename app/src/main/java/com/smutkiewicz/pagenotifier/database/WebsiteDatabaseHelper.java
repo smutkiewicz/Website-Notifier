@@ -18,7 +18,7 @@ public class WebsiteDatabaseHelper extends SQLiteOpenHelper {
     }
 
     private String makeCreateTableSQLQuery() {
-        // kod SQL tworzący tabelę kontaktów
+        // kod SQL tworzący tabelę
         final String createTable =
                 "CREATE TABLE " + DbDescription.DB_TABLE_NAME + "(" +
                         DbDescription.KEY_ID + " " + DbDescription.ID_OPTIONS + ", " +

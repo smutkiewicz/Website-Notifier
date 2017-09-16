@@ -28,15 +28,19 @@ import com.smutkiewicz.pagenotifier.R;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED;
+import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED_WITH_ERROR;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
+import static com.smutkiewicz.pagenotifier.utilities.MyConnectivityManager.isAnyNetworkConnectionAvailable;
 
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
+
+    // kanał powiadomień dla Android O
     private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
 
     // zestaw stałych do obsługi dołączania Extras dla serwisu
@@ -86,9 +90,16 @@ public class MyJobService extends JobService {
         final int alerts = params.getExtras().getInt(JOB_ALERTS_KEY);
         final String name = params.getExtras().getString(JOB_NAME_KEY);
         final String url = params.getExtras().getString(JOB_URL_KEY);
-        long duration = params.getExtras().getLong(WORK_DURATION_KEY);
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
+
+        if(!isAnyNetworkConnectionAvailable(getApplicationContext())) {
+            Log.d("Response",
+                    "New task - downloading new website: no connectivity available");
+            handleNoConnectivityJob(jobId);
+            jobFinished(params, false);
+            return true;
+        }
 
         Handler jobHandler = new Handler();
         jobHandler.post(new Runnable() {
@@ -99,7 +110,8 @@ public class MyJobService extends JobService {
                                 new MyStringRequest.ResponseInterface() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("Response", "New task - downloading new website: success");
+                        Log.d("Response",
+                                "New task - downloading new website: success");
                         saveFile(getNewFilePath(jobId),
                                 response, getApplicationContext());
 
@@ -117,7 +129,8 @@ public class MyJobService extends JobService {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Response", "New task - downloading new website: error");
+                        Log.d("Response",
+                                "New task - downloading new website: error");
                         handleErrorJob(jobId, uri);
                         jobFinished(params, true);
                     }
@@ -134,9 +147,14 @@ public class MyJobService extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
+        showToast("Job stopped " + params.getJobId() + " ! ! !");
 
-        showToast("Job stopped " + params.getJobId() + "! ! !");
         return false;
+    }
+
+    private void handleNoConnectivityJob(int jobId) {
+        Log.d("ResponseMatcher", "handle no connectivity job");
+        sendMessage(MSG_RESTART, jobId);
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
@@ -156,7 +174,7 @@ public class MyJobService extends JobService {
 
     private void handleErrorJob(int jobId, Uri uri) {
         Log.d("ResponseMatcher", "handle error job");
-        sendMessage(MSG_STOP, jobId);
+        sendMessage(MSG_FINISHED_WITH_ERROR, jobId);
         setCurrentItemJobEscapedWithError(uri);
 
         showToast("Job error.");
@@ -168,7 +186,8 @@ public class MyJobService extends JobService {
             return;
         }
 
-        int jobId = (int)params;
+        // włóż klucz zadania do wiadomości
+        int jobId = (int) params;
         Bundle bundle = new Bundle();
         bundle.putInt(JOB_ID_KEY, jobId);
 

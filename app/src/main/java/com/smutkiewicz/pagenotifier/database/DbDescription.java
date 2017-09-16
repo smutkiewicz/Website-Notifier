@@ -40,15 +40,6 @@ public class DbDescription {
     public static final String UPDATED_OPTIONS = "INTEGER DEFAULT 0";
     public static final String ISENABLED_OPTIONS = "INTEGER DEFAULT 1";
 
-    //numery kolumn
-    public static final int ID_COLUMN = 0;
-    public static final int URL_COLUMN = 1;
-    public static final int NAME_COLUMN = 2;
-    public static final int ALERTS_COLUMN = 3;
-    public static final int DELAY_COLUMN = 4;
-    public static final int UPDATED_COLUMN = 5;
-    public static final int ISENABLED_COLUMN = 5;
-
     //tablica z nazwami kolumn do obsługi kwerend
     public static final String[] columns = {KEY_ID, KEY_NAME, KEY_URL,
             KEY_ALERTS, KEY_DELAY, KEY_UPDATED, KEY_ISENABLED};

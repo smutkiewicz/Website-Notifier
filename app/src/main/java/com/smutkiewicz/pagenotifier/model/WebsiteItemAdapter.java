@@ -101,7 +101,7 @@ public class WebsiteItemAdapter
 
         // określ identyfikator rzędu bazy danych strony
         // znajdującego się w tym obiekcie ViewHolder
-        public void setRowID(long rowID) {
+        private void setRowID(long rowID) {
             this.rowID = rowID;
         }
 
@@ -131,9 +131,8 @@ public class WebsiteItemAdapter
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.list_item, parent, false);
-        ViewHolder holder = new ViewHolder(view);
 
-        return holder;
+        return new ViewHolder(view);
     }
 
     // określa tekst elementu listy w celu wyświetlenia etykiety zapytania

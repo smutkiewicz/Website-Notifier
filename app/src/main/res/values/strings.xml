@@ -21,7 +21,7 @@
     <string name="title_info">Informacje o wersji i autorze</string>
     <string name="title_services_on_off">Serwisy</string>
     <string name="title_data_usage">Zużycie danych</string>
-    <string name="summary_author">Wersja 0.1, Michał Smutkiewicz</string>
+    <string name="summary_author">Wersja 0.8 alpha, Michał Smutkiewicz</string>
     <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
     <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
 

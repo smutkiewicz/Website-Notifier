@@ -40,12 +40,3 @@ public class ScanDelayTranslator {
         }
     }
 }
-
-/*5 min = 300 000 ms
-    15 min = 900 000 ms
-    30 min = 1 800 000 ms
-    60 min = 3 600 000 ms
-    6 h = 21 600 000 ms
-    24 h = 86 400 000 ms
-    7 dni = 604 800 000 ms
-    Nigdy*/

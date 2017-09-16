@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     public static final int MSG_STOP = 1;
     public static final int MSG_RESTART = 2;
     public static final int MSG_FINISHED = 3;
+    public static final int MSG_FINISHED_WITH_ERROR = 4;
 
     // OFF Pressed, not updated or already updated
     public static final int NOT_ENABLED_ITEM_STATE = 0;
@@ -85,24 +86,25 @@ public class MainActivity extends AppCompatActivity
             }
 
             int jobId = msg.getData().getInt(JOB_ID_KEY);
+            updatePendingJobs(mActivity.get().getApplicationContext());
 
             switch (msg.what) {
                 case MSG_START:
                     Log.d("Response MSG", "MSG_START for " + jobId);
-                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_STOP:
                     Log.d("Response MSG", "MSG_STOP for " + jobId);
-                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_RESTART:
                     Log.d("Response MSG", "MSG_RESTART for " + jobId);
-                    updatePendingJobs(mActivity.get().getApplicationContext());
                     break;
                 case MSG_FINISHED:
                     Log.d("Response MSG", "MSG_FINISHED for " + jobId);
                     jobFinished(mActivity.get().getApplicationContext(), jobId);
-                    updatePendingJobs(mActivity.get().getApplicationContext());
+                    break;
+                case MSG_FINISHED_WITH_ERROR:
+                    Log.d("Response MSG", "MSG_FINISHED_WITH_ERROR " + jobId);
+                    jobFinished(mActivity.get().getApplicationContext(), jobId);
                     break;
             }
         }

@@ -128,6 +128,9 @@ public class ResponseMatcher {
             String newLine = newFileIterator.next();
             if (!oldLine.equals(newLine)) {
                 // różnice w linach, zmiany na stronie
+                Log.d("Response", "Old line: " + oldLine);
+                Log.d("Response", "New line: " + newLine);
+
                 return false;
             }
         }
@@ -157,21 +160,22 @@ public class ResponseMatcher {
     private static boolean cleanOldWebsiteData(int jobId, Context context) {
         String pathToFile = getFullPathToFile(getOldFilePath(jobId), context);
         Log.d("Response", "Path to file: " + pathToFile);
-
         File file = new File(pathToFile);
+
         return file.delete();
     }
 
     private static boolean cleanNewWebsiteData(int jobId, Context context) {
         String pathToFile = getFullPathToFile(getNewFilePath(jobId), context);
         Log.d("Response", "Path to file: " + pathToFile);
-
         File file = new File(pathToFile);
+
         return file.delete();
     }
 
     private static String getFullPathToFile(String filename, Context context) {
         String pathToData = context.getFilesDir().getPath();
+
         return pathToData + "/" + filename;
     }
 }

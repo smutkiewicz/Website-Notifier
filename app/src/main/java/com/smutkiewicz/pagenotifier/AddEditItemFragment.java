@@ -103,9 +103,7 @@ public class AddEditItemFragment extends Fragment
         }
 
         @Override
-        public void onChange(boolean selfChange, Uri uri) {
-
-        }
+        public void onChange(boolean selfChange, Uri uri) { }
     }
 
     public interface AddEditItemFragmentListener {

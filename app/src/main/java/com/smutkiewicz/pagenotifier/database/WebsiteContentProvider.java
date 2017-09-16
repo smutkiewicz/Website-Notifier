@@ -23,11 +23,11 @@ public class WebsiteContentProvider extends ContentProvider {
     private static final int ALL_ITEMS = 2; // wykonaj operację dotyczącą tabeli itemów
 
     static {
-        // adres Uri kontaktu o określonym identyfikatorze id (#)
+        // adres Uri itemu o określonym identyfikatorze id (#)
         uriMatcher.addURI(DbDescription.AUTHORITY,
                 DbDescription.DB_TABLE_NAME + "/#", ONE_ITEM);
 
-        // adres Uri tabeli kontaktów
+        // adres Uri tabeli
         uriMatcher.addURI(DbDescription.AUTHORITY,
                 DbDescription.DB_TABLE_NAME, ALL_ITEMS);
     }
@@ -40,7 +40,6 @@ public class WebsiteContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        //TODO getType
         return null;
     }
 
@@ -118,7 +117,7 @@ public class WebsiteContentProvider extends ContentProvider {
         return numberOfRowsUpdated;
     }
 
-    // skasuj kontakt zapisany wcześniej w bazie danych
+    // skasuj item zapisany wcześniej w bazie danych
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int numberOfRowsDeleted;
