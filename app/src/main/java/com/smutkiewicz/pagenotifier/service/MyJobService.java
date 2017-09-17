@@ -39,6 +39,7 @@ import static com.smutkiewicz.pagenotifier.utilities.MyConnectivityManager.isAny
 
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
+    private static final String SERVICE_TAG = "Response";
 
     // kanał powiadomień dla Android O
     private static final String PAGE_NOTIFIER_CHANNEL_ID = "page_notifier_channel_id";
@@ -94,7 +95,7 @@ public class MyJobService extends JobService {
         final boolean alertsEnabled = (alerts == 1);
 
         if(!isAnyNetworkConnectionAvailable(getApplicationContext())) {
-            Log.d("Response",
+            Log.d(SERVICE_TAG,
                     "New task - downloading new website: no connectivity available");
             handleNoConnectivityJob(jobId);
             jobFinished(params, false);
@@ -110,7 +111,7 @@ public class MyJobService extends JobService {
                                 new MyStringRequest.ResponseInterface() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("Response",
+                        Log.d(SERVICE_TAG,
                                 "New task - downloading new website: success");
                         saveFile(getNewFilePath(jobId),
                                 response, getApplicationContext());
@@ -129,7 +130,7 @@ public class MyJobService extends JobService {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Response",
+                        Log.d(SERVICE_TAG,
                                 "New task - downloading new website: error");
                         handleErrorJob(jobId, uri);
                         jobFinished(params, true);
@@ -153,12 +154,12 @@ public class MyJobService extends JobService {
     }
 
     private void handleNoConnectivityJob(int jobId) {
-        Log.d("ResponseMatcher", "handle no connectivity job");
+        Log.d(SERVICE_TAG, "handle no connectivity job");
         sendMessage(MSG_RESTART, jobId);
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
-        Log.d("Response", "handle finished job");
+        Log.d(SERVICE_TAG, "handle finished job");
         sendMessage(MSG_FINISHED, jobId);
         setCurrentItemUpdated(uri);
 
@@ -166,14 +167,14 @@ public class MyJobService extends JobService {
     }
 
     private void handleRestartedJob(int jobId) {
-        Log.d("Response", " handle restarted job");
+        Log.d(SERVICE_TAG, " handle restarted job");
         sendMessage(MSG_RESTART, jobId);
 
         showToast("Job should be restarted ! ! !");
     }
 
     private void handleErrorJob(int jobId, Uri uri) {
-        Log.d("ResponseMatcher", "handle error job");
+        Log.d(SERVICE_TAG, "handle error job");
         sendMessage(MSG_FINISHED_WITH_ERROR, jobId);
         setCurrentItemJobEscapedWithError(uri);
 

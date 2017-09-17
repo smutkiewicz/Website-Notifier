@@ -36,36 +36,17 @@ import static com.smutkiewicz.pagenotifier.utilities.PermissionGranter.permissio
 
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
+
     // identyfikuje obiekt Loader
     private static final int WEBSITE_ITEMS_LOADER = 0;
 
     //implementuje interfejs do komunikacji z MainActivity
     private MainActivityFragmentListener mListener;
-    private boolean dialogOnScreen = false;
     private WebsiteItemAdapter itemAdapter;
+    private boolean dialogOnScreen = false;
 
     private EditText searchEditText;
     private FloatingActionButton fab;
-
-    // interfejs do komunikacji z innymi fragmentami
-    public interface MainActivityFragmentListener {
-        void displayAddEditFragment(Uri uri, int viewId);
-        void displayDetailsFragment(Uri itemUri, int viewId);
-        void onToggleAction(Job job, boolean isSchedulingNeeded);
-    }
-
-    private class TextChangedListener implements TextWatcher {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            performSearchQuery();
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {}
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -259,5 +240,25 @@ public class MainActivityFragment extends Fragment
     private void showSnackbar(int messageId) {
         Snackbar.make(getActivity().findViewById(R.id.fragmentContainer),
                 getString(messageId), Snackbar.LENGTH_LONG).show();
+    }
+
+    // interfejs do komunikacji z innymi fragmentami
+    public interface MainActivityFragmentListener {
+        void displayAddEditFragment(Uri uri, int viewId);
+        void displayDetailsFragment(Uri itemUri, int viewId);
+        void onToggleAction(Job job, boolean isSchedulingNeeded);
+    }
+
+    private class TextChangedListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            performSearchQuery();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
     }
 }

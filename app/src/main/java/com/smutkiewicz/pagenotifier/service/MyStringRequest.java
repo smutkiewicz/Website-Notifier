@@ -12,13 +12,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.*;
 
 public class MyStringRequest {
+    private static final String REQUEST_TAG = "Response";
+
     private Context context;
     private ResponseInterface responseInterface;
-
-    public interface ResponseInterface {
-        void onResponse(String response);
-        void onErrorResponse(VolleyError error);
-    }
 
     public MyStringRequest(Context context, ResponseInterface responseInterface) {
         this.context = context;
@@ -45,16 +42,21 @@ public class MyStringRequest {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("Response", "Interface: success");
+                        Log.d(REQUEST_TAG, "Interface: success");
                         responseInterface.onResponse(response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Response", "Interface: failed");
+                        Log.d(REQUEST_TAG, "Interface: failed");
                         responseInterface.onErrorResponse(error);
                     }
                 });
+    }
+
+    public interface ResponseInterface {
+        void onResponse(String response);
+        void onErrorResponse(VolleyError error);
     }
 }

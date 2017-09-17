@@ -54,10 +54,10 @@
                 android:layout_marginTop="@dimen/divider_margin"
                 android:checked="true"
                 android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
-                android:text="Otrzymuj powiadomienia"
+                android:text="@string/addedit_alerts_switch"
                 android:textAppearance="@android:style/TextAppearance.Material.Small"
                 android:textColor="?android:attr/textColorHint"
-                tools:checked="true"/>
+                tools:checked="true" />
 
             <TextView
                 android:id="@+id/frequencyTextView"

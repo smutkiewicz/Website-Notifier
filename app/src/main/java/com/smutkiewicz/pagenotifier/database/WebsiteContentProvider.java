@@ -139,9 +139,8 @@ public class WebsiteContentProvider extends ContentProvider {
 
     private void notifyDatabaseObservers(Uri uri, int rowsUpdated) {
         // powiadom obiekty obserwujące bazę danych o jej modyfikacji
-        if (rowsUpdated != 0) {
+        if (rowsUpdated != 0)
             getContext().getContentResolver().notifyChange(uri, null);
-        }
     }
 }
 

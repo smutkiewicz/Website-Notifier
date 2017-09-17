@@ -21,7 +21,8 @@ import android.widget.TextView;
 import com.smutkiewicz.pagenotifier.database.DbDescription;
 
 public class DetailsDialogFragment extends DialogFragment
-    implements LoaderManager.LoaderCallbacks<Cursor>{
+    implements LoaderManager.LoaderCallbacks<Cursor> {
+
     // identyfikuje obiekt Loader
     private static final int WEBSITE_ITEMS_LOADER = 0;
 
@@ -29,8 +30,6 @@ public class DetailsDialogFragment extends DialogFragment
     private Uri itemUri;
     private int itemId;
     private String url;
-    private boolean isUpdatedStatus;
-    private boolean isEnabledStatus;
 
     // pola do wyświetlania szczegółów obiektu
     private TextView nameTextView;
@@ -42,29 +41,6 @@ public class DetailsDialogFragment extends DialogFragment
     private Dialog mDialog;
     private DetailsDialogFragmentListener mListener;
     private MyContentObserver mObserver;
-
-    public interface DetailsDialogFragmentListener {
-        void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
-        void onGoToWebsite(String url);
-    }
-
-    @SuppressLint("NewApi")
-    private class MyContentObserver extends ContentObserver {
-        public MyContentObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            this.onChange(selfChange, null);
-            restartLoader();
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            restartLoader();
-        }
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle bundle) {
@@ -79,8 +55,8 @@ public class DetailsDialogFragment extends DialogFragment
         setBuildersEditPositiveButton(builder);
         getBundleArguments();
         initLoader();
-        //setBuildersIconAndStatusTextView(builder);
         initObserver();
+
         mDialog = builder.create();
         return mDialog;
     }
@@ -149,7 +125,6 @@ public class DetailsDialogFragment extends DialogFragment
             setDetailsNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertModeState(data.getInt(alertsIndex));
             setStatus(data.getInt(updatesIndex), data.getInt(isEnabledIndex));
-            //setIsEnabledAndIsUpdated(data.getInt(isEnabledIndex), data.getInt(updatesIndex));
             setFrequencyStepLabel(data.getInt(delayIndex));
         }
     }
@@ -159,10 +134,8 @@ public class DetailsDialogFragment extends DialogFragment
 
     // zwróć odwołanie do DetailsDialog
     private View inflateAndReturnDetailsView() {
-        View detailsDialogView =
-                getActivity().getLayoutInflater().inflate(
+        return getActivity().getLayoutInflater().inflate(
                         R.layout.fragment_details_dialog, null);
-        return detailsDialogView;
     }
 
     // zwróć odwołanie do MainActivityFragment
@@ -278,7 +251,28 @@ public class DetailsDialogFragment extends DialogFragment
             updatedTextView.setText(R.string.details_not_updated);
             updatedTextView.setTextColor(Color.RED);
         }
+    }
 
-        isUpdatedStatus = (isUpdated == 1);
+    public interface DetailsDialogFragmentListener {
+        void onDeleteItemCompleted(int jobId); // odświeża listę po zmianach w bazie danych
+        void onGoToWebsite(String url);
+    }
+
+    @SuppressLint("NewApi")
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            this.onChange(selfChange, null);
+            restartLoader();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            restartLoader();
+        }
     }
 }

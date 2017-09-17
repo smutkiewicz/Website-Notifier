@@ -78,4 +78,8 @@
     <string name="service_label">WebService</string>
     <string name="service_website_updated">Zmiany na stronie!</string>
     <string name="service_notification_channel_name">Zmiany na stronach</string>
+
+    <!-- MyJobScheduler -->
+    <string name="job_scheduler_scheduling_job">Scheduling job</string>
+    <string name="addedit_alerts_switch">Otrzymuj powiadomienia</string>
 </resources>

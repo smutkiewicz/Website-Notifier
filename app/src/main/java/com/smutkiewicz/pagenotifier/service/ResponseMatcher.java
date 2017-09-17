@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ResponseMatcher {
+    private static final String MATCHER_TAG = "Response";
     private static final String jobOld = "job_old_";
     private static final String jobNew = "job_new_";
     private static final String format = ".txt";
@@ -26,7 +27,7 @@ public class ResponseMatcher {
             fos.write(response.getBytes());
             fos.close();
         } catch (IOException e) {
-            Log.e("Response", "File write failed: " + e.toString());
+            Log.e(MATCHER_TAG, "File write failed: " + e.toString());
         }
     }
 
@@ -37,7 +38,7 @@ public class ResponseMatcher {
         try {
             in = context.openFileInput(path);
         } catch (FileNotFoundException e) {
-            Log.d("Response", "IOException in open file");
+            Log.d(MATCHER_TAG, "IOException in open file");
         }
 
         try {
@@ -49,7 +50,7 @@ public class ResponseMatcher {
                 fileArray.add(line);
 
         } catch (IOException e) {
-            Log.d("Response", "IOException in opening file");
+            Log.d(MATCHER_TAG, "IOException in opening file");
         }
 
         return fileArray;
@@ -58,33 +59,33 @@ public class ResponseMatcher {
     public static boolean checkForChanges(int jobId, Context context) {
         if(ifResponseIsValid(jobId, context)) {
             if (ifWebsitesMatch(jobId, context)) {
-                Log.d("Response", "Websites match, no changes");
+                Log.d(MATCHER_TAG, "Websites match, no changes");
                 cleanNotFinishedJobData(jobId, context);
                 return false;
             } else {
-                Log.d("Response", "Websites don't match, changes appeared");
+                Log.d(MATCHER_TAG, "Websites don't match, changes appeared");
                 cleanFinishedJobData(jobId, context);
                 return true;
             }
         } else {
-            Log.d("Response", "Websites don't exist - error (treating this like change)");
+            Log.d(MATCHER_TAG, "Websites don't exist - error (treating this like change)");
             return true;
         }
     }
 
     public static void cleanNotFinishedJobData(int jobId, Context context) {
         if(cleanNewWebsiteData(jobId, context)) {
-            Log.d("Response", "Clean not finished job data succeded");
+            Log.d(MATCHER_TAG, "Clean not finished job data succeded");
         } else {
-            Log.d("Response", "Clean not finished job data failed");
+            Log.d(MATCHER_TAG, "Clean not finished job data failed");
         }
     }
 
     public static void cleanFinishedJobData(int jobId, Context context) {
         if(cleanOldWebsiteData(jobId, context) && cleanNewWebsiteData(jobId, context)) {
-            Log.d("Response", "Clean finished job data succeded");
+            Log.d(MATCHER_TAG, "Clean finished job data succeded");
         } else {
-            Log.d("Response", "Clean finished job data failed");
+            Log.d(MATCHER_TAG, "Clean finished job data failed");
         }
     }
 
@@ -105,17 +106,17 @@ public class ResponseMatcher {
         if(oldFile.size() == newFile.size()) {
             if(!ifLinesMatch(oldFile, newFile)) {
                 // różnice w liniach, zmiany na stronie
-                Log.d("Response", "Matcher: !ifLinesMatch()");
+                Log.d(MATCHER_TAG, "Matcher: !ifLinesMatch()");
                 return false;
             }
         } else {
             // nierówna ilość linii, zmiany na stronie
-            Log.d("Response", "Matcher: oldFile.size() != newFile.size()");
+            Log.d(MATCHER_TAG, "Matcher: oldFile.size() != newFile.size()");
             return false;
         }
 
         // równa ilość linii i pasują do siebie, brak zmian
-        Log.d("Response", "Matcher: oldFile.size() == newFile.size() && lines matches");
+        Log.d(MATCHER_TAG, "Matcher: oldFile.size() == newFile.size() && lines matches");
         return true;
     }
 
@@ -128,8 +129,8 @@ public class ResponseMatcher {
             String newLine = newFileIterator.next();
             if (!oldLine.equals(newLine)) {
                 // różnice w linach, zmiany na stronie
-                Log.d("Response", "Old line: " + oldLine);
-                Log.d("Response", "New line: " + newLine);
+                Log.d(MATCHER_TAG, "Old line: " + oldLine);
+                Log.d(MATCHER_TAG, "New line: " + newLine);
 
                 return false;
             }
@@ -146,20 +147,20 @@ public class ResponseMatcher {
         File oldFile = new File(pathToOldFile);
         File newFile = new File(pathToNewFile);
 
-        Log.d("Response", "Is response valid?");
+        Log.d(MATCHER_TAG, "Is response valid?");
         bothFilesExist = (oldFile.exists() && newFile.exists());
 
         if(bothFilesExist)
-            Log.d("Response", "Both files exist");
+            Log.d(MATCHER_TAG, "Both files exist");
         else
-            Log.d("Response", "Some files lack");
+            Log.d(MATCHER_TAG, "Some files lack");
 
         return bothFilesExist;
     }
 
     private static boolean cleanOldWebsiteData(int jobId, Context context) {
         String pathToFile = getFullPathToFile(getOldFilePath(jobId), context);
-        Log.d("Response", "Path to file: " + pathToFile);
+        Log.d(MATCHER_TAG, "Path to file: " + pathToFile);
         File file = new File(pathToFile);
 
         return file.delete();
@@ -167,7 +168,7 @@ public class ResponseMatcher {
 
     private static boolean cleanNewWebsiteData(int jobId, Context context) {
         String pathToFile = getFullPathToFile(getNewFilePath(jobId), context);
-        Log.d("Response", "Path to file: " + pathToFile);
+        Log.d(MATCHER_TAG, "Path to file: " + pathToFile);
         File file = new File(pathToFile);
 
         return file.delete();

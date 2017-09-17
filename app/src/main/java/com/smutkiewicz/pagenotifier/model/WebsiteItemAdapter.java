@@ -210,8 +210,4 @@ public class WebsiteItemAdapter
         holder.isEnabledToggle.setChecked(checked);
         holder.isEnabled = checked;
     }
-
-    private int swapBooleanToInt(boolean value) {
-        return (value) ? 0 : 1;
-    }
 }

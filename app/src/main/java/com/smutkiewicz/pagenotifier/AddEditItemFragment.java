@@ -42,6 +42,7 @@ import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_URI_KEY;
 
 public class AddEditItemFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
+
     // identyfikuje obiekt Loader
     private static final int WEBSITE_ITEMS_LOADER = 0;
 
@@ -63,55 +64,9 @@ public class AddEditItemFragment extends Fragment
     private ProgressBar addEditProgressBar;
     private FloatingActionButton fab;
 
-    private AddEditItemFragmentListener mListener;
-
     // obserwator zmian w aktualnym zadaniu z identyfikatorem itemUri
     private MyContentObserver mObserver;
-
-    private class TextChangedListener implements TextWatcher {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if(s.length() != 0)
-                fab.show();
-            else
-                fab.hide();
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {}
-    }
-
-    @SuppressLint("NewApi")
-    private class MyContentObserver extends ContentObserver {
-        public MyContentObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            this.onChange(selfChange, null);
-            try {
-                boolean value =
-                        getIsEnabledValueOfJobFromAnUri(itemUri);
-                setIsEnabled(value);
-            } catch (InvalidJobUriException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) { }
-    }
-
-    public interface AddEditItemFragmentListener {
-        void onAddItemCompleted(Job job);
-        void onEditItemCompleted();
-        void onEditItemThatNeedsRestartingCompleted(Job job);
-        void onDeleteItemCompleted(int jobId);
-    }
+    private AddEditItemFragmentListener mListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -505,5 +460,50 @@ public class AddEditItemFragment extends Fragment
         contentValues.put(DbDescription.KEY_DELAY,
                 frequencySeekBar.getProgress());
         return contentValues;
+    }
+
+    public interface AddEditItemFragmentListener {
+        void onAddItemCompleted(Job job);
+        void onEditItemCompleted();
+        void onEditItemThatNeedsRestartingCompleted(Job job);
+        void onDeleteItemCompleted(int jobId);
+    }
+
+    private class TextChangedListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(s.length() != 0)
+                fab.show();
+            else
+                fab.hide();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    }
+
+    @SuppressLint("NewApi")
+    private class MyContentObserver extends ContentObserver {
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            this.onChange(selfChange, null);
+            try {
+                boolean value =
+                        getIsEnabledValueOfJobFromAnUri(itemUri);
+                setIsEnabled(value);
+            } catch (InvalidJobUriException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) { }
     }
 }

@@ -4,10 +4,6 @@ import android.net.Uri;
 
 import com.smutkiewicz.pagenotifier.MainActivity;
 
-/**
- * Created by Admin on 2017-09-02.
- */
-
 public class Job {
     // default values
     public boolean requiresUnmetered = false; // WiFi Connectivity
