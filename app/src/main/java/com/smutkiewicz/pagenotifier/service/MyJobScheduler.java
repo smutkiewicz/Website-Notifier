@@ -68,7 +68,8 @@ public class MyJobScheduler {
         // handle pre job tasks
         initPreJobTasks(job);
 
-        showToast(R.string.job_scheduler_scheduling_job);
+        showToast(mContext.getString(R.string.job_scheduler_scheduling_job)
+                + " delay: " + job.delay);
     }
 
     public void cancelAllJobs() {
@@ -76,7 +77,7 @@ public class MyJobScheduler {
         service.cancelAll();
         Log.d(SCHEDULER_TAG, "Cancelling all jobs");
 
-        showToast(R.string.main_all_jobs_cancelled);
+        showToast(R.string.job_scheduler_all_jobs_cancelled);
     }
 
     public void finishJob(int jobId) {
@@ -86,9 +87,9 @@ public class MyJobScheduler {
         if (allPendingJobs.size() > 0) {
             jobScheduler.cancel(jobId);
             updatePendingJobs(mContext);
-            showToastFormatted(R.string.main_cancelled_job, jobId);
+            showToastFormatted(R.string.job_scheduler_cancelled_job, jobId);
         } else {
-            showToast(R.string.main_no_jobs_to_cancel);
+            showToast(R.string.job_scheduler_no_jobs_to_cancel);
         }
     }
 
@@ -189,6 +190,13 @@ public class MyJobScheduler {
         Toast.makeText(
                 mActivity,
                 mContext.getString(resId),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void showToast(String text) {
+        Toast.makeText(
+                mActivity,
+                text,
                 Toast.LENGTH_SHORT).show();
     }
 

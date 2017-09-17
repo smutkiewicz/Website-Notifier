@@ -4,10 +4,11 @@
     <item
         android:drawable="@color/colorPrimary"/>
 
-    <!--
-    <item
-        android:gravity="left"
-        android:drawable="@drawable/ic_action_notification" />
-        -->
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/page_notifier_font"/>
+    </item>
 
 </layer-list>

@@ -60,7 +60,7 @@ public class WebsiteContentProvider extends ContentProvider {
                 break;
             default:
                 throw new UnsupportedOperationException(
-                        getContext().getString(R.string.invalid_uri) + uri);
+                        getContext().getString(R.string.content_provider_invalid_uri) + uri);
         }
 
         Cursor cursor = queryBuilder.query(dbHelper.getReadableDatabase(),

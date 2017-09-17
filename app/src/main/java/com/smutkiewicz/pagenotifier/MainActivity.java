@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity
     private void setupActivityToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     // dodaj fragment do rozkładu FrameLayout

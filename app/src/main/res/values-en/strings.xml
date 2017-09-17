@@ -23,6 +23,7 @@
     <string name="addedit_new_item_not_added">Task has not been added.</string>
     <string name="addedit_no_name">Please provide name of the task!</string>
     <string name="addedit_no_url">Please provide website\'s URL!</string>
+    <string name="addedit_alerts_switch">Receive alerts</string>
 
     <string name="details_aborted">Following changes aborted by user.</string>
     <string name="details_alerts">Alerts:</string>
@@ -38,22 +39,22 @@
     <string name="details_not_updated">No changes</string>
     <string name="details_ok_label">OK</string>
     <string name="details_sample_name">Name of the task</string>
-    <string name="details_sample_website">"<![CDATA[https://play.google.com/store/apps/details?id=com.smutkiewicz.soundbank]]>   "</string>
+    <string name="details_sample_website"><![CDATA[https://play.google.com/store/apps/details?id=com.smutkiewicz.soundbank]]></string>
     <string name="details_title_label">Details of the task</string>
     <string name="details_updated">Changes on website.</string>
     <string name="details_updates">Status:</string>
     <string name="details_url">URL:</string>
 
-    <string name="invalid_uri">invalid Uri</string>
+    <string name="content_provider_invalid_uri">invalid Uri</string>
     <string name="job_scheduler_scheduling_job">Scheduling job</string>
+    <string name="job_scheduler_no_jobs_to_cancel">No pending jobs to cancel.</string>
+    <string name="job_scheduler_all_jobs_cancelled">All tasks are off.</string>
+    <string name="job_scheduler_cancelled_job">Ended a task. Id %d</string>
 
-    <string name="main_all_jobs_cancelled">All tasks are off.</string>
-    <string name="main_cancelled_job">Ended a task. Id %d</string>
     <string name="main_disabled">Following the website is off.</string>
     <string name="main_enabled">Following the website is on.</string>
     <string name="main_granter_write_permission_denied">Application has no permission to access memory.</string>
     <string name="main_my_jobs_title">My tasks</string>
-    <string name="main_no_jobs_to_cancel">No pending jobs to cancel.</string>
     <string name="main_search_hint">Search&#8230;</string>
     <string name="main_update_database_failed">Error</string>
 
@@ -71,5 +72,4 @@
     <string name="title_info">Info about version and author</string>
     <string name="title_services_on_off">Services</string>
     <string name="list_item_test_text">Test text</string>
-    <string name="addedit_alerts_switch">Receive alerts</string>
 </resources>

@@ -1,85 +1,74 @@
 <resources>
-    <!-- main fragment -->
     <string name="app_name">Page Notifier</string>
+    <string name="action_new">New</string>
     <string name="action_settings">Settings</string>
-    <string name="action_new">Nowy</string>
-    <string name="list_item_test_text">Test text</string>
-    <string name="main_search_hint">Szukaj&#8230;</string>
-    <string name="main_my_jobs_title">Moje zadania</string>
-    <string name="main_enabled">Włączono śledzenie zmian.</string>
-    <string name="main_disabled">Wyłączono śledzenie zmian.</string>
-    <string name="main_all_jobs_cancelled">Wszystkie zadania wyłączone.</string>
-    <string name="main_cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
-    <string name="main_no_jobs_to_cancel">Brak zadań do zakończenia.</string>
-    <string name="main_update_database_failed">Błąd</string>
-    <string name="main_granter_write_permission_denied">
-        Aplikacja nie ma zezwolenia na dostęp do pamięci.
-    </string>
 
-    <!-- Settings -->
-    <string name="title_activity_settings">Ustawienia</string>
-    <string name="title_info">Informacje o wersji i autorze</string>
-    <string name="title_services_on_off">Serwisy</string>
-    <string name="title_data_usage">Zużycie danych</string>
-    <string name="summary_author">Wersja 0.8 alpha, Michał Smutkiewicz</string>
-    <string name="summary_services_on_off">Wyłącz/włącz obserwowanie wszystkich stron</string>
-    <string name="summary_data_usage">Kontroluj zużycie danych przez aplikację</string>
+    <string name="addedit_address_edit_text">Website URL</string>
+    <string name="addedit_confirm_delete">Apply action</string>
+    <string name="addedit_confirm_edit">Apply edit</string>
+    <string name="addedit_delete_button">Delete</string>
+    <string name="addedit_dont_delete_button">Discard</string>
+    <string name="addedit_dont_edit_button">Discard</string>
+    <string name="addedit_frequency_seek_bar">Refresh website frequency</string>
+    <string name="addedit_incorrect_url">Invalid URL!</string>
+    <string name="addedit_item_deleted">The task has been deleted.</string>
+    <string name="addedit_item_not_updated">The task has not been updated.</string>
+    <string name="addedit_item_updated">The task has been updated.</string>
+    <string name="addedit_message_confirm_delete">Are you sure you want to remove the task?</string>
+    <string name="addedit_edit_button">Apply</string>
+    <string name="addedit_message_confirm_edit">The task is running. Restart will be needed - do you want to continue?</string>
+    <string name="addedit_name_edit_text">Name of a task</string>
+    <string name="addedit_new_item_added">New website to follow has been added.</string>
+    <string name="addedit_new_item_not_added">Task has not been added.</string>
+    <string name="addedit_no_name">Please provide name of the task!</string>
+    <string name="addedit_no_url">Please provide website\'s URL!</string>
+    <string name="addedit_alerts_switch">Receive alerts</string>
 
-    <!-- DetailsScreen -->
-    <string name="details_sample_name">Nazwa zadania</string>
-    <string name="details_sample_website">
-        <![CDATA[https://play.google.com/store/apps/details?id=com.smutkiewicz.soundbank]]>
-    </string>
-    <string name="details_frequency_example">co 5 minut</string>
-    <string name="details_name">Nazwa:</string>
-    <string name="details_url">URL:</string>
-    <string name="details_frequency">Odśwież:</string>
-    <string name="details_edit_label">Edytuj</string>
-    <string name="details_delete_label">Usuń</string>
-    <string name="details_title_label">Szczegóły zadania</string>
-    <string name="details_goto_label">Odwiedź</string>
+    <string name="details_aborted">Following changes aborted by user.</string>
+    <string name="details_alerts">Alerts:</string>
+    <string name="details_alerts_off">Off</string>
+    <string name="details_alerts_on">On</string>
+    <string name="details_co">Every</string>
+    <string name="details_delete_label">Delete</string>
+    <string name="details_edit_label">Edit</string>
+    <string name="details_frequency">Refresh:</string>
+    <string name="details_frequency_example">every 5 minutes</string>
+    <string name="details_goto_label">Go to</string>
+    <string name="details_name">Name:</string>
+    <string name="details_not_updated">No changes</string>
     <string name="details_ok_label">OK</string>
-    <string name="details_alerts_on">Włączone</string>
-    <string name="details_alerts_off">Wyłączone</string>
-    <string name="details_alerts">Alerty:</string>
-    <string name="invalid_uri">nieprawidłowe Uri</string>
-    <string name="details_not_updated">Brak zmian na stronie</string>
-    <string name="details_updated">Zmiany na stronie.</string>
+    <string name="details_sample_name">Name of the task</string>
+    <string name="details_sample_website"><![CDATA[https://play.google.com/store/apps/details?id=com.smutkiewicz.soundbank]]></string>
+    <string name="details_title_label">Details of the task</string>
+    <string name="details_updated">Changes on website.</string>
     <string name="details_updates">Status:</string>
-    <string name="details_aborted">Śledzenie zmian zatrzymane przez użytkownika</string>
-    <string name="details_co">Co</string>
+    <string name="details_url">URL:</string>
 
-    <!-- AddEditFragment -->
-    <string name="addedit_name_edit_text">Nazwa zadania</string>
-    <string name="addedit_address_edit_text">Adres strony</string>
-    <string name="addedit_frequency_seek_bar">Częstotliwość odświeżania strony</string>
-    <string name="addedit_new_item_added">Nowa strona do śledzenia została dodana.</string>
-    <string name="addedit_new_item_not_added">Nie dodano nowego obiektu.</string>
-    <string name="addedit_no_name">Podaj nazwę zadania!</string>
-    <string name="addedit_no_url">Podaj URL strony!</string>
-    <string name="addedit_incorrect_url">Niepoprawny URL!
-        Pamiętaj o tym, aby podać pełną nazwę - łącznie z protokołem http://
-    </string>
-    <string name="addedit_item_updated">Zaktualizowano zadanie.</string>
-    <string name="addedit_item_not_updated">Nie zaktualizowano zadania.</string>
-    <string name="addedit_item_deleted">Usunięto zadanie.</string>
-    <string name="addedit_confirm_delete">Potwierdź akcję</string>
-    <string name="addedit_message_confirm_delete">Czy na pewno chcesz usunąć zadanie?</string>
-    <string name="addedit_dont_delete_button">Anuluj</string>
-    <string name="addedit_delete_button">Usuń</string>
-    <string name="addedit_confirm_edit">Potwierdź edycję</string>
-    <string name="addedit_message_confirm_edit">Zadanie jest już włączone. Może być konieczny restart zadania - kontynuować?</string>
-    <string name="addedit_dont_edit_button">Odrzuć</string>
-    <string name="addedit_edit_button">Potwierdź</string>
+    <string name="content_provider_invalid_uri">invalid Uri</string>
+    <string name="job_scheduler_scheduling_job">Scheduling job</string>
+    <string name="job_scheduler_no_jobs_to_cancel">No pending jobs to cancel.</string>
+    <string name="job_scheduler_all_jobs_cancelled">All tasks are off.</string>
+    <string name="job_scheduler_cancelled_job">Ended a task. Id %d</string>
 
-    <!-- service -->
+    <string name="main_disabled">Following the website is off.</string>
+    <string name="main_enabled">Following the website is on.</string>
+    <string name="main_granter_write_permission_denied">Application has no permission to access memory.</string>
+    <string name="main_my_jobs_title">My tasks</string>
+    <string name="main_search_hint">Search&#8230;</string>
+    <string name="main_update_database_failed">Error</string>
+
+    <string name="service_label">WebService</string>
+    <string name="service_notification_channel_name">Changes on websites</string>
     <string name="service_started">WebService started!</string>
     <string name="service_stopped">WebService stopped!</string>
-    <string name="service_label">WebService</string>
-    <string name="service_website_updated">Zmiany na stronie!</string>
-    <string name="service_notification_channel_name">Zmiany na stronach</string>
+    <string name="service_website_updated">Changes on website!</string>
+    <string name="summary_author">Version 0.8 alpha, Michał Smutkiewicz</string>
+    <string name="summary_data_usage">Control app\'s data usage</string>
+    <string name="summary_services_on_off">On/off following all websites</string>
 
-    <!-- MyJobScheduler -->
-    <string name="job_scheduler_scheduling_job">Scheduling job</string>
-    <string name="addedit_alerts_switch">Otrzymuj powiadomienia</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_data_usage">Data usage</string>
+    <string name="title_info">Info about version and author</string>
+    <string name="title_services_on_off">Services</string>
+    <string name="list_item_test_text">Test text</string>
 </resources>
