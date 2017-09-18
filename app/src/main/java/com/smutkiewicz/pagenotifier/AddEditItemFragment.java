@@ -173,7 +173,6 @@ public class AddEditItemFragment extends Fragment
             @Override
             public void onClick(View view) {
                 if(editMode) {
-
                     if(isEnabled)
                         buildEditDialogAndConfirmEdit();
                     else

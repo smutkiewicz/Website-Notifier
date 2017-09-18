@@ -70,6 +70,7 @@ public class MyJobScheduler {
 
         showToast(mContext.getString(R.string.job_scheduler_scheduling_job)
                 + " delay: " + job.delay);
+        updatePendingJobs(mContext);
     }
 
     public void cancelAllJobs() {
@@ -93,7 +94,7 @@ public class MyJobScheduler {
         }
     }
 
-    public static void jobFinished(Context context, int jobId) {
+    public static void cancelFinishedPeriodicJob(Context context, int jobId) {
         JobScheduler jobScheduler =
                 (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();

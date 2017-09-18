@@ -17,13 +17,18 @@
     <string name="addedit_item_updated">The task has been updated.</string>
     <string name="addedit_message_confirm_delete">Are you sure you want to remove the task?</string>
     <string name="addedit_edit_button">Apply</string>
-    <string name="addedit_message_confirm_edit">The task is running. Restart will be needed - do you want to continue?</string>
+    <string name="addedit_message_confirm_edit">
+        The task is running. Restart will be needed - do you want to continue?</string>
     <string name="addedit_name_edit_text">Name of a task</string>
     <string name="addedit_new_item_added">New website to follow has been added.</string>
     <string name="addedit_new_item_not_added">Task has not been added.</string>
     <string name="addedit_no_name">Please provide name of the task!</string>
     <string name="addedit_no_url">Please provide website\'s URL!</string>
     <string name="addedit_alerts_switch">Receive alerts</string>
+    <string name="addedit_info_about_frequency">
+        You can choose how often the site will be checked for changes.</string>
+    <string name="addedit_info_about_notifying">
+        When a change is detected, you will receive a notification.</string>
 
     <string name="details_aborted">Following changes aborted by user.</string>
     <string name="details_alerts">Alerts:</string>
@@ -72,4 +77,11 @@
     <string name="title_info">Info about version and author</string>
     <string name="title_services_on_off">Services</string>
     <string name="list_item_test_text">Test text</string>
+    <string name="settings_info_author">Page Notifier\n\n
+                                All rights reserved\n
+                                Version 0.8\n
+                                Codename: HelloWorld\n
+                                &#169; Aesthetic Apps Studios 2017
+    </string>
+    <string name="settings_info_author_title">About the app</string>
 </resources>

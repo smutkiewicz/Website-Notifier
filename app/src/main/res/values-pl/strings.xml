@@ -70,6 +70,13 @@
     <string name="addedit_dont_edit_button">Odrzuć</string>
     <string name="addedit_edit_button">Potwierdź</string>
     <string name="addedit_alerts_switch">Otrzymuj powiadomienia</string>
+    <string name="addedit_info_about_frequency">
+        Możesz wybrać, jak często strona będzie sprawdzana przez aplikację w celu wykrycia zmian.
+    </string>
+    <string name="addedit_info_about_notifying">
+        Kiedy wykryjemy zmianę, otrzymasz powiadomienie.
+        Możesz sam zdecydować, czy chcesz je dostać na pasku powiadomień, czy nie.
+    </string>
 
     <!-- service -->
     <string name="service_started">WebService started!</string>
@@ -83,4 +90,11 @@
     <string name="job_scheduler_all_jobs_cancelled">Wszystkie zadania wyłączone.</string>
     <string name="job_scheduler_cancelled_job">Zakończono ostatnie zadanie. Id: %d</string>
     <string name="job_scheduler_no_jobs_to_cancel">Brak zadań do zakończenia.</string>
+    <string name="settings_info_author">Page Notifier\n\n
+                                All rights reserved\n
+                                Version 0.8\n
+                                Codename: HelloWorld\n
+                                &#169; Aesthetic Apps Studios 2017
+    </string>
+    <string name="settings_info_author_title">O aplikacji</string>
 </resources>

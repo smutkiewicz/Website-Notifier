@@ -9,8 +9,7 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:mipMap="@mipmap/ic_launcher"
-            android:src="@drawable/ic_action_notification"/>
+            android:src="@drawable/page_notifier_font"/>
     </item>
 
 </layer-list>

@@ -32,6 +32,8 @@ import static com.smutkiewicz.pagenotifier.MainActivity.MSG_FINISHED_WITH_ERROR;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_RESTART;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_START;
 import static com.smutkiewicz.pagenotifier.MainActivity.MSG_STOP;
+import static com.smutkiewicz.pagenotifier.service.MyJobScheduler.cancelFinishedPeriodicJob;
+import static com.smutkiewicz.pagenotifier.service.MyJobScheduler.updatePendingJobs;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
@@ -148,7 +150,7 @@ public class MyJobService extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
-        showToast("Job stopped " + params.getJobId() + " ! ! !");
+        showToast("Job " + params.getJobId() + " stopped ! ! !");
 
         return false;
     }
@@ -156,12 +158,15 @@ public class MyJobService extends JobService {
     private void handleNoConnectivityJob(int jobId) {
         Log.d(SERVICE_TAG, "handle no connectivity job");
         sendMessage(MSG_RESTART, jobId);
+        updatePendingJobs(getApplicationContext());
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
         Log.d(SERVICE_TAG, "handle finished job");
         sendMessage(MSG_FINISHED, jobId);
         setCurrentItemUpdated(uri);
+        cancelFinishedPeriodicJob(getApplicationContext(), jobId);
+        updatePendingJobs(getApplicationContext());
 
         showToast("Job finished ! ! !");
     }
@@ -169,6 +174,7 @@ public class MyJobService extends JobService {
     private void handleRestartedJob(int jobId) {
         Log.d(SERVICE_TAG, " handle restarted job");
         sendMessage(MSG_RESTART, jobId);
+        updatePendingJobs(getApplicationContext());
 
         showToast("Job should be restarted ! ! !");
     }
@@ -177,8 +183,10 @@ public class MyJobService extends JobService {
         Log.d(SERVICE_TAG, "handle error job");
         sendMessage(MSG_FINISHED_WITH_ERROR, jobId);
         setCurrentItemJobEscapedWithError(uri);
+        cancelFinishedPeriodicJob(getApplicationContext(), jobId);
+        updatePendingJobs(getApplicationContext());
 
-        showToast("Job error.");
+        showToast("Job finished with error.");
     }
 
     private void sendMessage(int messageID, @Nullable Object params) {

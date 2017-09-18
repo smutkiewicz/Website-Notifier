@@ -3,36 +3,48 @@
     <integer-array
         name="delay_values_array_test">
         <item>3000</item>
+        <item>3000</item>
+        <item>6000</item>
         <item>9000</item>
+        <item>12000</item>
         <item>18000</item>
         <item>36000</item>
-        <item>21600</item>
-        <item>86400</item>
-        <item>604800</item>
-        <item>0</item>
+        <item>108000</item>
+        <item>216000</item>
+        <item>432000</item>
+        <item>864000</item>
+        <item>6048000</item>
     </integer-array>
 
     <integer-array
         name="delay_values_array">
+        <item>60000</item>
         <item>300000</item>
+        <item>600000</item>
         <item>900000</item>
+        <item>1200000</item>
         <item>1800000</item>
         <item>3600000</item>
+        <item>10800000</item>
         <item>21600000</item>
+        <item>43200000</item>
         <item>86400000</item>
         <item>604800000</item>
-        <item>0</item>
     </integer-array>
 
     <string-array name="delay_strings_array">
+        <item>1 min</item>
         <item>5 min</item>
+        <item>10 min</item>
         <item>15 min</item>
+        <item>20 min</item>
         <item>30 min</item>
         <item>1 h</item>
+        <item>3 h</item>
         <item>6 h</item>
-        <item>1 dzień</item>
+        <item>12 h</item>
+        <item>24 h</item>
         <item>7 dni</item>
-        <item>Nigdy</item>
     </string-array>
 
 </resources>

@@ -87,7 +87,7 @@
                     android:layout_column="0"
                     android:layout_gravity="center_vertical|right"
                     android:layout_row="0"
-                    android:text="5 min"/>
+                    android:text="15 min" />
 
                 <SeekBar
                     android:id="@+id/frequencySeekBar"
@@ -96,9 +96,27 @@
                     android:layout_column="1"
                     android:layout_gravity="fill_horizontal"
                     android:layout_row="0"
-                    android:max="7"
-                    android:progress="0"/>
+                    android:max="11"
+                    android:progress="4" />
             </GridLayout>
+
+            <TextView
+                android:id="@+id/infoAboutFrequencyTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/add_fragment_margin"
+                android:layout_marginLeft="@dimen/add_fragment_margin"
+                android:layout_marginRight="@dimen/add_fragment_margin"
+                android:text="@string/addedit_info_about_frequency" />
+
+            <TextView
+                android:id="@+id/infoAboutNotifyingTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/add_fragment_margin"
+                android:layout_marginRight="@dimen/add_fragment_margin"
+                android:layout_marginTop="@dimen/add_fragment_margin"
+                android:text="@string/addedit_info_about_notifying" />
         </LinearLayout>
     </ScrollView>
 

@@ -8,7 +8,7 @@
         android:summary="@string/summary_data_usage"
         android:persistent="true"/>
 
-    <SwitchPreference
+    <Preference
         android:key="pref_services_on_off"
         android:title="@string/title_services_on_off"
         android:summary="@string/summary_services_on_off"

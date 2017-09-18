@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,15 +31,14 @@ import com.smutkiewicz.pagenotifier.utilities.ScanDelayTranslator;
 
 import java.lang.ref.WeakReference;
 
-import static com.smutkiewicz.pagenotifier.service.MyJobScheduler.jobFinished;
-import static com.smutkiewicz.pagenotifier.service.MyJobScheduler.updatePendingJobs;
 import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_ID_KEY;
 import static com.smutkiewicz.pagenotifier.service.MyJobService.MESSENGER_INTENT_KEY;
 
 public class MainActivity extends AppCompatActivity
         implements AddEditItemFragment.AddEditItemFragmentListener,
         DetailsDialogFragment.DetailsDialogFragmentListener,
-        MainActivityFragment.MainActivityFragmentListener {
+        MainActivityFragment.MainActivityFragmentListener,
+        FragmentManager.OnBackStackChangedListener {
 
     // komunikacja serwisu z aktywnością
     public static final int MSG_START = 0;
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         setupPreferences();
         disableKeyboard();
         initScanDelayTranslator();
+        setNavigationUpListener();
 
         mServiceComponent = new ComponentName(this, MyJobService.class);
         mHandler = new IncomingMessageHandler(this);
@@ -135,6 +136,22 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return true;
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        shouldDisplayHomeUp();
+    }
+
+    public void shouldDisplayHomeUp() {
+        boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
     }
 
     @Override
@@ -244,6 +261,11 @@ public class MainActivity extends AppCompatActivity
         scanDelayTranslator = new ScanDelayTranslator(getApplicationContext());
     }
 
+    private void setNavigationUpListener() {
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        shouldDisplayHomeUp();
+    }
+
     private void returnToMainFragmentAndUpdateItemList() {
         getSupportFragmentManager().popBackStack();
         mainActivityFragment.updateWebsiteItemList();
@@ -276,7 +298,6 @@ public class MainActivity extends AppCompatActivity
             }
 
             int jobId = msg.getData().getInt(JOB_ID_KEY);
-            updatePendingJobs(mActivity.get().getApplicationContext());
 
             switch (msg.what) {
                 case MSG_START:
@@ -290,11 +311,9 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case MSG_FINISHED:
                     Log.d("Response MSG", "MSG_FINISHED for " + jobId);
-                    jobFinished(mActivity.get().getApplicationContext(), jobId);
                     break;
                 case MSG_FINISHED_WITH_ERROR:
                     Log.d("Response MSG", "MSG_FINISHED_WITH_ERROR " + jobId);
-                    jobFinished(mActivity.get().getApplicationContext(), jobId);
                     break;
             }
         }
