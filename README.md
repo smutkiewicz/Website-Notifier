@@ -8,6 +8,7 @@
  
 <div align="center">
    <img src="screenshots/main_ss.png" width="30%" />
+   <img src="screenshots/details_ss.png" width="30%" />
    <img src="screenshots/newtask_ss.png" width="30%" />
    <img src="screenshots/settings_ss.png" width="30%" />
 </div>

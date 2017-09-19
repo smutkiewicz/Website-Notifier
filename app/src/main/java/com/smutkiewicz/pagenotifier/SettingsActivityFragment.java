@@ -3,6 +3,7 @@ package com.smutkiewicz.pagenotifier;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.net.TrafficStats;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -15,6 +16,7 @@ import com.smutkiewicz.pagenotifier.service.MyJobService;
  */
 public class SettingsActivityFragment extends PreferenceFragment {
     //klucze preferencji
+    private static final String DATA_USAGE = "pref_data_usage";
     private static final String SERVICES = "pref_services_on_off";
     private static final String INFO = "pref_info";
 
@@ -27,6 +29,23 @@ public class SettingsActivityFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
         setOnOffServicesPrefListener();
         setInfoPreferenceListener();
+    }
+
+    private void setDataUsagePrefInfo() {
+        Preference pref = getPreferenceManager().findPreference(DATA_USAGE);
+        int uid = getActivity().getApplication().getApplicationInfo().uid;
+        long startTX = TrafficStats.getUidTxBytes(uid);
+        long startRX = TrafficStats.getUidRxBytes(uid);
+
+        if (trafficStatsSupported(startRX, startTX)) {
+            pref.setSummary(startRX + " bytes, " + startTX + " bytes ");
+        } else {
+            pref.setSummary("not supported");
+        }
+    }
+
+    private boolean trafficStatsSupported(long rx, long tx) {
+        return rx == TrafficStats.UNSUPPORTED || tx == TrafficStats.UNSUPPORTED;
     }
 
     private void setOnOffServicesPrefListener() {

@@ -11,6 +11,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -67,21 +68,16 @@ public class MyJobService extends JobService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "Service created");
-        showToast("Service created");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "Service destroyed");
-        showToast("Service destroyed");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mActivityMessenger = intent.getParcelableExtra(MESSENGER_INTENT_KEY);
-        showToast("OnStartCommand");
         return START_NOT_STICKY;
     }
 
@@ -235,7 +231,9 @@ public class MyJobService extends JobService {
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(name)
                 .setContentText(url)
-                .setContentIntent(contentIntent);
+                .setContentIntent(contentIntent)
+                .setVibrate(new long[]{1000, 1000})
+                .setSound(getNotificationSoundUri());
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setNotificationChannel();
@@ -271,5 +269,9 @@ public class MyJobService extends JobService {
         values.put(DbDescription.KEY_UPDATED, 0);
         values.put(DbDescription.KEY_ISENABLED, 0);
         getContentResolver().update(jobUri, values, null, null);
+    }
+
+    private Uri getNotificationSoundUri() {
+        return RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
     }
 }

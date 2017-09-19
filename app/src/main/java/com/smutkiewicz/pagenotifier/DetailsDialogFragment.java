@@ -50,8 +50,7 @@ public class DetailsDialogFragment extends DialogFragment
 
         findViewsAndAssignThem(detailsDialogView);
         setBuildersViewAndTitle(builder, detailsDialogView);
-        setBuildersNeutralGoToWebsiteButton(builder);
-        setBuildersDeleteNegativeButton(builder);
+        setBuildersNegativeGoToWebsiteButton(builder);
         setBuildersEditPositiveButton(builder);
         getBundleArguments();
         initLoader();
@@ -150,23 +149,11 @@ public class DetailsDialogFragment extends DialogFragment
         builder.setIcon(R.drawable.ic_web_black_24dp);
     }
 
-    private void setBuildersNeutralGoToWebsiteButton(AlertDialog.Builder builder) {
-        builder.setNeutralButton(R.string.details_goto_label,
+    private void setBuildersNegativeGoToWebsiteButton(AlertDialog.Builder builder) {
+        builder.setNegativeButton(R.string.details_goto_label,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         mListener.onGoToWebsite(url);
-                    }
-                }
-        );
-    }
-
-    private void setBuildersDeleteNegativeButton(AlertDialog.Builder builder) {
-        builder.setNegativeButton(R.string.details_delete_label,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        getActivity().getContentResolver().delete(
-                                itemUri, null, null);
-                        mListener.onDeleteItemCompleted(itemId);
                     }
                 }
         );
