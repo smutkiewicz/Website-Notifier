@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -93,6 +94,7 @@ public class AddEditItemFragment extends Fragment
 
         setUpAddEditItemFab(view);
         setFormFillListener();
+        setCheckBoxLabels();
         getBundleArgumentsAndInitLoaderIfNeeded();
         initNeededTypeOfView();
 
@@ -199,6 +201,15 @@ public class AddEditItemFragment extends Fragment
 
     private void setFormFillListener() {
         urlEditText.addTextChangedListener(new TextChangedListener());
+    }
+
+    private void setCheckBoxLabels() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // inteligentne zarządzanie zadaniami w tle dla Android Oreo
+            saveBatteryCheckBox.setText(R.string.addedit_save_battery_for_Oreo);
+        } else {
+            saveBatteryCheckBox.setText(R.string.addedit_save_battery);
+        }
     }
 
     private void getBundleArgumentsAndInitLoaderIfNeeded() {

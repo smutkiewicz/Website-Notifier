@@ -124,15 +124,12 @@ public class MyJobScheduler {
 
     private void enableSaveBatteryOptions(JobInfo.Builder builder) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // inteligentne zarządzanie zadaniami w tle dla Android Oreo
             builder.setRequiresBatteryNotLow(true);
             builder.setRequiresStorageNotLow(true);
         } else {
             builder.setRequiresDeviceIdle(true);
         }
-
-        // TODO
-        //setRequiresDeviceIdle
-        //setRequiresCharging
     }
 
     private void setJobPeriodic(JobInfo.Builder builder, long delay) {

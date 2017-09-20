@@ -41,16 +41,16 @@
     <string name="details_alerts_off">Wyłączone</string>
     <string name="details_alerts">Alerty:</string>
     <string name="content_provider_invalid_uri">nieprawidłowe Uri</string>
-    <string name="details_not_updated">Brak zmian na stronie</string>
-    <string name="details_updated">Zmiany na stronie.</string>
+    <string name="details_not_updated">Brak zmian.</string>
+    <string name="details_updated">Wykryto zmiany.</string>
     <string name="details_updates">Status:</string>
-    <string name="details_aborted">Śledzenie zmian zatrzymane przez użytkownika</string>
+    <string name="details_aborted">Śledzenie zmian zatrzymane.</string>
     <string name="details_co">Co</string>
 
     <!-- AddEditFragment -->
     <string name="addedit_name_edit_text">Nazwa zadania</string>
     <string name="addedit_address_edit_text">Adres strony</string>
-    <string name="addedit_frequency_seek_bar">Częstotliwość odświeżania strony</string>
+    <string name="addedit_frequency_seek_bar">Alerty i częstotliwość odświeżania</string>
     <string name="addedit_new_item_added">Nowa strona do śledzenia została dodana.</string>
     <string name="addedit_new_item_not_added">Nie dodano nowego obiektu.</string>
     <string name="addedit_no_name">Podaj nazwę zadania!</string>
@@ -66,7 +66,8 @@
     <string name="addedit_dont_delete_button">Anuluj</string>
     <string name="addedit_delete_button">Usuń</string>
     <string name="addedit_confirm_edit">Potwierdź edycję</string>
-    <string name="addedit_message_confirm_edit">Zadanie jest już włączone. Może być konieczny restart zadania - kontynuować?</string>
+    <string name="addedit_message_confirm_edit">
+        Zadanie jest już włączone. Może być konieczny restart zadania - kontynuować?</string>
     <string name="addedit_dont_edit_button">Odrzuć</string>
     <string name="addedit_edit_button">Potwierdź</string>
     <string name="addedit_alerts_switch">Otrzymuj powiadomienia</string>
@@ -77,6 +78,15 @@
         Kiedy wykryjemy zmianę, otrzymasz powiadomienie.
         Możesz sam zdecydować, czy chcesz je dostać na pasku powiadomień, czy nie.
     </string>
+    <string name="addedit_save_battery">
+        Oszczędzaj baterię (odświeżanie strony tylko, gdy urządzenie jest bezczynne)</string>
+    <string name="addedit_wifi">Sprawdź zmiany tylko gdy WiFi jest dostępne</string>
+    <string name="addedit_save_battery_for_Oreo">
+        Oszczędzaj baterię i pamięć (może spowodować rzadsze odświeżanie strony w zależności od stanu baterii i pamięci)
+    </string>
+    <string name="addedit_info_title_label">Informacje</string>
+    <string name="addedit_frequency_value_sample">15 min</string>
+    <string name="addedit_battery_options_info_title_label">Opcje oszczędzania baterii</string>
 
     <!-- service -->
     <string name="service_started">WebService started!</string>
@@ -97,6 +107,4 @@
                                 &#169; Aesthetic Apps Studios 2017
     </string>
     <string name="settings_info_author_title">O aplikacji</string>
-    <string name="addedit_save_battery">Włącz oszczędzanie baterii (może spowodować rzadsze odświeżanie strony w zależności od stanu baterii)</string>
-    <string name="addedit_wifi">Sprawdź zmiany tylko gdy WiFi jest dostępne</string>
 </resources>

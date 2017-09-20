@@ -121,9 +121,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (requestCode) {
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_ADD: {
-                if(permissionsGranted)
-                    displayAddEditFragment(Uri.EMPTY, R.id.fragmentContainer);
-                else
+                if(!permissionsGranted)
                     showSnackbar(getString(R.string.main_granter_write_permission_denied));
 
                 break;

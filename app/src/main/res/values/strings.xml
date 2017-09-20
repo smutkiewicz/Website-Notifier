@@ -9,7 +9,7 @@
     <string name="addedit_delete_button">Delete</string>
     <string name="addedit_dont_delete_button">Discard</string>
     <string name="addedit_dont_edit_button">Discard</string>
-    <string name="addedit_frequency_seek_bar">Refresh website frequency</string>
+    <string name="addedit_frequency_seek_bar">Alerts &amp; refresh website frequency</string>
     <string name="addedit_incorrect_url">Invalid URL!</string>
     <string name="addedit_item_deleted">The task has been deleted.</string>
     <string name="addedit_item_not_updated">The task has not been updated.</string>
@@ -27,6 +27,15 @@
         You can choose how often the site will be checked for changes.</string>
     <string name="addedit_info_about_notifying">
         When a change is detected, you will receive a notification.</string>
+    <string name="addedit_save_battery">
+        Save battery (may cause less frequent refreshing - only in idle device mode)</string>
+    <string name="addedit_wifi">Check for changes only when WiFi is enabled</string>
+    <string name="addedit_save_battery_for_Oreo">
+        Save battery and memory (may cause less frequent refreshing depending on battery and memory state)
+    </string>
+    <string name="addedit_info_title_label">Help</string>
+    <string name="addedit_frequency_value_sample">15 min</string>
+    <string name="addedit_battery_options_info_title_label">Save battery options</string>
 
 
     <string name="details_aborted">Following changes aborted by user.</string>
@@ -40,7 +49,7 @@
     <string name="details_frequency_example">every 5 minutes</string>
     <string name="details_goto_label">Go to</string>
     <string name="details_name">Name:</string>
-    <string name="details_not_updated">No changes</string>
+    <string name="details_not_updated">No changes.</string>
     <string name="details_ok_label">OK</string>
     <string name="details_sample_name">Name of the task</string>
     <string name="details_sample_website"><![CDATA[https://play.google.com/store/apps/details?id=com.smutkiewicz.soundbank]]></string>
@@ -83,6 +92,4 @@
                                 &#169; Aesthetic Apps Studios 2017
     </string>
     <string name="settings_info_author_title">About the app</string>
-    <string name="addedit_save_battery">Enable save battery options (may cause less frequent refreshing depending on battery state)</string>
-    <string name="addedit_wifi">Check for changes only when WiFi is enabled</string>
 </resources>

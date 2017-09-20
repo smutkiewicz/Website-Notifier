@@ -1,5 +1,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/addEditFrameLayout"
     android:layout_width="match_parent"
@@ -25,7 +26,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/addedit_name_edit_text"
                     android:imeOptions="actionNext"
-                    android:singleLine="true"/>
+                    android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -40,9 +41,41 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/addedit_address_edit_text"
                     android:imeOptions="actionDone"
-                    android:singleLine="true"/>
+                    android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/divider_margin"
+                android:layout_marginTop="@dimen/divider_margin"
+                android:columnCount="2"
+                android:orientation="vertical"
+                android:useDefaultMargins="true">
+
+                <ImageView
+                    android:id="@+id/frequencyIconImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_column="0"
+                    android:layout_row="0"
+                    app:srcCompat="@drawable/ic_not_updated_black_24dp"
+                    android:contentDescription="" />
+
+                <TextView
+                    android:id="@+id/frequencyTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_row="0"
+                    android:maxLines="2"
+                    android:singleLine="false"
+                    android:text="@string/addedit_frequency_seek_bar"
+                    android:textAppearance="@android:style/TextAppearance.Material.Small" />
+            </GridLayout>
 
             <Switch
                 android:id="@+id/alertsSwitch"
@@ -51,7 +84,7 @@
                 android:layout_marginBottom="@dimen/divider_margin"
                 android:layout_marginLeft="@dimen/add_fragment_margin"
                 android:layout_marginRight="@dimen/add_fragment_margin"
-                android:layout_marginTop="@dimen/divider_margin"
+                android:layout_marginTop="@dimen/add_fragment_margin"
                 android:checked="true"
                 android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
                 android:text="@string/addedit_alerts_switch"
@@ -59,23 +92,11 @@
                 android:textColor="?android:attr/textColorHint"
                 tools:checked="true" />
 
-            <TextView
-                android:id="@+id/frequencyTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/add_fragment_margin"
-                android:layout_marginLeft="@dimen/add_fragment_margin"
-                android:layout_marginRight="@dimen/add_fragment_margin"
-                android:layout_marginTop="@dimen/add_fragment_margin"
-                android:text="@string/addedit_frequency_seek_bar"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"/>
-
             <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/gridLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/divider_margin"
-                android:layout_marginTop="@dimen/divider_margin"
+                android:layout_marginBottom="@dimen/my_job_title_margin"
+                android:layout_marginTop="@dimen/my_job_title_margin"
                 android:columnCount="2"
                 android:orientation="vertical"
                 android:useDefaultMargins="true">
@@ -87,7 +108,7 @@
                     android:layout_column="0"
                     android:layout_gravity="center_vertical|right"
                     android:layout_row="0"
-                    android:text="15 min" />
+                    android:text="@string/addedit_frequency_value_sample" />
 
                 <SeekBar
                     android:id="@+id/frequencySeekBar"
@@ -98,6 +119,34 @@
                     android:layout_row="0"
                     android:max="11"
                     android:progress="4" />
+            </GridLayout>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/divider_margin"
+                android:layout_marginTop="@dimen/divider_margin"
+                android:columnCount="2"
+                android:orientation="vertical"
+                android:useDefaultMargins="true">
+
+                <ImageView
+                    android:id="@+id/batteryIconImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_row="0"
+                    app:srcCompat="@drawable/ic_battery_unknown_black_24dp"
+                    android:contentDescription="" />
+
+                <TextView
+                    android:id="@+id/batteryTextView"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_row="0"
+                    android:text="@string/addedit_battery_options_info_title_label" />
             </GridLayout>
 
             <CheckBox
@@ -114,6 +163,34 @@
                 android:layout_marginBottom="@dimen/add_fragment_margin"
                 android:layout_marginTop="@dimen/add_fragment_margin"
                 android:text="@string/addedit_wifi" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/divider_margin"
+                android:layout_marginTop="@dimen/divider_margin"
+                android:columnCount="2"
+                android:orientation="vertical"
+                android:useDefaultMargins="true">
+
+                <ImageView
+                    android:id="@+id/infoIconImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_row="0"
+                    app:srcCompat="@drawable/ic_info_black_24dp"
+                    android:contentDescription="" />
+
+                <TextView
+                    android:id="@+id/infoTextView"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_row="0"
+                    android:text="@string/addedit_info_title_label" />
+            </GridLayout>
 
             <TextView
                 android:id="@+id/infoAboutFrequencyTextView"
