@@ -1,47 +1,42 @@
  # Page Notifier
- Czêsto czekaj¹c na konkretn¹ informacjê (w moim przypadku by³y to wyniki kolokwium, czy egzaminu) na konkretnej stronie, sprawdza³em j¹ ca³kiem sporo razy na dzieñ. Proces - odpalanie przegl¹darki i szukanie na stronie informacji wyda³ mi siê mêcz¹cy (gdy robi siê to œrednio co 10 minut). Zainstalowa³em wiêc wtyczkê do Firefoxa informuj¹c¹ o zmianach na stronie. Dzia³a³a ona jednak tylko, gdy w³¹czony by³ Firefox. Potrzebujê wiêc wygodniejszego sposobu na elastyczne, szybkie i wygodne powiadamianie.
+ CzÄ™sto czekajÄ…c na konkretnÄ… informacjÄ™ (w moim przypadku byÅ‚y to wyniki kolokwium, czy egzaminu) na konkretnej stronie, sprawdzaÅ‚em jÄ… caÅ‚kiem sporo razy na dzieÅ„. Proces - odpalanie przeglÄ…darki i szukanie na stronie informacji wydaÅ‚ mi siÄ™ mÄ™czÄ…cy (gdy robi siÄ™ to Å›rednio co 10 minut). ZainstalowaÅ‚em wiÄ™c wtyczkÄ™ do Firefoxa informujÄ…cÄ… o zmianach na stronie. DziaÅ‚aÅ‚a ona jednak tylko, gdy wÅ‚Ä…czony byÅ‚ Firefox. PotrzebujÄ™ wiÄ™c wygodniejszego sposobu na elastyczne, szybkie i wygodne powiadamianie.
  
  # aplikacja
- Implementacja "sprawdzacza" w systemie Android. Aplikacja, która po wprowadzeniu szczegó³ów, bêdzie na bie¿¹co, w tle, sprawdzaæ konkretn¹ stronê w poszukiwaniu zmian od chwili wydania polecenia obserwacji.
+ Implementacja "sprawdzacza" w systemie Android. Aplikacja, ktÃ³ra po wprowadzeniu szczegÃ³Å‚Ã³w, bÄ™dzie na bieÅ¼Ä…co, w tle, sprawdzaÄ‡ konkretnÄ… stronÄ™ w poszukiwaniu zmian od chwili wydania polecenia obserwacji.
 
  # screenshoty (wersja beta 0.8)
  
 <div align="center">
-   
-	<img src="screenshots/main_ss.png" width="25%" />
-   
-	<img src="screenshots/details_ss.png" width="25%" />
-   
-	<img src="screenshots/newtask_ss.png" width="25%" />
-  
-	<img src="screenshots/settings_ss.png" width="25%" />
-
+   <img src="screenshots/main_ss.png" width="25%" />
+   <img src="screenshots/details_ss.png" width="25%" />
+   <img src="screenshots/newtask_ss.png" width="25%" />
+   <img src="screenshots/settings_ss.png" width="25%" />
 </div>
 
- # czego siê nauczy³em:
-* Systematycznego, etapowego i rozmyœlnego podejœcia do projektu - najpierw layout, potem kod UI (szkielet dzia³ania), a na koniec implementacja
-* Korzystania z ContentProviders (wygodny dostêp do bazy danych z ka¿dego miejsca w projekcie
-* Korzystania z serwisów i zasad ich dzia³ania (najpierw próbowa³em IntentService, potem okaza³o siê, ¿e JobScheduler pasuje lepiej do mojego typu zadania)
-* Improvement w projektowaniu architektury - starania w celu trzymania siê zasad rozdzielenia abstrakcji (jest sporo do poprawy, ale jest ju¿ zdecydowanie lepiej ni¿ kiedyœ)
-* Pisania lepszego kodu (zasada pojedynczej odpowiedzialnoœci, opisowe nazwy zmiennych i funkcji, usystematyzowanie !jednolitego! stylu !W KOÑCU!)
+ # czego siÄ™ nauczyÅ‚em:
+* Systematycznego, etapowego i rozmyÅ›lnego podejÅ›cia do projektu - najpierw layout, potem kod UI (szkielet dziaÅ‚ania), a na koniec implementacja
+* Korzystania z ContentProviders (wygodny dostÄ™p do bazy danych z kaÅ¼dego miejsca w projekcie
+* Korzystania z serwisÃ³w i zasad ich dziaÅ‚ania (najpierw prÃ³bowaÅ‚em IntentService, potem okazaÅ‚o siÄ™, Å¼e JobScheduler pasuje lepiej do mojego typu zadania)
+* Improvement w projektowaniu architektury - starania w celu trzymania siÄ™ zasad rozdzielenia abstrakcji (jest sporo do poprawy, ale jest juÅ¼ zdecydowanie lepiej niÅ¼ kiedyÅ›)
+* Pisania lepszego kodu (zasada pojedynczej odpowiedzialnoÅ›ci, opisowe nazwy zmiennych i funkcji, usystematyzowanie !jednolitego! stylu !W KOÅƒCU!)
 
- # czego muszê siê jeszcze nauczyæ:
-* Testy - mockowanie, Espresso, JUnit, bo wci¹¿ nie ma u mnie kultury testera: "najpierw testy - potem implementacja"
-* Wielow¹tkowoœæ - uda³o siê j¹ osi¹gn¹æ, ale to by³ ten pierwszy raz i nastêpny musi byæ lepszy!
+ # czego muszÄ™ siÄ™ jeszcze nauczyÄ‡:
+* Testy - mockowanie, Espresso, JUnit, bo wciÄ…Å¼ nie ma u mnie kultury testera: "najpierw testy - potem implementacja"
+* WielowÄ…tkowoÅ›Ä‡ - udaÅ‚o siÄ™ jÄ… osiÄ…gnÄ…Ä‡, ale to byÅ‚ ten pierwszy raz i nastÄ™pny musi byÄ‡ lepszy!
 
 
  # TODO
- * ~~Zacz¹æ~~ (Done!)
+ * ~~ZaczÄ…Ä‡~~ (Done!)
  * ~~Layout aplikacji~~ (Done!)
- * ~~Implementacja logiki UI reaguj¹cej na serwis~~ (Done!)
- * ~~Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania~~ (Done!)
- * ~~Opcja uruchomienia us³ugi porównuj¹cej stronê z dan¹ przez u¿ytkownika czêstotliwoœci¹ (dzia³aj¹cej w tle niezale¿nie od aktywnoœci g³ównej~~ (Done!)
- * ~~Opcja wys³ania powiadomienia przez us³ugê dzia³aj¹c¹ w tle~~ (Done!)
- * ~~Refactor metod do uruchamiania serwisu w MainActivity (mo¿e oddzielna klasa?)~~ (Done!)
- * ~~Logo aplikacji i t³umaczenie stringów na jêzyk angielski~~ (Done!)
- * Œledzenie pobranej iloœci danych
- * Uruchamianie zadania w zale¿noœci od dostêpnoœci WiFi lub sieci
- * Porz¹dne czyszczenie kodu - usuniêcie logów do debuggowania
+ * ~~Implementacja logiki UI reagujÄ…cej na serwis~~ (Done!)
+ * ~~Opcja dodawania itemÃ³w z adresami stron do bazy i przeglÄ…dania ich z moÅ¼liwoÅ›ciÄ… edycji i usuwania~~ (Done!)
+ * ~~Opcja uruchomienia usÅ‚ugi porÃ³wnujÄ…cej stronÄ™ z danÄ… przez uÅ¼ytkownika czÄ™stotliwoÅ›ciÄ… (dziaÅ‚ajÄ…cej w tle niezaleÅ¼nie od aktywnoÅ›ci gÅ‚Ã³wnej~~ (Done!)
+ * ~~Opcja wysÅ‚ania powiadomienia przez usÅ‚ugÄ™ dziaÅ‚ajÄ…cÄ… w tle~~ (Done!)
+ * ~~Refactor metod do uruchamiania serwisu w MainActivity (moÅ¼e oddzielna klasa?)~~ (Done!)
+ * ~~Logo aplikacji i tÅ‚umaczenie stringÃ³w na jÄ™zyk angielski~~ (Done!)
+ * ~~Uruchamianie zadania w zaleÅ¼noÅ›ci od dostÄ™pnoÅ›ci WiFi lub sieci~~ (Done!)
+ * PorzÄ…dne czyszczenie kodu - usuniÄ™cie logÃ³w do debuggowania
  * Testy testy testy i jeszcze raz testy!
+ * Åšledzenie pobranej iloÅ›ci danych
 
 
