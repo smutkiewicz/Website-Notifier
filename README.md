@@ -7,10 +7,10 @@
  # screenshoty (wersja beta 0.8)
  
 <div align="center">
-   <img src="screenshots/main_ss.png" width="25%" />
-   <img src="screenshots/details_ss.png" width="25%" />
-   <img src="screenshots/newtask_ss.png" width="25%" />
-   <img src="screenshots/settings_ss.png" width="25%" />
+   <img src="screenshots/main_ss.png" width="23%" />
+   <img src="screenshots/details_ss.png" width="23%" />
+   <img src="screenshots/newtask_ss.png" width="23%" />
+   <img src="screenshots/settings_ss.png" width="23%" />
 </div>
 
  # czego się nauczyłem:
