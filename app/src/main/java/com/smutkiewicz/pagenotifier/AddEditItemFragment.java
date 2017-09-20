@@ -25,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -62,6 +63,8 @@ public class AddEditItemFragment extends Fragment
     private Switch alertsSwitch;
     private SeekBar frequencySeekBar;
     private ProgressBar addEditProgressBar;
+    private CheckBox saveBatteryCheckBox;
+    private CheckBox networkCheckBox;
     private FloatingActionButton fab;
 
     // obserwator zmian w aktualnym zadaniu z identyfikatorem itemUri
@@ -85,6 +88,8 @@ public class AddEditItemFragment extends Fragment
         alertsSwitch = (Switch) view.findViewById(R.id.alertsSwitch);
         frequencySeekBar = (SeekBar) view.findViewById(R.id.frequencySeekBar);
         addEditProgressBar = (ProgressBar) view.findViewById(R.id.addEditProgressBar);
+        saveBatteryCheckBox = (CheckBox) view.findViewById(R.id.saveBatteryCheckBox);
+        networkCheckBox = (CheckBox) view.findViewById(R.id.networkCheckBox);
 
         setUpAddEditItemFab(view);
         setFormFillListener();
@@ -153,13 +158,20 @@ public class AddEditItemFragment extends Fragment
             int alertsIndex = data.getColumnIndex(DbDescription.KEY_ALERTS);
             int freqIndex = data.getColumnIndex(DbDescription.KEY_DELAY);
             int isEnabledIndex = data.getColumnIndex(DbDescription.KEY_ISENABLED);
+            int onlyWifiIndex = data.getColumnIndex(DbDescription.KEY_ONLY_WIFI);
+            int saveBatteryIndex = data.getColumnIndex(DbDescription.KEY_SAVE_BATTERY);
+
             int isEnabledValue = data.getInt(isEnabledIndex);
+            int onlyWifiValue = data.getInt(onlyWifiIndex);
+            int saveBatteryValue = data.getInt(saveBatteryIndex);
 
             setItemId(data.getInt(idIndex));
             setNameAndUrlTextViews(data.getString(nameIndex), data.getString(urlIndex));
             setAlertsSwitchState(data.getInt(alertsIndex));
             setFrequencyStepValueLabelAndListener(data.getInt(freqIndex));
             setIsEnabled(isEnabledValue == 1);
+            setSaveBatteryOptions(saveBatteryValue == 1);
+            setNetworkOptions(onlyWifiValue == 1);
             hideLoaderProgressBar();
         }
     }
@@ -243,6 +255,14 @@ public class AddEditItemFragment extends Fragment
 
     private void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    private void setSaveBatteryOptions(boolean saveBattery) {
+        saveBatteryCheckBox.setChecked(saveBattery);
+    }
+
+    private void setNetworkOptions(boolean onlyWifi) {
+        networkCheckBox.setChecked(onlyWifi);
     }
 
     private void hideLoaderProgressBar() {
@@ -403,6 +423,13 @@ public class AddEditItemFragment extends Fragment
             return 0;
     }
 
+    private int getCheckBoxState(CheckBox box) {
+        if(box.isChecked())
+            return 1;
+        else
+            return 0;
+    }
+
     private void showSnackbar(int messageId) {
         Snackbar.make(addEditFrameLayout,
                 messageId, Snackbar.LENGTH_LONG).show();
@@ -458,6 +485,10 @@ public class AddEditItemFragment extends Fragment
                 getAlertsSwitchState());
         contentValues.put(DbDescription.KEY_DELAY,
                 frequencySeekBar.getProgress());
+        contentValues.put(DbDescription.KEY_SAVE_BATTERY,
+                getCheckBoxState(saveBatteryCheckBox));
+        contentValues.put(DbDescription.KEY_ONLY_WIFI,
+                getCheckBoxState(networkCheckBox));
         return contentValues;
     }
 

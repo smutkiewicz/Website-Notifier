@@ -27,7 +27,9 @@ public class WebsiteDatabaseHelper extends SQLiteOpenHelper {
                         DbDescription.KEY_ALERTS + " " + DbDescription.ALERTS_OPTIONS + ", " +
                         DbDescription.KEY_DELAY + " " + DbDescription.DELAY_OPTIONS + ", " +
                         DbDescription.KEY_UPDATED + " " + DbDescription.UPDATED_OPTIONS + ", " +
-                        DbDescription.KEY_ISENABLED + " " + DbDescription.ISENABLED_OPTIONS +
+                        DbDescription.KEY_ISENABLED + " " + DbDescription.ISENABLED_OPTIONS + ", " +
+                        DbDescription.KEY_SAVE_BATTERY + " " + DbDescription.SAVE_BATTERY_OPTIONS + ", " +
+                        DbDescription.KEY_ONLY_WIFI + " " + DbDescription.ONLY_WIFI_OPTIONS +
                 ");";
         return createTable;
     }

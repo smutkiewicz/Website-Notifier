@@ -16,10 +16,10 @@ public class JobFactory {
         String url = contentValues.getAsString(DbDescription.KEY_URL);
         int delayStep = contentValues.getAsInteger(DbDescription.KEY_DELAY);
 
-        int alerts = contentValues.getAsInteger(DbDescription.KEY_ALERTS);
-        boolean alertsEnabled = (alerts == 1);
-
-        return new Job(id, uri, delayStep, name, url, alertsEnabled);
+        return new Job(id, uri, delayStep, name, url,
+                getBooleanValueFromContentValue(contentValues, DbDescription.KEY_ALERTS),
+                getBooleanValueFromContentValue(contentValues, DbDescription.KEY_SAVE_BATTERY),
+                getBooleanValueFromContentValue(contentValues, DbDescription.KEY_ONLY_WIFI));
     }
 
     public Job produceJobFromACursor(Cursor cursor, Uri uri) {
@@ -28,9 +28,19 @@ public class JobFactory {
         String url = cursor.getString(cursor.getColumnIndex(DbDescription.KEY_URL));
         int delayStep = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_DELAY));
 
-        int alerts = cursor.getInt(cursor.getColumnIndex(DbDescription.KEY_ALERTS));
-        boolean alertsEnabled = (alerts == 1);
+        return new Job(id, uri, delayStep, name, url,
+                getBooleanValueFromACursor(cursor, DbDescription.KEY_ALERTS),
+                getBooleanValueFromACursor(cursor, DbDescription.KEY_SAVE_BATTERY),
+                getBooleanValueFromACursor(cursor, DbDescription.KEY_ONLY_WIFI));
+    }
 
-        return new Job(id, uri, delayStep, name, url, alertsEnabled);
+    private boolean getBooleanValueFromACursor(Cursor cursor, String key) {
+        int value = cursor.getInt(cursor.getColumnIndex(key));
+        return (value == 1);
+    }
+
+    private boolean getBooleanValueFromContentValue(ContentValues values, String key) {
+        int value = values.getAsInteger(key);
+        return (value == 1);
     }
 }

@@ -71,14 +71,14 @@
                 android:textAppearance="@android:style/TextAppearance.Material.Small"/>
 
             <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:id="@+id/colorDialogGridLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginBottom="@dimen/divider_margin"
-                        android:layout_marginTop="@dimen/divider_margin"
-                        android:columnCount="2"
-                        android:orientation="vertical"
-                        android:useDefaultMargins="true">
+                android:id="@+id/gridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/divider_margin"
+                android:layout_marginTop="@dimen/divider_margin"
+                android:columnCount="2"
+                android:orientation="vertical"
+                android:useDefaultMargins="true">
 
                 <TextView
                     android:id="@+id/freqValueTextView"
@@ -100,6 +100,21 @@
                     android:progress="4" />
             </GridLayout>
 
+            <CheckBox
+                android:id="@+id/saveBatteryCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/add_fragment_margin"
+                android:text="@string/addedit_save_battery" />
+
+            <CheckBox
+                android:id="@+id/networkCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/add_fragment_margin"
+                android:layout_marginTop="@dimen/add_fragment_margin"
+                android:text="@string/addedit_wifi" />
+
             <TextView
                 android:id="@+id/infoAboutFrequencyTextView"
                 android:layout_width="match_parent"
@@ -107,6 +122,7 @@
                 android:layout_marginBottom="@dimen/add_fragment_margin"
                 android:layout_marginLeft="@dimen/add_fragment_margin"
                 android:layout_marginRight="@dimen/add_fragment_margin"
+                android:layout_marginTop="@dimen/add_fragment_margin"
                 android:text="@string/addedit_info_about_frequency" />
 
             <TextView

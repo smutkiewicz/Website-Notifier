@@ -20,7 +20,6 @@ import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_ALERTS_KEY;
 import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_NAME_KEY;
 import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_URI_KEY;
 import static com.smutkiewicz.pagenotifier.service.MyJobService.JOB_URL_KEY;
-import static com.smutkiewicz.pagenotifier.service.MyJobService.WORK_DURATION_KEY;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getOldFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
 
@@ -40,20 +39,13 @@ public class MyJobScheduler {
     public void scheduleJob(Job job) {
         Log.d(SCHEDULER_TAG, "Scheduling job");
 
-        // sample values
-        boolean requiresUnmetered = job.requiresUnmetered; // wymaga połączenia tylko przez WiFi
-        boolean requiresAnyConnectivity = job.requiresAnyConnectivity; // wymaga WiFi lub czegokolwiek
-
         // build Job for JobService
         JobInfo.Builder builder = new JobInfo.Builder(job.id, mServiceComponent);
-        builder.setRequiresDeviceIdle(job.requiresIdle);
-        builder.setRequiresCharging(job.requiresCharging);
         setJobPeriodic(builder, job.delay);
+        setPreferredNetworkType(builder, job.requiresWifi);
 
-        if (requiresUnmetered) {
-            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
-        } else if (requiresAnyConnectivity) {
-            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+        if(job.saveBatteryOptions) {
+            enableSaveBatteryOptions(builder);
         }
 
         // put extras for service
@@ -61,15 +53,16 @@ public class MyJobScheduler {
         builder.setExtras(extras);
 
         // schedule
-        JobScheduler service =
-                (JobScheduler) mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobScheduler service = getSystemJobScheduler();
         service.schedule(builder.build());
 
         // handle pre job tasks
         initPreJobTasks(job);
 
         showToast(mContext.getString(R.string.job_scheduler_scheduling_job)
-                + " delay: " + job.delay);
+                + " delay: " + job.delay
+                + " req WiFi: " + job.requiresWifi
+                + " save " + job.saveBatteryOptions);
         updatePendingJobs(mContext);
     }
 
@@ -101,6 +94,7 @@ public class MyJobScheduler {
 
         if (allPendingJobs.size() > 0) {
             jobScheduler.cancel(jobId);
+            updatePendingJobs(context);
             Log.d(SCHEDULER_TAG, "Forcing cancel succeded");
         } else {
             Log.d(SCHEDULER_TAG, "Forcing cancel failed");
@@ -128,21 +122,36 @@ public class MyJobScheduler {
         }
     }
 
-    private void setJobPeriodic(JobInfo.Builder builder, long delay) {
-        // obsługa różnicy w funkcjonowaniu serwisu na API > 23
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // TODO periodic for >= N problem
-            builder.setPeriodic(delay, delay);
+    private void enableSaveBatteryOptions(JobInfo.Builder builder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setRequiresBatteryNotLow(true);
+            builder.setRequiresStorageNotLow(true);
         } else {
-            builder.setPeriodic(delay);
+            builder.setRequiresDeviceIdle(true);
         }
 
+        // TODO
+        //setRequiresDeviceIdle
+        //setRequiresCharging
+    }
+
+    private void setJobPeriodic(JobInfo.Builder builder, long delay) {
+        builder.setPeriodic(delay);
         builder.setPersisted(true);
+    }
+
+    private void setPreferredNetworkType(JobInfo.Builder builder, boolean requiresWifi) {
+        if (requiresWifi) {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+            Log.d("NETWORK", "NETWORK_TYPE_UNMETERED");
+        } else {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+            Log.d("NETWORK", "NETWORK_TYPE_ANY");
+        }
     }
 
     private PersistableBundle putExtrasToAPersistableBundle(Job job) {
         PersistableBundle extras = new PersistableBundle();
-        extras.putLong(WORK_DURATION_KEY, job.workDuration);
         //do ustawienia powiadomienia
         extras.putString(JOB_NAME_KEY, job.name);
         extras.putString(JOB_URL_KEY, job.url);

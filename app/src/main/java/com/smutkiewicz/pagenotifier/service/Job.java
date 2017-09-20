@@ -6,14 +6,13 @@ import com.smutkiewicz.pagenotifier.MainActivity;
 
 public class Job {
     // default values
-    public boolean requiresUnmetered = false; // WiFi Connectivity
-    public boolean requiresAnyConnectivity = true; // Any Connectivity
+    public boolean requiresWifi = false; // WiFi Connectivity
+    public boolean alertsEnabled = true;
+    public boolean saveBatteryOptions = false;
     public boolean requiresIdle = false;
     public boolean requiresCharging = false;
-    public boolean alertsEnabled = true;
 
     public final long delay;
-    public final long workDuration;
     public final long deadline;
 
     public final String name;
@@ -29,7 +28,6 @@ public class Job {
         this.delay =
                 MainActivity.scanDelayTranslator
                         .putStepAndReturnItsValueInMilliseconds(delayStep);
-        this.workDuration = 5000;
         this.deadline = this.delay;
         this.alertsEnabled = alertsEnabled;
     }
@@ -42,8 +40,22 @@ public class Job {
         this.delay =
                 MainActivity.scanDelayTranslator
                         .putStepAndReturnItsValueInMilliseconds(delayStep);
-        this.workDuration = 5000;
         this.deadline = this.delay;
         this.alertsEnabled = alertsEnabled;
+    }
+
+    public Job(int id, Uri uri, int delayStep, String name, String url, boolean alertsEnabled,
+               boolean saveBattery, boolean onlyWifi) {
+        this.id = id;
+        this.uri = uri;
+        this.name = name;
+        this.url = url;
+        this.delay =
+                MainActivity.scanDelayTranslator
+                        .putStepAndReturnItsValueInMilliseconds(delayStep);
+        this.deadline = this.delay;
+        this.alertsEnabled = alertsEnabled;
+        this.requiresWifi = onlyWifi;
+        this.saveBatteryOptions = saveBattery;
     }
 }

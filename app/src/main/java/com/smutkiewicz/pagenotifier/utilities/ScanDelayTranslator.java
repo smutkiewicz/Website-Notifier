@@ -1,6 +1,7 @@
 package com.smutkiewicz.pagenotifier.utilities;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.smutkiewicz.pagenotifier.R;
 
@@ -26,8 +27,18 @@ public class ScanDelayTranslator {
     }
 
     private void getArraysFromResources(Context context) {
-        stepsNameArray = context.getResources().getStringArray(R.array.delay_strings_array);
-        stepsValuesInMilliseconds = context.getResources().getIntArray(R.array.delay_values_array);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // dla Android >= Nougat stosujemy inną minimalną wartość częstotliwości sprawdzania
+            stepsNameArray =
+                    context.getResources().getStringArray(R.array.delay_strings_array_for_Nougat);
+            stepsValuesInMilliseconds =
+                    context.getResources().getIntArray(R.array.delay_values_array_for_Nougat);
+        } else {
+            stepsNameArray =
+                    context.getResources().getStringArray(R.array.delay_strings_array);
+            stepsValuesInMilliseconds =
+                    context.getResources().getIntArray(R.array.delay_values_array);
+        }
     }
 
     private void initStepAndNameMap() {

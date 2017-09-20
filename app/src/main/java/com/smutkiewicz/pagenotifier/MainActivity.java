@@ -197,7 +197,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onEditItemThatNeedsRestartingCompleted(Job job) {
         returnToMainFragmentAndUpdateItemList();
-        showSnackbar("Restarting job " + job.id);
         mJobScheduler.resetJob(job);
     }
 
@@ -210,8 +209,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onToggleAction(Job job, boolean isSchedulingNeeded) {
-        // obsługujemy akcję wciśnięcia toggle buttona przez użytkownika
-        Log.d("Response", "on toggle");
         if(isSchedulingNeeded)
             mJobScheduler.scheduleJob(job);
         else

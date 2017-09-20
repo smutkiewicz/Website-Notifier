@@ -50,8 +50,6 @@ public class MyJobService extends JobService {
     // zestaw stałych do obsługi dołączania Extras dla serwisu
     public static final String MESSENGER_INTENT_KEY
             = BuildConfig.APPLICATION_ID + ".MESSENGER_INTENT_KEY";
-    public static final String WORK_DURATION_KEY =
-            BuildConfig.APPLICATION_ID + ".WORK_DURATION_KEY";
     public static final String JOB_NAME_KEY =
             BuildConfig.APPLICATION_ID + ".JOB_NAME_KEY";
     public static final String JOB_URL_KEY =
@@ -139,14 +137,12 @@ public class MyJobService extends JobService {
             }
         });
 
-        showToast("On Start Job " + jobId);
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
         sendMessage(MSG_STOP, params.getJobId());
-        showToast("Job " + params.getJobId() + " stopped ! ! !");
 
         return false;
     }
@@ -164,7 +160,7 @@ public class MyJobService extends JobService {
         cancelFinishedPeriodicJob(getApplicationContext(), jobId);
         updatePendingJobs(getApplicationContext());
 
-        showToast("Job finished ! ! !");
+        showToast("Job " + jobId + " finished.");
     }
 
     private void handleRestartedJob(int jobId) {
@@ -172,7 +168,7 @@ public class MyJobService extends JobService {
         sendMessage(MSG_RESTART, jobId);
         updatePendingJobs(getApplicationContext());
 
-        showToast("Job should be restarted ! ! !");
+        showToast("Job " + jobId + " should be restarted.");
     }
 
     private void handleErrorJob(int jobId, Uri uri) {
@@ -182,7 +178,7 @@ public class MyJobService extends JobService {
         cancelFinishedPeriodicJob(getApplicationContext(), jobId);
         updatePendingJobs(getApplicationContext());
 
-        showToast("Job finished with error.");
+        showToast("Job " + jobId + " finished with error.");
     }
 
     private void sendMessage(int messageID, @Nullable Object params) {

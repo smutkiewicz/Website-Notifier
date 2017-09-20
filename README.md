@@ -4,13 +4,18 @@
  # aplikacja
  Implementacja "sprawdzacza" w systemie Android. Aplikacja, która po wprowadzeniu szczegó³ów, bêdzie na bie¿¹co, w tle, sprawdzaæ konkretn¹ stronê w poszukiwaniu zmian od chwili wydania polecenia obserwacji.
 
- # screenshoty (wczesna beta)
+ # screenshoty (wersja beta 0.8)
  
 <div align="center">
-   <img src="screenshots/main_ss.png" width="30%" />
-   <img src="screenshots/details_ss.png" width="30%" />
-   <img src="screenshots/newtask_ss.png" width="30%" />
-   <img src="screenshots/settings_ss.png" width="30%" />
+   
+	<img src="screenshots/main_ss.png" width="25%" />
+   
+	<img src="screenshots/details_ss.png" width="25%" />
+   
+	<img src="screenshots/newtask_ss.png" width="25%" />
+  
+	<img src="screenshots/settings_ss.png" width="25%" />
+
 </div>
 
  # czego siê nauczy³em:
@@ -25,18 +30,18 @@
 * Wielow¹tkowoœæ - uda³o siê j¹ osi¹gn¹æ, ale to by³ ten pierwszy raz i nastêpny musi byæ lepszy!
 
 
-  # TODO
+ # TODO
  * ~~Zacz¹æ~~ (Done!)
  * ~~Layout aplikacji~~ (Done!)
  * ~~Implementacja logiki UI reaguj¹cej na serwis~~ (Done!)
  * ~~Opcja dodawania itemów z adresami stron do bazy i przegl¹dania ich z mo¿liwoœci¹ edycji i usuwania~~ (Done!)
  * ~~Opcja uruchomienia us³ugi porównuj¹cej stronê z dan¹ przez u¿ytkownika czêstotliwoœci¹ (dzia³aj¹cej w tle niezale¿nie od aktywnoœci g³ównej~~ (Done!)
  * ~~Opcja wys³ania powiadomienia przez us³ugê dzia³aj¹c¹ w tle~~ (Done!)
- * Porz¹dne czyszczenie kodu - usuniêcie logów do debuggowania
  * ~~Refactor metod do uruchamiania serwisu w MainActivity (mo¿e oddzielna klasa?)~~ (Done!)
+ * ~~Logo aplikacji i t³umaczenie stringów na jêzyk angielski~~ (Done!)
  * Œledzenie pobranej iloœci danych
  * Uruchamianie zadania w zale¿noœci od dostêpnoœci WiFi lub sieci
- * Logo aplikacji i t³umaczenie stringów na jêzyk angielski
+ * Porz¹dne czyszczenie kodu - usuniêcie logów do debuggowania
  * Testy testy testy i jeszcze raz testy!
 
 

@@ -97,4 +97,6 @@
                                 &#169; Aesthetic Apps Studios 2017
     </string>
     <string name="settings_info_author_title">O aplikacji</string>
+    <string name="addedit_save_battery">Włącz oszczędzanie baterii (może spowodować rzadsze odświeżanie strony w zależności od stanu baterii)</string>
+    <string name="addedit_wifi">Sprawdź zmiany tylko gdy WiFi jest dostępne</string>
 </resources>

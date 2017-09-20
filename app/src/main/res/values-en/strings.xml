@@ -84,4 +84,6 @@
                                 &#169; Aesthetic Apps Studios 2017
     </string>
     <string name="settings_info_author_title">About the app</string>
+    <string name="addedit_save_battery">Enable save battery options (may cause less frequent refreshing depending on battery state)</string>
+    <string name="addedit_wifi">Check for changes only when WiFi is enabled</string>
 </resources>
