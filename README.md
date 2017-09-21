@@ -1,4 +1,4 @@
- # Page Notifier
+﻿ # Page Notifier
  Często czekając na konkretną informację (w moim przypadku były to wyniki kolokwium, czy egzaminu) na konkretnej stronie, sprawdzałem ją całkiem sporo razy na dzień. Proces - odpalanie przeglądarki i szukanie na stronie informacji wydał mi się męczący (gdy robi się to średnio co 10 minut). Zainstalowałem więc wtyczkę do Firefoxa informującą o zmianach na stronie. Działała ona jednak tylko, gdy włączony był Firefox. Potrzebuję więc wygodniejszego sposobu na elastyczne, szybkie i wygodne powiadamianie.
  
  # aplikacja
@@ -7,10 +7,10 @@
  # screenshoty (wersja beta 0.8)
  
 <div align="center">
-   <img src="screenshots/main_ss.png" width="23%" />
+   <img src="screenshots/main_ss_beta.png" width="23%" />
    <img src="screenshots/details_ss.png" width="23%" />
-   <img src="screenshots/newtask_ss.png" width="23%" />
-   <img src="screenshots/settings_ss.png" width="23%" />
+   <img src="screenshots/newtask_ss_beta.png" width="23%" />
+   <img src="screenshots/settings_ss_beta.png" width="23%" />
 </div>
 
  # czego się nauczyłem:
