@@ -16,7 +16,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -121,8 +120,6 @@ public class MainActivityFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String where = buildWhereClause();
-        if(where != null)
-            Log.d("TAG", where);
 
         switch (id) {
             case WEBSITE_ITEMS_LOADER:

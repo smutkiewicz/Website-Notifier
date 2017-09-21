@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_ADD: {
                 if(!permissionsGranted)
                     showSnackbar(getString(R.string.main_granter_write_permission_denied));
-
                 break;
             }
             case PermissionGranter.WRITE_READ_PERMISSIONS_FOR_EDIT: {
@@ -190,6 +189,11 @@ public class MainActivity extends AppCompatActivity
     public void onEditItemCompleted() {
         // po edycji nie wymuszamy od razu startu nowego zadania
         returnToMainFragmentAndUpdateItemList();
+    }
+
+    @Override
+    public void onUserEscaped() {
+        getSupportFragmentManager().popBackStack();
     }
 
     @Override

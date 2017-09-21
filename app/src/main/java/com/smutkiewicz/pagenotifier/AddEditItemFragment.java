@@ -321,7 +321,13 @@ public class AddEditItemFragment extends Fragment
                 new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.addedit_confirm_edit);
         builder.setMessage(R.string.addedit_message_confirm_edit);
-        builder.setNegativeButton(R.string.addedit_dont_edit_button, null);
+        builder.setNegativeButton(R.string.addedit_dont_edit_button,
+                new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    mListener.onUserEscaped();
+                }
+        });
         builder.setPositiveButton(R.string.addedit_edit_button,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -508,6 +514,7 @@ public class AddEditItemFragment extends Fragment
         void onEditItemCompleted();
         void onEditItemThatNeedsRestartingCompleted(Job job);
         void onDeleteItemCompleted(int jobId);
+        void onUserEscaped();
     }
 
     private class TextChangedListener implements TextWatcher {

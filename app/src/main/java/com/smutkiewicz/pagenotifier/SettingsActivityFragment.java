@@ -1,64 +1,23 @@
 package com.smutkiewicz.pagenotifier;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
-import android.net.TrafficStats;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-
-import com.smutkiewicz.pagenotifier.service.MyJobScheduler;
-import com.smutkiewicz.pagenotifier.service.MyJobService;
 
 /**
  * Fragment do obsługi ustawień.
  */
 public class SettingsActivityFragment extends PreferenceFragment {
     //klucze preferencji
-    private static final String DATA_USAGE = "pref_data_usage";
-    private static final String SERVICES = "pref_services_on_off";
     private static final String INFO = "pref_info";
-
-    private ComponentName mServiceComponent;
-    private MyJobScheduler mJobScheduler;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.preferences);
-        setOnOffServicesPrefListener();
         setInfoPreferenceListener();
-    }
-
-    private void setDataUsagePrefInfo() {
-        Preference pref = getPreferenceManager().findPreference(DATA_USAGE);
-        int uid = getActivity().getApplication().getApplicationInfo().uid;
-        long startTX = TrafficStats.getUidTxBytes(uid);
-        long startRX = TrafficStats.getUidRxBytes(uid);
-
-        if (trafficStatsSupported(startRX, startTX)) {
-            pref.setSummary(startRX + " bytes, " + startTX + " bytes ");
-        } else {
-            pref.setSummary("not supported");
-        }
-    }
-
-    private boolean trafficStatsSupported(long rx, long tx) {
-        return rx == TrafficStats.UNSUPPORTED || tx == TrafficStats.UNSUPPORTED;
-    }
-
-    private void setOnOffServicesPrefListener() {
-        Preference onOff = getPreferenceManager().findPreference(SERVICES);
-        onOff.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                if (preference.getKey().equals(SERVICES)) {
-                    //TODO SERVICES
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     private void setInfoPreferenceListener() {
@@ -72,12 +31,6 @@ public class SettingsActivityFragment extends PreferenceFragment {
                 return false;
             }
         });
-    }
-
-    private void setupJobScheduler() {
-        mServiceComponent = new ComponentName(getActivity(), MyJobService.class);
-        mJobScheduler = new MyJobScheduler(getActivity().getApplicationContext(),
-                mServiceComponent, getActivity());
     }
 
     private void onInfoPreferenceClicked() {

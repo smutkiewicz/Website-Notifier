@@ -41,12 +41,13 @@ public class MyJobScheduler {
 
         // build Job for JobService
         JobInfo.Builder builder = new JobInfo.Builder(job.id, mServiceComponent);
-        setJobPeriodic(builder, job.delay);
         setPreferredNetworkType(builder, job.requiresWifi);
 
         if(job.saveBatteryOptions) {
             enableSaveBatteryOptions(builder);
         }
+
+        setJobPeriodic(builder, job.delay);
 
         // put extras for service
         PersistableBundle extras = putExtrasToAPersistableBundle(job);
@@ -58,11 +59,6 @@ public class MyJobScheduler {
 
         // handle pre job tasks
         initPreJobTasks(job);
-
-        showToast(mContext.getString(R.string.job_scheduler_scheduling_job)
-                + " delay: " + job.delay
-                + " req WiFi: " + job.requiresWifi
-                + " save " + job.saveBatteryOptions);
         updatePendingJobs(mContext);
     }
 

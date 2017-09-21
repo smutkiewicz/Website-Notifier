@@ -3,19 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
-        android:key="pref_data_usage"
-        android:title="@string/title_data_usage"
-        android:summary="@string/summary_data_usage"
-        android:persistent="true"/>
-
-    <Preference
-        android:key="pref_services_on_off"
-        android:title="@string/title_services_on_off"
-        android:summary="@string/summary_services_on_off"
-        android:persistent="true"
-        />
-
-    <Preference
         android:key="pref_info"
         android:title="@string/title_info"
         android:summary="@string/summary_author"

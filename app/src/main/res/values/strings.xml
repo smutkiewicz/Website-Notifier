@@ -76,7 +76,7 @@
     <string name="service_started">WebService started!</string>
     <string name="service_stopped">WebService stopped!</string>
     <string name="service_website_updated">Changes on website!</string>
-    <string name="summary_author">Version 0.8 alpha, Michał Smutkiewicz</string>
+    <string name="summary_author">Version 0.8 beta, Michał Smutkiewicz</string>
     <string name="summary_data_usage">Control app\'s data usage</string>
     <string name="summary_services_on_off">On/off following all websites</string>
 
