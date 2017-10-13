@@ -38,7 +38,6 @@ import static com.smutkiewicz.pagenotifier.service.MyJobScheduler.updatePendingJ
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.checkForChanges;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.getNewFilePath;
 import static com.smutkiewicz.pagenotifier.service.ResponseMatcher.saveFile;
-import static com.smutkiewicz.pagenotifier.utilities.MyConnectivityManager.isAnyNetworkConnectionAvailable;
 
 public class MyJobService extends JobService {
     private static final String TAG = MyJobService.class.getSimpleName();
@@ -90,14 +89,6 @@ public class MyJobService extends JobService {
         final Uri uri = Uri.parse(params.getExtras().getString(JOB_URI_KEY));
         final boolean alertsEnabled = (alerts == 1);
 
-        if(!isAnyNetworkConnectionAvailable(getApplicationContext())) {
-            Log.d(SERVICE_TAG,
-                    "New task - downloading new website: no connectivity available");
-            handleNoConnectivityJob(jobId);
-            jobFinished(params, false);
-            return true;
-        }
-
         Handler jobHandler = new Handler();
         jobHandler.post(new Runnable() {
             @Override
@@ -129,7 +120,7 @@ public class MyJobService extends JobService {
                         Log.d(SERVICE_TAG,
                                 "New task - downloading new website: error");
                         handleErrorJob(jobId, uri);
-                        jobFinished(params, true);
+                        jobFinished(params, false);
                     }
                 });
 
@@ -145,12 +136,6 @@ public class MyJobService extends JobService {
         sendMessage(MSG_STOP, params.getJobId());
 
         return false;
-    }
-
-    private void handleNoConnectivityJob(int jobId) {
-        Log.d(SERVICE_TAG, "handle no connectivity job");
-        sendMessage(MSG_RESTART, jobId);
-        updatePendingJobs(getApplicationContext());
     }
 
     private void handleFinishedJob(int jobId, Uri uri) {
@@ -174,8 +159,6 @@ public class MyJobService extends JobService {
     private void handleErrorJob(int jobId, Uri uri) {
         Log.d(SERVICE_TAG, "handle error job");
         sendMessage(MSG_FINISHED_WITH_ERROR, jobId);
-        setCurrentItemJobEscapedWithError(uri);
-        cancelFinishedPeriodicJob(getApplicationContext(), jobId);
         updatePendingJobs(getApplicationContext());
 
         showToast("Job " + jobId + " finished with error.");
@@ -256,13 +239,6 @@ public class MyJobService extends JobService {
     private void setCurrentItemUpdated(Uri jobUri) {
         ContentValues values = new ContentValues();
         values.put(DbDescription.KEY_UPDATED, 1);
-        values.put(DbDescription.KEY_ISENABLED, 0);
-        getContentResolver().update(jobUri, values, null, null);
-    }
-
-    private void setCurrentItemJobEscapedWithError(Uri jobUri) {
-        ContentValues values = new ContentValues();
-        values.put(DbDescription.KEY_UPDATED, 0);
         values.put(DbDescription.KEY_ISENABLED, 0);
         getContentResolver().update(jobUri, values, null, null);
     }
