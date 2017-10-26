@@ -51,9 +51,8 @@ public class MainActivityFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        RecyclerView recyclerView =
-                (RecyclerView) view.findViewById(R.id.recyclerView);
-        searchEditText = (EditText) view.findViewById(R.id.searchEditText);
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+        searchEditText = view.findViewById(R.id.searchEditText);
 
         setHasOptionsMenu(true);
         setUpAddItemFab(view);
@@ -177,13 +176,31 @@ public class MainActivityFragment extends Fragment
     }
 
     private void setUpRecyclerView(RecyclerView recyclerView) {
-        // wyświetlanie elementów w formie pionowej listy
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(getActivity().getBaseContext()));
+        final LinearLayoutManager layoutManager =
+                new LinearLayoutManager(getActivity().getBaseContext());
+
+        recyclerView.setLayoutManager(layoutManager);
         implementAdapterItemClickListener();
         recyclerView.setAdapter(itemAdapter);
         recyclerView.addItemDecoration(new ItemDivider(getContext()));
         recyclerView.setHasFixedSize(true);
+        RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                boolean canScrollDown = recyclerView.canScrollVertically(1); // scrolling down
+                boolean canScrollUp = recyclerView.canScrollVertically(-1); // scrolling up
+
+                if(!canScrollDown) {
+                    if(canScrollUp) {
+                        fab.hide();
+                    }
+                } else {
+                    fab.show();
+                }
+            }
+        };
+        recyclerView.setOnScrollListener(scrollListener);
     }
 
     private void implementAdapterItemClickListener() {
